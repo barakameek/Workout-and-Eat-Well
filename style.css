@@ -1,5 +1,67 @@
 /* Import a Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Nunito:wght@300;400;600;700&display=swap');
+
+/* --- CSS Variables for Theming --- */
+:root {
+    /* Default to Dark Theme Variables */
+    --bg-primary: #1a1d24;
+    --bg-secondary: #252a34;
+    --bg-tertiary: #2c313c;
+    --bg-quaternary: #343a45; /* For cards, list items */
+    --bg-input: #1f232a;
+
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #777;
+    --text-placeholder: #6c757d;
+
+    --border-primary: #3a3f4b;
+    --border-secondary: #4a4f5b;
+    --border-accent: #005bea;
+
+    --accent-primary: #00c6fb;
+    --accent-secondary: #007bff;
+    --accent-success: #28a745; /* Green */
+    --accent-danger: #ff4d4d; /* Red */
+    --accent-warning: #ffc107; /* Yellow */
+
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --shadow-light: rgba(0,0,0,0.1);
+
+    --font-primary: 'Roboto', sans-serif;
+    --font-headings: 'Nunito', sans-serif; /* A slightly rounder font for headings */
+
+    /* Cute accent colors (can be used selectively) */
+    --cute-pink: #ff7eb9;
+    --cute-lavender: #b5a7ff;
+    --cute-mint: #a0ffe6;
+}
+
+body.theme-light {
+    /* Light Theme Variable Overrides */
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #e9ecef;
+    --bg-quaternary: #f1f3f5;
+    --bg-input: #fdfdfe;
+
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-muted: #6c757d;
+    --text-placeholder: #adb5bd;
+
+    --border-primary: #ced4da;
+    --border-secondary: #dee2e6;
+    --border-accent: #007bff;
+
+    --accent-primary: #007bff; /* Standard blue for light theme */
+    --accent-secondary: #0056b3;
+    /* Keep success, danger, warning same or adjust for light theme contrast */
+
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-light: rgba(0,0,0,0.05);
+}
+
 
 /* --- Global Resets & Base Styles --- */
 *,
@@ -11,20 +73,21 @@
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: var(--font-primary);
     line-height: 1.6;
-    background-color: #1a1d24; /* Dark background */
-    color: #e0e0e0; /* Light text color */
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding-top: 120px; /* Increased space for fixed header + tabs */
+    padding-top: 125px; /* Adjust based on header height */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* --- Header --- */
 header {
-    background: linear-gradient(90deg, #005bea, #00c6fb);
-    color: #ffffff;
+    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+    color: #ffffff; /* Header text always white for contrast with gradient */
     padding: 15px 0 0 0;
     text-align: center;
     position: fixed;
@@ -32,66 +95,104 @@ header {
     left: 0;
     width: 100%;
     z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 10px var(--shadow-color);
 }
 
 header h1 {
+    font-family: var(--font-headings);
     font-size: 1.8em;
-    font-weight: 500;
+    font-weight: 700; /* Bolder headings */
     letter-spacing: 1px;
     margin-bottom: 10px;
 }
 header h1 .fa-dumbbell {
     margin-right: 10px;
+    color: var(--cute-pink); /* Cute touch */
 }
+
+/* Theme Switcher */
+.theme-switcher {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+}
+#theme-toggle-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.5);
+    color: white;
+    font-size: 1.2em;
+    padding: 8px 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#theme-toggle-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+    transform: scale(1.1);
+}
+body.theme-light #theme-toggle-btn { /* Adjust for light theme header */
+    border-color: rgba(0,0,0,0.2);
+    color: var(--text-primary);
+}
+body.theme-light #theme-toggle-btn:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
 
 /* --- Tab Navigation (Inside Header) --- */
 header .tabs {
-    background-color: #252a34;
+    background-color: var(--bg-secondary); /* Use theme variable */
     padding: 8px 0;
     display: flex;
     justify-content: center;
-    flex-wrap: wrap; /* Allow tabs to wrap on smaller screens before scrolling */
+    flex-wrap: wrap;
     gap: 5px;
-    border-bottom: 2px solid #005bea;
+    border-bottom: 2px solid var(--border-accent);
+    box-shadow: inset 0 -2px 5px var(--shadow-light); /* Subtle inset shadow */
 }
 
 .tab-link {
-    padding: 10px 15px; /* Adjusted padding */
+    padding: 10px 15px;
     cursor: pointer;
     border: none;
     background-color: transparent;
-    color: #b0b0b0;
-    font-size: 0.9em; /* Adjusted font size */
-    font-weight: 500;
+    color: var(--text-secondary);
+    font-family: var(--font-headings);
+    font-size: 0.9em;
+    font-weight: 600; /* Slightly bolder tabs */
     transition: color 0.3s ease, border-bottom-color 0.3s ease, background-color 0.2s ease;
     border-bottom: 3px solid transparent;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-radius: 4px 4px 0 0;
-    display: inline-flex; /* For icon alignment */
+    border-radius: 6px 6px 0 0; /* More rounding */
+    display: inline-flex;
     align-items: center;
-    gap: 8px; /* Space between icon and text */
+    gap: 8px;
 }
 
 .tab-link:hover {
-    color: #ffffff;
-    background-color: #313742;
+    color: var(--accent-primary);
+    background-color: var(--bg-tertiary);
     transform: none;
     box-shadow: none;
 }
 
 .tab-link.active {
-    color: #00c6fb;
-    background-color: #2c313c;
-    border-bottom-color: #00c6fb;
+    color: var(--accent-primary);
+    background-color: var(--bg-tertiary); /* Use tertiary for active tab background */
+    border-bottom-color: var(--accent-primary);
     font-weight: 700;
 }
 
 /* --- Main Content Area --- */
 main {
     flex-grow: 1;
-    max-width: 1100px; /* Wider for more complex layouts */
+    max-width: 1100px;
     width: 95%;
     margin: 30px auto;
 }
@@ -99,10 +200,11 @@ main {
 /* --- Tab Content Styling --- */
 .tab-content {
     display: none;
-    background-color: #252a34;
+    background-color: var(--bg-secondary);
     border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 25px var(--shadow-color);
     padding: 25px;
+    transition: background-color 0.3s ease;
 }
 
 .tab-content.active {
@@ -113,404 +215,404 @@ main {
 .tab-content section {
     padding: 25px;
     margin-bottom: 30px;
-    background-color: #2c313c;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    background-color: var(--bg-tertiary);
+    border-radius: 10px; /* More rounded sections */
+    box-shadow: 0 4px 15px var(--shadow-light);
+    transition: background-color 0.3s ease;
 }
 
 .tab-content section:last-child {
     margin-bottom: 0;
 }
 
-h2 { /* Section headings */
-    color: #00c6fb;
-    margin-bottom: 20px;
-    font-weight: 500;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 10px;
+h2 {
+    font-family: var(--font-headings);
+    color: var(--accent-primary);
+    margin-bottom: 25px; /* More space */
+    font-weight: 700;
+    border-bottom: 2px solid var(--accent-secondary);
+    padding-bottom: 12px;
     letter-spacing: 0.5px;
-    font-size: 1.5em;
+    font-size: 1.6em; /* Larger section titles */
 }
-h3 { /* Sub-headings within sections */
-    color: #e0e0e0;
-    margin-bottom: 15px;
-    font-weight: 500;
-    font-size: 1.2em;
+h3 {
+    font-family: var(--font-headings);
+    color: var(--text-primary);
+    margin-bottom: 18px;
+    font-weight: 600;
+    font-size: 1.3em;
 }
 
 /* --- Form Styles (General) --- */
-form div {
-    margin-bottom: 20px;
-}
+form div { margin-bottom: 20px; }
 form label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #b0b0b0;
-    font-size: 0.95em;
+    display: block; margin-bottom: 8px; font-weight: 600; /* Bolder labels */
+    color: var(--text-secondary); font-size: 0.95em;
 }
-form input[type="text"],
-form input[type="number"],
-form input[type="date"],
-form input[type="email"],
-form input[type="password"],
-form input[type="url"],
-form select,
-form textarea {
-    width: 100%;
-    padding: 12px 15px;
-    background-color: #1f232a;
-    border: 1px solid #3a3f4b;
-    border-radius: 6px;
-    color: #e0e0e0;
-    font-size: 1em;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+form input[type="text"], form input[type="number"], form input[type="date"],
+form input[type="email"], form input[type="password"], form input[type="url"],
+form select, form textarea {
+    width: 100%; padding: 14px 18px; /* Larger inputs */
+    background-color: var(--bg-input); border: 1px solid var(--border-primary);
+    border-radius: 8px; /* More rounded inputs */
+    color: var(--text-primary); font-size: 1em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
-form input::placeholder,
-form textarea::placeholder {
-    color: #6c757d;
+form input::placeholder, form textarea::placeholder { color: var(--text-placeholder); }
+form input:focus, form select:focus, form textarea:focus {
+    outline: none; border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 25%, transparent); /* Softer glow */
 }
-form input:focus,
-form select:focus,
-form textarea:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-}
-.input-group-inline { /* For weight input and similar */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.input-group-inline input,
-.input-group-inline select {
-    flex-grow: 1;
-}
-.input-group-inline select {
-    width: auto;
-    min-width: 70px;
-    flex-shrink: 0;
-    flex-grow: 0; /* Don't let select grow too much */
-}
+.input-group-inline { display: flex; align-items: center; gap: 10px; }
+.input-group-inline input, .input-group-inline select { flex-grow: 1; }
+.input-group-inline select { width: auto; min-width: 80px; flex-shrink: 0; flex-grow: 0; }
 
 
 /* --- Buttons (General and Specific) --- */
-button, .button-like { /* Add .button-like for non-button elements styled as buttons */
-    display: inline-flex; /* For icon alignment */
-    align-items: center;
-    justify-content: center;
-    gap: 8px; /* Space between icon and text */
-    width: auto;
-    padding: 12px 25px;
-    background: linear-gradient(90deg, #007bff, #00c6fb);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.05em;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+button, .button-like {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px; /* More gap for icon */
+    width: auto; padding: 14px 28px; /* Larger buttons */
+    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+    color: white; border: none; border-radius: 8px; /* More rounded buttons */
+    cursor: pointer; font-family: var(--font-headings); font-size: 1em; /* Adjusted font size */
+    font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
-    text-decoration: none; /* For .button-like <a> tags */
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+    text-decoration: none;
 }
 button:hover, .button-like:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+    transform: translateY(-3px) scale(1.02); /* More hover effect */
+    box-shadow: 0 7px 18px color-mix(in srgb, var(--accent-primary) 30%, transparent);
 }
 button:active, .button-like:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px) scale(0.98);
+    box-shadow: 0 2px 5px var(--shadow-color);
 }
-
-/* Form-specific main action buttons */
-form button[type="submit"],
+/* Specific button types */
+form button[type="submit"], #finish-workout-btn { width: 100%; }
 #finish-workout-btn {
-    width: 100%;
-}
-#finish-workout-btn {
-     background: linear-gradient(90deg, #28a745, #20c997);
-     box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+     background: linear-gradient(90deg, var(--accent-success), color-mix(in srgb, var(--accent-success) 70%, var(--cute-mint)));
+     box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-success) 20%, transparent);
      margin-top: 20px;
 }
-#finish-workout-btn:hover {
-    box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
-}
-
+#finish-workout-btn:hover { box-shadow: 0 7px 18px color-mix(in srgb, var(--accent-success) 30%, transparent); }
 .secondary-action-btn {
-    background: #495057;
-    box-shadow: 0 4px 10px rgba(73, 80, 87, 0.2);
+    background: var(--text-muted);
+    box-shadow: 0 4px 10px color-mix(in srgb, var(--text-muted) 20%, transparent);
+    color: var(--bg-secondary); /* Text color for secondary button */
 }
 .secondary-action-btn:hover {
-    background: #343a40;
-    box-shadow: 0 6px 15px rgba(73, 80, 87, 0.3);
+    background: color-mix(in srgb, var(--text-muted) 80%, black);
+    box-shadow: 0 6px 15px color-mix(in srgb, var(--text-muted) 30%, transparent);
 }
-.full-width-secondary {
-    width: 100%;
-    margin-top: 15px;
-}
+.full-width-secondary { width: 100%; margin-top: 15px; }
 
 /* --- Dashboard Tab --- */
-#quick-actions .action-buttons-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
-.dash-action-btn {
-    padding: 15px; /* Larger padding for dash buttons */
-    font-size: 1em;
-    text-transform: none; /* Normal case for dash buttons */
-    background: #343a45; /* Different background */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-.dash-action-btn:hover {
-    background: #3e444c;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-#overview-grid {
+#quick-start-workouts .quick-start-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
 }
-.overview-card {
-    background-color: #343a45;
+.quick-start-tile {
+    background-color: var(--bg-quaternary);
     padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    position: relative;
+    border-radius: 10px;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--border-primary);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 120px; /* Ensure tiles have some height */
+    color: var(--text-primary); /* Ensure button text is themed */
+    text-transform: none; /* Override general button uppercase */
+    font-family: var(--font-primary); /* Override button font */
+    font-size: 1em; /* Override button font size */
+    font-weight: normal; /* Override button font weight */
+    letter-spacing: normal;
+    background-image: linear-gradient(135deg, var(--cute-pink) 0%, var(--cute-lavender) 100%); /* Cute gradient */
+    color: #fff; /* White text on gradient */
 }
-.overview-card h3 {
-    font-size: 1.1em;
-    color: #00c6fb;
+.quick-start-tile:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 8px 20px var(--shadow-color);
+    background-image: linear-gradient(135deg, var(--cute-lavender) 0%, var(--cute-pink) 100%);
+}
+.quick-start-tile h4 {
+    font-family: var(--font-headings);
+    font-size: 1.2em;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: #fff;
+}
+.quick-start-tile p {
+    font-size: 0.9em;
+    color: rgba(255,255,255,0.85);
+    flex-grow: 1;
     margin-bottom: 10px;
 }
-.overview-card p {
-    font-size: 1.3em;
-    font-weight: bold;
-    margin-bottom: 10px;
+.quick-start-tile .fa-chevron-circle-right {
+    align-self: flex-end;
+    font-size: 1.5em;
+    opacity: 0.7;
+    color: #fff;
 }
+
+#quick-actions .action-buttons-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
+}
+.dash-action-btn {
+    padding: 18px; font-size: 1em; text-transform: none;
+    background: var(--bg-quaternary); color: var(--text-primary); /* Theme this button */
+    box-shadow: 0 2px 5px var(--shadow-light);
+    border: 1px solid var(--border-primary);
+}
+.dash-action-btn:hover {
+    background: var(--bg-tertiary); color: var(--accent-primary);
+    box-shadow: 0 4px 8px var(--shadow-light); border-color: var(--accent-primary);
+}
+#overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.overview-card {
+    background-color: var(--bg-quaternary); padding: 20px; border-radius: 10px; /* More rounded */
+    text-align: center; position: relative; border: 1px solid var(--border-primary);
+}
+.overview-card h3 { font-size: 1.1em; color: var(--accent-primary); margin-bottom: 10px; }
+.overview-card p { font-size: 1.3em; font-weight: bold; margin-bottom: 10px; color: var(--text-primary); }
 .overview-card .overview-icon {
-    font-size: 2.5em;
-    color: #007bff;
-    opacity: 0.2;
-    position: absolute;
-    right: 15px;
-    bottom: 10px;
+    font-size: 2.5em; color: var(--accent-secondary);
+    opacity: 0.1; /* Softer icon */
+    position: absolute; right: 20px; bottom: 15px;
 }
-#recent-activity p, #motivation-tip p {
-    font-size: 1.05em;
-    line-height: 1.7;
-}
+#recent-activity p, #motivation-tip p { font-size: 1.05em; line-height: 1.7; color: var(--text-secondary); }
 #dash-motivation-quote {
-    font-style: italic;
-    color: #00c6fb;
-    padding: 15px;
-    border-left: 3px solid #007bff;
-    background-color: #343a45;
-    border-radius: 0 6px 6px 0;
+    font-style: italic; color: var(--cute-pink); padding: 15px;
+    border-left: 4px solid var(--cute-pink); background-color: var(--bg-quaternary);
+    border-radius: 0 8px 8px 0;
 }
 
 /* --- Log Workout Tab --- */
+/* Styles are mostly inherited or defined in general form/button styles */
 .log-session-controls { margin-bottom: 20px; }
-#current-workout-summary h2 { color: #e0e0e0; border-bottom-color: #444; }
+#current-workout-summary h2 { color: var(--text-primary); border-bottom-color: var(--border-secondary); }
 #current-workout-date-display, #current-workout-name-display {
-    font-size: 1.2em;
-    font-weight: 500;
-    margin-bottom: 10px;
-    color: #00c6fb;
-    padding-bottom: 5px;
+    font-size: 1.2em; font-weight: 600; margin-bottom: 10px;
+    color: var(--accent-primary); padding-bottom: 5px;
 }
-#current-workout-date-display { border-bottom: 1px dashed #444; }
+#current-workout-date-display { border-bottom: 1px dashed var(--border-secondary); }
 #logged-exercises-list { list-style-type: none; padding: 0; }
 #logged-exercises-list li {
-    background-color: #343a45; border: 1px solid #444a55; padding: 20px;
-    margin-bottom: 15px; border-radius: 8px; display: flex;
+    background-color: var(--bg-quaternary); border: 1px solid var(--border-primary);
+    padding: 20px; margin-bottom: 15px; border-radius: 10px; display: flex;
     justify-content: space-between; align-items: flex-start;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 8px var(--shadow-light);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-#logged-exercises-list li:hover { transform: translateY(-3px); box-shadow: 0 5px 12px rgba(0,0,0,0.2); }
+#logged-exercises-list li:hover { transform: translateY(-3px); box-shadow: 0 5px 12px var(--shadow-color); }
 #logged-exercises-list li .exercise-details { flex-grow: 1; padding-right: 15px; }
-#logged-exercises-list li .exercise-details strong { color: #00c6fb; font-size: 1.1em; display: block; margin-bottom: 5px; }
-#logged-exercises-list li .exercise-details em { color: #a0a0a0; font-size: 0.9em; display: block; margin-top: 5px; }
+#logged-exercises-list li .exercise-details strong { color: var(--accent-primary); font-size: 1.1em; display: block; margin-bottom: 5px; }
+#logged-exercises-list li .exercise-details em { color: var(--text-secondary); font-size: 0.9em; display: block; margin-top: 5px; }
 #logged-exercises-list li .exercise-actions button.delete-btn {
-    background: transparent; color: #ff4d4d; border: 1px solid #ff4d4d;
-    padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9em;
+    background: transparent; color: var(--accent-danger); border: 1px solid var(--accent-danger);
+    padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9em;
     font-weight: 500; text-transform: uppercase; transition: background-color 0.3s ease, color 0.3s ease;
     min-width: 80px;
 }
-#logged-exercises-list li .exercise-actions button.delete-btn:hover { background-color: #ff4d4d; color: white; box-shadow: none; transform: none; }
+#logged-exercises-list li .exercise-actions button.delete-btn:hover { background-color: var(--accent-danger); color: white; box-shadow: none; transform: none; }
 .session-meta-inputs { margin-top: 20px; }
 
 /* --- Routines Tab --- */
-#create-new-routine-btn.primary-action { /* Ensure it uses the general button style if specific primary-action isn't defined */ }
 #routines-list-container .routine-card {
-    background-color: #343a45; padding: 15px; border-radius: 6px; margin-bottom: 10px;
-    display: flex; justify-content: space-between; align-items: center;
+    background-color: var(--bg-quaternary); padding: 20px; border-radius: 10px; margin-bottom: 15px;
+    display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-primary);
 }
-#routines-list-container .routine-card h4 { margin:0; color: #00c6fb; }
-#routines-list-container .routine-actions button { font-size: 0.8em; padding: 6px 10px; margin-left: 5px; }
+#routines-list-container .routine-card h4 { margin:0; color: var(--accent-primary); font-family: var(--font-headings); }
+#routines-list-container .routine-actions button { font-size: 0.85em; padding: 8px 12px; margin-left: 8px; }
 #routine-exercises-list .routine-exercise-item {
-    background-color: #1f232a; padding: 10px; border-radius: 4px; margin-bottom: 8px;
-    display: flex; justify-content: space-between; align-items: center;
+    background-color: var(--bg-input); padding: 12px; border-radius: 6px; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-primary);
 }
 .routine-exercise-adder { display: flex; gap: 10px; align-items: center; margin-top: 15px; }
 .routine-exercise-adder select, .routine-exercise-adder input { margin-bottom: 0; }
-.routine-exercise-adder button { padding: 10px 15px; font-size: 0.9em; }
+.routine-exercise-adder button { padding: 12px 18px; font-size: 0.9em; } /* Adjusted size */
+
 
 /* --- History Tab (Including Calendar) --- */
 #calendar-controls {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; padding: 10px; background-color: #343a45; border-radius: 6px;
+    margin-bottom: 20px; padding: 10px; background-color: var(--bg-quaternary); border-radius: 8px;
 }
 #calendar-controls button {
-    background: #007bff; color: white; border: none; padding: 8px 15px;
-    border-radius: 4px; cursor: pointer; font-size: 0.9em;
+    background: var(--accent-secondary); color: white; border: none; padding: 8px 15px;
+    border-radius: 6px; cursor: pointer; font-size: 0.9em;
 }
-#calendar-controls button:hover { background: #0056b3; transform: none; box-shadow: none; }
-#calendar-month-year { font-size: 1.3em; font-weight: 500; color: #e0e0e0; }
+#calendar-controls button:hover { background: var(--accent-primary); transform: none; box-shadow: none; }
+#calendar-month-year { font-family: var(--font-headings); font-size: 1.3em; font-weight: 600; color: var(--text-primary); }
 #calendar-grid-container {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
-    background-color: #2c313c; padding: 15px; border-radius: 8px;
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; /* More gap */
+    background-color: var(--bg-tertiary); padding: 15px; border-radius: 10px;
 }
 .calendar-day-header {
-    font-weight: 500; text-align: center; padding: 8px 0;
-    font-size: 0.85em; color: #b0b0b0; text-transform: uppercase;
+    font-family: var(--font-headings); font-weight: 600; text-align: center; padding: 8px 0;
+    font-size: 0.8em; color: var(--text-secondary); text-transform: uppercase;
 }
 .calendar-day {
-    min-height: 80px; background-color: #343a45; border: 1px solid #444a55;
-    border-radius: 4px; padding: 8px; font-size: 0.9em; position: relative;
+    min-height: 90px; /* Taller cells */ background-color: var(--bg-quaternary); border: 1px solid var(--border-primary);
+    border-radius: 8px; padding: 8px; font-size: 0.9em; position: relative;
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    cursor: default;
+    cursor: default; display: flex; flex-direction: column; /* For content alignment */
 }
-.calendar-day .day-number { font-weight: bold; color: #e0e0e0; }
-.calendar-day.other-month .day-number { color: #6c757d; }
+.calendar-day .day-number { font-weight: bold; color: var(--text-primary); margin-bottom: auto; /* Pushes number to top */ }
+.calendar-day.other-month .day-number { color: var(--text-placeholder); }
 .calendar-day.today .day-number {
-    color: #00c6fb; background-color: rgba(0,198,251,0.15);
-    border-radius: 50%; padding: 2px 4px; display: inline-block;
+    color: var(--cute-pink); background-color: color-mix(in srgb, var(--cute-pink) 15%, transparent);
+    border-radius: 50%; padding: 3px 5px; display: inline-block;
 }
 .calendar-day .workout-indicator { /* For workout days */
-    width: 8px; height: 8px; background-color: #28a745; border-radius: 50%;
-    position: absolute; bottom: 5px; right: 5px;
+    width: 10px; height: 10px; background-color: var(--accent-success); border-radius: 50%;
+    align-self: flex-end; /* Pushes indicator to bottom right with flex */ margin-top: 5px;
 }
-.calendar-day.rest-day { background-color: #444a55; } /* For rest days */
-.calendar-day.rest-day .day-number { opacity: 0.6; }
-.calendar-day.rest-day .workout-indicator { background-color: #6c757d; } /* Different indicator for rest if needed */
-.calendar-day[data-date]:hover { border-color: #00c6fb; box-shadow: 0 0 8px rgba(0, 198, 251, 0.5); cursor: pointer; }
+.calendar-day.rest-day { background-color: color-mix(in srgb, var(--text-muted) 30%, var(--bg-quaternary)); }
+.calendar-day.rest-day .day-number { opacity: 0.7; }
+.calendar-day.rest-day .workout-indicator { background-color: var(--text-muted); }
+.calendar-day[data-date]:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary) 30%, transparent);
+    cursor: pointer; transform: scale(1.05); /* Zoom effect */
+}
 
 #workout-history-container .workout-session {
-    background-color: #2c313c; padding: 25px; margin-bottom: 25px;
-    border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    background-color: var(--bg-tertiary); padding: 25px; margin-bottom: 25px;
+    border-radius: 10px; box-shadow: 0 4px 15px var(--shadow-light);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 #workout-history-container .workout-session.highlighted-session {
-    outline: 3px solid #00c6fb; transform: scale(1.01);
-    box-shadow: 0 6px 20px rgba(0, 198, 251, 0.3);
+    outline: 3px solid var(--accent-primary); transform: scale(1.01);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--accent-primary) 30%, transparent);
 }
 #workout-history-container .workout-session-date {
-    font-size: 1.4em; font-weight: 500; color: #00c6fb; margin-bottom: 20px;
-    border-bottom: 1px solid #4a4f5b; padding-bottom: 12px;
+    font-family: var(--font-headings); font-size: 1.4em; font-weight: 600; color: var(--accent-primary); margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-secondary); padding-bottom: 12px;
 }
 #workout-history-container .history-exercise-list { list-style-type: none; padding-left: 0; }
 #workout-history-container .history-exercise-item {
-    background-color: #343a45; padding: 15px; margin-bottom: 10px;
-    border-radius: 6px; border-left: 4px solid #007bff;
+    background-color: var(--bg-quaternary); padding: 15px; margin-bottom: 10px;
+    border-radius: 8px; border-left: 5px solid var(--accent-secondary); /* Thicker accent border */
 }
 #workout-history-container .history-exercise-item.rest-day-entry {
-    background-color: #3e444c; text-align: center; padding: 20px;
-    font-style: italic; border-left-color: #6c757d;
+    background-color: color-mix(in srgb, var(--text-muted) 20%, var(--bg-quaternary));
+    text-align: center; padding: 20px; font-style: italic; border-left-color: var(--text-muted);
 }
-#workout-history-container .history-exercise-item.rest-day-entry strong { color: #a0a0a0; }
-#workout-history-container .history-exercise-item strong { color: #00c6fb; display: block; margin-bottom: 5px; font-size: 1.05em; }
-#workout-history-container .history-exercise-item div { font-size: 0.95em; color: #c0c0c0; }
-#workout-history-container .history-exercise-item em { color: #a0a0a0; font-size: 0.9em; display: block; margin-top: 5px; font-style: italic; }
+#workout-history-container .history-exercise-item.rest-day-entry strong { color: var(--text-secondary); }
+#workout-history-container .history-exercise-item strong { color: var(--accent-primary); display: block; margin-bottom: 5px; font-size: 1.05em; }
+#workout-history-container .history-exercise-item div { font-size: 0.95em; color: var(--text-secondary); }
+#workout-history-container .history-exercise-item em { color: var(--text-muted); font-size: 0.9em; display: block; margin-top: 5px; font-style: italic; }
+
 
 /* --- Exercise Library Tab --- */
-#exercise-library-controls { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; }
-#exercise-library-controls input, #exercise-library-controls select { margin-bottom: 0; }
+#exercise-library-controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 20px; }
+#exercise-library-controls input, #exercise-library-controls select { margin-bottom: 0; flex-grow: 1; min-width: 150px;}
+#exercise-library-controls button { flex-shrink: 0; }
 #exercise-library-list .exercise-lib-card {
-    background-color: #343a45; padding: 15px; border-radius: 6px; margin-bottom: 10px;
-    /* Add more styling for card layout */
+    background-color: var(--bg-quaternary); padding: 20px; border-radius: 10px; margin-bottom: 15px;
+    border: 1px solid var(--border-primary);
 }
+#exercise-library-list .exercise-lib-card h4 { font-family: var(--font-headings); color: var(--accent-primary); margin-bottom: 8px; }
+#exercise-library-list .exercise-lib-card p { font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px; }
+#exercise-library-list .exercise-lib-card button { font-size: 0.85em; padding: 8px 12px; margin-top:10px; margin-right: 8px;}
+
+
 /* Modal Styles */
 .modal {
     display: none; position: fixed; z-index: 2000; left: 0; top: 0;
-    width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);
-    align-items: center; justify-content: center;
+    width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); /* Darker overlay */
+    align-items: center; justify-content: center; padding: 20px;
 }
 .modal-content {
-    background-color: #2c313c; margin: auto; padding: 30px;
-    border: 1px solid #444a55; width: 80%; max-width: 600px;
-    border-radius: 8px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    background-color: var(--bg-tertiary); margin: auto; padding: 30px;
+    border: 1px solid var(--border-secondary); width: 90%; max-width: 650px; /* Wider modal */
+    border-radius: 12px; position: relative; box-shadow: 0 10px 30px var(--shadow-color);
+    animation: fadeInModal 0.3s ease-out;
 }
+@keyframes fadeInModal { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 .close-btn {
-    color: #aaa; float: right; font-size: 28px; font-weight: bold;
-    position: absolute; top: 10px; right: 20px;
+    color: var(--text-muted); float: right; font-size: 32px; font-weight: bold; /* Larger close button */
+    position: absolute; top: 15px; right: 20px; line-height: 1;
 }
-.close-btn:hover, .close-btn:focus { color: #fff; text-decoration: none; cursor: pointer; }
-#exercise-lib-modal-title { margin-top: 0; }
+.close-btn:hover, .close-btn:focus { color: var(--accent-danger); text-decoration: none; cursor: pointer; }
+#exercise-lib-modal-title { margin-top: 0; font-family: var(--font-headings); }
 
 /* --- Body Measurements Tab --- */
-#log-measurements form div { display: flex; align-items: center; gap: 10px; } /* Better layout for measurement inputs */
-#log-measurements form label { flex-basis: 150px; flex-shrink: 0; margin-bottom: 0; }
+#log-measurements form div { display: flex; align-items: center; gap: 10px; }
+#log-measurements form label { flex-basis: 180px; flex-shrink: 0; margin-bottom: 0; } /* Wider labels */
 #log-measurements form input { flex-grow: 1; }
 #progress-photos-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px; }
-#progress-photos-gallery img { width: 100%; height: auto; border-radius: 4px; }
+#progress-photos-gallery img { width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 5px var(--shadow-light); }
 
 /* --- Nutrition Tab --- */
 /* Styles similar to measurements or other forms as needed */
+#log-nutrition-daily form div:not(:has(textarea)) { display: flex; align-items: center; gap: 10px; }
+#log-nutrition-daily form label { flex-basis: 200px; flex-shrink: 0; margin-bottom: 0; }
+#log-nutrition-daily form input { flex-grow: 1; }
+
 
 /* --- Footer --- */
 footer {
     text-align: center; padding: 25px 20px; margin-top: auto;
-    font-size: 0.9em; color: #777; background-color: #1f232a;
-    border-top: 1px solid #30353f;
+    font-size: 0.9em; color: var(--text-muted); background-color: var(--bg-input); /* Themed footer */
+    border-top: 1px solid var(--border-primary);
 }
 
 /* --- Scrollbar --- */
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #1f232a; }
-::-webkit-scrollbar-thumb { background: #007bff; border-radius: 5px; border: 2px solid #1f232a; }
-::-webkit-scrollbar-thumb:hover { background: #0056b3; }
+::-webkit-scrollbar { width: 12px; } /* Wider scrollbar */
+::-webkit-scrollbar-track { background: var(--bg-input); }
+::-webkit-scrollbar-thumb {
+    background: var(--accent-secondary);
+    border-radius: 6px;
+    border: 3px solid var(--bg-input); /* Creates padding */
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
 
 /* --- Responsive Adjustments --- */
-@media (max-width: 992px) { /* Adjust breakpoint for tab wrapping */
+@media (max-width: 992px) {
     header .tabs { justify-content: flex-start; overflow-x: auto; }
+    body { padding-top: 120px; } /* Initial padding top should be fine or adjust if tabs wrap too much */
 }
 
 @media (max-width: 768px) {
-    body { padding-top: 110px; }
-    header h1 { font-size: 1.5em; margin-bottom: 8px; }
-    .tab-link { padding: 8px 12px; font-size: 0.85em; white-space: nowrap; gap: 5px; }
+    body { padding-top: 140px; } /* Account for potential two-line tab wrapping */
+    header h1 { font-size: 1.6em; }
+    .tab-link { padding: 9px 12px; font-size: 0.8em; gap: 6px;}
     main { width: 100%; margin: 15px 0 0 0; border-radius: 0; }
-    .tab-content { padding: 15px; border-radius: 0; }
-    .tab-content section { padding: 15px; }
-    h2 { font-size: 1.3em; }
-    h3 { font-size: 1.1em; }
+    .tab-content { padding: 20px; border-radius: 0; } /* Slightly less padding */
+    .tab-content section { padding: 20px; }
+    h2 { font-size: 1.4em; }
+    h3 { font-size: 1.15em; }
     .input-group-inline { flex-direction: column; align-items: stretch; }
     .input-group-inline input, .input-group-inline select { width: 100%; }
     #logged-exercises-list li { flex-direction: column; align-items: stretch; }
     #logged-exercises-list li .exercise-actions { margin-top: 15px; text-align: right; }
-    .calendar-day { min-height: 60px; padding: 5px; font-size: 0.8em; }
-    #calendar-month-year { font-size: 1.1em; }
-    #calendar-controls button { padding: 6px 10px; font-size: 0.8em; }
-    #quick-actions .action-buttons-grid { grid-template-columns: 1fr 1fr; } /* 2 columns on mobile */
-    #overview-grid { grid-template-columns: 1fr; }
-    #log-measurements form div { flex-direction: column; align-items: stretch; }
-    #log-measurements form label { flex-basis: auto; }
+    .calendar-day { min-height: 70px; padding: 6px; font-size: 0.8em; }
+    #calendar-month-year { font-size: 1.2em; }
+    #calendar-controls button { padding: 7px 12px; font-size: 0.85em; }
+    #quick-actions .action-buttons-grid, #overview-grid, .quick-start-grid { grid-template-columns: 1fr 1fr; }
+    #log-measurements form div, #log-nutrition-daily form div:not(:has(textarea)) { flex-direction: column; align-items: stretch; }
+    #log-measurements form label, #log-nutrition-daily form label { flex-basis: auto; margin-bottom: 5px; }
+    #exercise-library-controls { flex-direction: column; align-items: stretch; }
+    #exercise-library-controls input, #exercise-library-controls select, #exercise-library-controls button { width: 100%; }
 }
 
 @media (max-width: 480px) {
-    body { padding-top: 100px; } /* Further reduce for smaller header */
-    header h1 { font-size: 1.3em; }
+    body { padding-top: 150px; } /* Allow more space if tabs wrap extensively */
+    header h1 { font-size: 1.4em; }
     .tab-link { padding: 8px 8px; font-size: 0.75em; gap: 4px; }
-    button, .button-like { font-size: 0.95em; padding: 10px 15px; }
+    button, .button-like { font-size: 0.9em; padding: 12px 18px; } /* Smaller buttons */
     #logged-exercises-list li { padding: 15px; }
     #logged-exercises-list li .exercise-details strong { font-size: 1em; }
-    .calendar-day { min-height: 50px; }
+    .calendar-day { min-height: 60px; }
     .calendar-day .day-number { font-size: 0.9em; }
     #calendar-controls { flex-direction: column; gap: 10px; }
-    .modal-content { width: 90%; padding: 20px; }
-    #quick-actions .action-buttons-grid { grid-template-columns: 1fr; } /* 1 column on very small screens */
+    .modal-content { width: 95%; padding: 15px; } /* Smaller padding for modal */
+    #quick-actions .action-buttons-grid, #overview-grid, .quick-start-grid { grid-template-columns: 1fr; }
+    h2 {font-size: 1.3em;}
 }
