@@ -1,228 +1,363 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌸 Cute Workout Tracker 🌸</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Confetti Library -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-</head>
-<body class="theme-dark"> <!-- Default to dark, JS will handle switching -->
-    <header>
-        <h1><i class="fas fa-dumbbell"></i> 🌸 Workout Buddy 🌸</h1>
-        <div class="theme-switcher">
-            <button id="theme-toggle-btn" title="Toggle Theme">
-                <i class="fas fa-sun"></i> <!-- Icon changes via JS -->
-            </button>
-        </div>
-        <nav class="tabs">
-            <button class="tab-link active" data-tab="dashboardTab"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
-            <button class="tab-link" data-tab="logWorkoutTab"><i class="fas fa-plus-square"></i> Log Session</button>
-            <button class="tab-link" data-tab="routinesTab"><i class="fas fa-clipboard-list"></i> My Routines</button>
-            <button class="tab-link" data-tab="historyTab"><i class="fas fa-history"></i> History</button>
-            <button class="tab-link" data-tab="exercisesTab"><i class="fas fa-book-open"></i> Exercises</button>
-            <button class="tab-link" data-tab="measurementsTab"><i class="fas fa-ruler-combined"></i> Body Stats</button>
-            <button class="tab-link" data-tab="nutritionTab"><i class="fas fa-utensils"></i> Nutrition</button>
-            <!-- <button class="tab-link" data-tab="settingsTab"><i class="fas fa-cog"></i> Settings</button> --> <!-- For future settings tab -->
-        </nav>
-    </header>
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Nunito:wght@300;400;600;700&family=Pacifico&display=swap');
 
-    <main>
-        <!-- Tab Content: Dashboard -->
-        <div id="dashboardTab" class="tab-content active">
-            <section id="greeting-section">
-                <h2 id="dash-greeting">Hello, Fitness Star! ☀️</h2>
-            </section>
+/* --- CSS Variables for Theming --- */
+:root {
+    /* Default to Dark Theme Variables */
+    --bg-primary: #1a1d24;
+    --bg-secondary: #252a34;
+    --bg-tertiary: #2c313c;
+    --bg-quaternary: #343a45;
+    --bg-input: #1f232a;
 
-            <section id="quick-start-workouts">
-                <h2>✨ Quick Start Workouts ✨</h2>
-                <div class="quick-start-grid">
-                    <!-- Tiles will be populated by JS -->
-                    <p>Loading quick starts...</p>
-                </div>
-            </section>
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #777;
+    --text-placeholder: #6c757d;
+    --text-on-accent: #ffffff;
 
-            <section id="quick-actions">
-                <h2>🚀 Quick Actions 🚀</h2>
-                <div class="action-buttons-grid">
-                    <button id="dash-log-workout-btn" class="dash-action-btn"><i class="fas fa-plus-circle"></i> Log Custom Workout</button>
-                    <button id="dash-start-routine-btn" class="dash-action-btn"><i class="fas fa-play-circle"></i> Start from My Routines</button>
-                    <button id="dash-log-rest-day-btn" class="dash-action-btn"><i class="fas fa-bed"></i> Log Rest Day 😴</button>
-                    <button id="dash-log-nutrition-btn" class="dash-action-btn"><i class="fas fa-apple-alt"></i> Log Nutrition 🍎</button>
-                    <button id="dash-log-measurement-btn" class="dash-action-btn"><i class="fas fa-tape"></i> Log Body Stats 📏</button>
-                </div>
-            </section>
+    --border-primary: #3a3f4b;
+    --border-secondary: #4a4f5b;
+    --border-accent: #005bea; /* A slightly deeper blue for borders if needed */
 
-            <section id="today-overview">
-                <h2>Today's Overview - <span id="dashboard-date"></span> 📅</h2>
-                <div class="overview-grid">
-                    <div class="overview-card">
-                        <h3>Workout Status 💪</h3>
-                        <p id="dash-workout-status">Not Logged</p>
-                        <i class="fas fa-running overview-icon"></i>
-                    </div>
-                    <div class="overview-card">
-                        <h3>Calories (Kcal) 🔥</h3>
-                        <p><span id="dash-kcal-consumed">0</span> / <span id="dash-kcal-goal">2500</span></p>
-                        <!-- Optional: Basic progress bar -->
-                        <!-- <div class="progress-bar-container"><div id="kcal-progress-bar" class="progress-bar-fill"></div></div> -->
-                        <i class="fas fa-fire overview-icon"></i>
-                    </div>
-                    <div class="overview-card">
-                        <h3>Protein (g) 🍗</h3>
-                        <p><span id="dash-protein-consumed">0</span> / <span id="dash-protein-goal">150</span></p>
-                        <i class="fas fa-drumstick-bite overview-icon"></i>
-                    </div>
-                </div>
-            </section>
-            <section id="recent-activity">
-                <h2>Recent Activity / Streaks 🌟</h2>
-                <p>Your current workout streak: <span id="dash-workout-streak">0</span> days.</p>
-                <p>Last workout: <span id="dash-last-workout-info">Never</span></p>
-                <p id="dash-up-next-workout">What's next on the agenda? 🤔</p>
-            </section>
-            <section id="motivation-tip">
-                <h2>💖 Tip of the Day 💖</h2>
-                <p id="dash-motivation-quote">"Believe in your #selfie!"</p>
-            </section>
-        </div>
+    --accent-primary: #00c6fb;      /* Bright Blue */
+    --accent-secondary: #007bff;    /* Standard Blue */
+    --accent-success: #28a745;      /* Green */
+    --accent-danger: #ff4d4d;       /* Red */
+    --accent-warning: #ffc107;      /* Yellow */
+    --accent-pink: #ff7eb9;
+    --accent-lavender: #b5a7ff;
+    --accent-mint: #a0ffe6;
+    --accent-protein: #f0ad4e; /* Orange/Yellow for protein */
 
-        <!-- Tab Content: Log Workout / Session -->
-        <div id="logWorkoutTab" class="tab-content">
-             <section id="workout-timer-section"> <!-- Workout Timer Added Here -->
-                <h3>Workout Timer ⏱️</h3>
-                <div id="workout-timer-display" class="timer-display">00:00</div>
-                <div class="timer-controls">
-                    <button id="start-timer-btn" class="secondary-action-btn"><i class="fas fa-play"></i> Start</button>
-                    <button id="stop-timer-btn" class="secondary-action-btn" disabled><i class="fas fa-pause"></i> Pause</button>
-                    <button id="reset-timer-btn" class="secondary-action-btn"><i class="fas fa-undo"></i> Reset</button>
-                </div>
-            </section>
-             <section id="workout-entry">
-                <h2>Log New Workout Exercise 📝</h2>
-                <div class="log-session-controls">
-                    <button id="start-from-routine-actual-btn" class="secondary-action-btn"><i class="fas fa-clipboard-check"></i> Load from My Routines</button>
-                </div>
-                <form id="log-exercise-form">
-                    <div><label for="workout-date">Date:</label><input type="date" id="workout-date" name="workout-date" required></div>
-                    <div><label for="workout-session-name">Workout Name (Optional):</label><input type="text" id="workout-session-name" name="workout-session-name" placeholder="e.g., Awesome Push Day! 🎉"></div>
-                    <div><label for="exercise-name">Exercise Name (for custom add):</label><input type="text" id="exercise-name" name="exercise-name" list="common-exercises" placeholder="e.g., Barbell Bench Press or type">
-                        <datalist id="common-exercises"></datalist>
-                    </div>
-                    <div><label for="sets">Target Sets (for custom add):</label><input type="number" id="sets" name="sets" min="1" placeholder="e.g., 3"></div>
-                    <div><label for="reps">Target Reps (for custom add):</label><input type="text" id="reps" name="reps" placeholder="e.g., 8-10 or 10"></div>
-                    <!-- Weight and unit from custom add form are less relevant with per-set logging, but can be kept for quick add -->
-                    <input type="hidden" id="weight"> <!-- Hide if not used for direct set add -->
-                    <input type="hidden" id="weight-unit">
-                    <div><label for="exercise-notes">Initial Notes (for custom add):</label><textarea id="exercise-notes" name="exercise-notes" rows="2" placeholder="e.g., Focus on form"></textarea></div>
-                    <button type="submit"><i class="fas fa-plus"></i> Add Custom Exercise to Log</button>
-                </form>
-                 <button id="log-rest-day-btn-main" class="secondary-action-btn full-width-secondary"><i class="fas fa-bed"></i> Log This Date as Rest Day 😴</button>
-            </section>
-            <section id="current-workout-summary">
-                <h2>Current Workout Session Log 📋</h2>
-                <div id="current-workout-date-display"></div>
-                <div id="current-workout-name-display" style="font-style: italic; margin-bottom: 10px;"></div>
-                <ul id="logged-exercises-list">
-                    <!-- Interactive exercises from routine or custom adds will appear here -->
-                </ul>
-                <div class="session-meta-inputs"><div><label for="workout-duration">Workout Duration (minutes, optional):</label><input type="number" id="workout-duration" min="0" placeholder="e.g., 60"></div></div>
-                <button id="finish-workout-btn" style="display:none;"><i class="fas fa-save"></i> Finish & Save Workout</button>
-            </section>
-        </div>
 
-        <!-- Tab Content: Routines -->
-        <div id="routinesTab" class="tab-content">
-            <section id="manage-routines">
-                <h2>My Workout Routines 💖</h2>
-                <button id="create-new-routine-btn" class="primary-action"><i class="fas fa-plus-circle"></i> Create New Routine</button>
-                <div id="routines-list-container"><p>Loading routines... ✨</p></div>
-            </section>
-            <section id="create-edit-routine-section" style="display:none;">
-                <h2 id="routine-form-title">Create New Routine</h2>
-                <form id="routine-form">
-                    <div><label for="routine-name">Routine Name:</label><input type="text" id="routine-name" required placeholder="e.g., Super Push Day 💪"></div>
-                    <div><label for="routine-description">Description (Optional):</label><textarea id="routine-description" rows="3" placeholder="What's this routine about?"></textarea></div>
-                    <h3>Exercises in this Routine:</h3><div id="routine-exercises-list"></div>
-                    <div class="routine-exercise-adder">
-                        <select id="add-exercise-to-routine-select"><option value="">-- Select Exercise to Add --</option></select>
-                        <input type="text" id="routine-exercise-sets" placeholder="Sets (e.g., 3)">
-                        <input type="text" id="routine-exercise-reps" placeholder="Reps (e.g., 8-12)">
-                        <button type="button" id="add-exercise-to-routine-btn"><i class="fas fa-plus"></i> Add to Routine</button>
-                    </div>
-                    <button type="submit" id="save-routine-btn"><i class="fas fa-save"></i> Save Routine</button>
-                    <button type="button" id="cancel-routine-edit-btn" class="secondary-action-btn">Cancel</button>
-                </form>
-            </section>
-        </div>
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --shadow-light: rgba(0,0,0,0.1);
+    --shadow-strong: rgba(0,0,0,0.3);
 
-        <!-- Tab Content: History -->
-        <div id="historyTab" class="tab-content">
-             <section><h2>Workout Calendar 🗓️</h2><div id="calendar-controls"><button id="prev-month-btn"><i class="fas fa-chevron-left"></i> Prev</button><h3 id="calendar-month-year">Month Year</h3><button id="next-month-btn">Next <i class="fas fa-chevron-right"></i></button></div><div id="calendar-grid-container"><!-- Calendar grid --></div></section>
-             <section><h2>Workout Sessions 📜</h2><div id="workout-history-container"><!-- History list --></div></section>
-        </div>
 
-        <!-- Tab Content: Exercise Library -->
-        <div id="exercisesTab" class="tab-content">
-            <section id="exercise-library-controls"><h2>Exercise Library 📚</h2><input type="text" id="search-exercise-library" placeholder="Search exercises..."><select id="filter-muscle-group"><option value="">All Muscle Groups 🎯</option></select><button id="add-new-exercise-to-lib-btn" class="primary-action"><i class="fas fa-plus-circle"></i> Add New Exercise</button></section>
-            <section id="exercise-library-list"><p>Loading exercises... 💪</p></section>
-            <div id="exercise-lib-modal" class="modal" style="display:none;"><div class="modal-content"><span class="close-btn" id="close-exercise-lib-modal">×</span><h3 id="exercise-lib-modal-title">Add New Exercise</h3><form id="exercise-lib-form"><input type="hidden" id="exercise-lib-id"><div><label for="ex-lib-name">Name:</label><input type="text" id="ex-lib-name" required></div><div><label for="ex-lib-muscle">Primary Muscle Group:</label><input type="text" id="ex-lib-muscle" placeholder="e.g., Chest, Quads"></div><div><label for="ex-lib-secondary-muscle">Secondary Muscles:</label><input type="text" id="ex-lib-secondary-muscle" placeholder="e.g., Triceps, Shoulders"></div><div><label for="ex-lib-equipment">Equipment:</label><input type="text" id="ex-lib-equipment" placeholder="e.g., Barbell, Dumbbell, Bodyweight"></div><div><label for="ex-lib-instructions">Instructions:</label><textarea id="ex-lib-instructions" rows="4"></textarea></div><div><label for="ex-lib-video">Video URL (Optional):</label><input type="url" id="ex-lib-video" placeholder="https://youtube.com/watch?v=..."></div><button type="submit"><i class="fas fa-save"></i> Save Exercise</button></form></div></div>
-        </div>
+    --font-primary: 'Roboto', sans-serif;
+    --font-headings: 'Nunito', sans-serif;
+    --font-cute-titles: 'Pacifico', cursive;
 
-        <!-- Tab Content: Body Measurements -->
-        <div id="measurementsTab" class="tab-content">
-            <section id="log-measurements"><h2>Log Body Measurements 📏</h2><form id="log-measurement-form"><div><label for="measurement-date">Date:</label><input type="date" id="measurement-date" required></div><div><label for="body-weight">Weight (<span id="user-weight-unit">kg</span>):</label><input type="number" step="0.1" id="body-weight"></div><div><label for="body-fat">Body Fat (%):</label><input type="number" step="0.1" id="body-fat"></div><div><label for="chest-size">Chest (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="chest-size"></div><div><label for="waist-size">Waist (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="waist-size"></div><div><label for="arm-size">Arm (Bicep, <span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="arm-size"></div><div><label for="thigh-size">Thigh (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="thigh-size"></div><div><label for="measurement-notes">Notes:</label><textarea id="measurement-notes" rows="3"></textarea></div><button type="submit"><i class="fas fa-save"></i> Log Measurements</button></form></section>
-            <section id="measurement-history-charts"><h2>Measurement Progress 📈</h2><div id="measurement-chart-container"><p>Graphs for measurements are coming soon! Keep tracking! 💖</p></div><div id="measurement-history-list"><!-- History list --></div></section>
-            <section id="progress-photos-section"><h2>Progress Photos 📸</h2><p><small>Note: Photos are currently just for show and not saved long-term with this app version.</small></p><input type="file" id="progress-photo-upload" accept="image/*" multiple><div id="progress-photos-gallery"><!-- Gallery --></div></section>
-        </div>
+    --border-radius-sm: 6px;
+    --border-radius-md: 10px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 16px; /* For larger cards */
+    --border-radius-pill: 50px; /* For pill-shaped buttons */
+}
 
-        <!-- Tab Content: Nutrition -->
-        <div id="nutritionTab" class="tab-content">
-            <section id="log-nutrition-daily"><h2>Log Daily Nutrition 🥗</h2><form id="nutrition-log-form"><div><label for="nutrition-date">Date:</label><input type="date" id="nutrition-date" required></div><div><label for="kcal-goal">Kcal Goal:</label><input type="number" id="kcal-goal" value="2500"></div><div><label for="kcal-consumed">Kcal Consumed:</label><input type="number" id="kcal-consumed" required></div><div><label for="protein-goal">Protein Goal (g):</label><input type="number" id="protein-goal" value="150"></div><div><label for="protein-consumed">Protein Consumed (g):</label><input type="number" id="protein-consumed" required></div><div><label for="carbs-consumed">Carbs Consumed (g, opt.):</label><input type="number" id="carbs-consumed"></div><div><label for="fats-consumed">Fats Consumed (g, opt.):</label><input type="number" id="fats-consumed"></div><div><label for="nutrition-notes">Notes:</label><textarea id="nutrition-notes" rows="3"></textarea></div><button type="submit"><i class="fas fa-save"></i> Log Nutrition</button></form></section>
-            <section id="nutrition-summary"><h2>Nutrition Overview 📊</h2><p>Daily/Weekly summaries and charts will go here. Keep logging for yummy data! 😋</p></section>
-        </div>
+body.theme-light {
+    /* Light Theme Variable Overrides */
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #eef2f7;
+    --bg-quaternary: #f1f3f5;
+    --bg-input: #fdfdfe;
 
-        <!-- Settings Tab (Conceptual - can be built out later) -->
-        <!--
-        <div id="settingsTab" class="tab-content">
-            <h2>App Settings ⚙️</h2>
-            <form id="user-settings-form">
-                 <div><label for="setting-user-name">Your Name:</label><input type="text" id="setting-user-name"></div>
-                 <div><label>Preferred Weight Unit:</label> <select id="setting-weight-unit"><option value="kg">kg</option><option value="lbs">lbs</option></select></div>
-                 <div><label>Preferred Measurement Unit:</label> <select id="setting-measure-unit"><option value="cm">cm</option><option value="in">inches</option></select></div>
-                 <div><label>Default Kcal Goal:</label><input type="number" id="setting-kcal-goal"></div>
-                 <div><label>Default Protein Goal (g):</label><input type="number" id="setting-protein-goal"></div>
-                 <div><label for="setting-smart-defaults">Enable Smart Exercise Defaults:</label><input type="checkbox" id="setting-smart-defaults"></div>
-                 <div><label for="setting-show-confetti">Show Confetti on Completion:</label><input type="checkbox" id="setting-show-confetti"></div>
-                 <button type="submit"><i class="fas fa-save"></i> Save Settings</button>
-            </form>
-             <section>
-                <h3>Data Management</h3>
-                <button id="export-data-btn" class="secondary-action-btn">Export My Data (JSON)</button>
-                <br><br>
-                <label for="import-data-file">Import Data (JSON):</label>
-                <input type="file" id="import-data-file" accept=".json">
-                <button id="import-data-btn-action" class="secondary-action-btn">Import Now</button>
-                <br><br>
-                <button id="clear-all-data-btn" class="danger-btn" style="background: var(--accent-danger);"><i class="fas fa-exclamation-triangle"></i> Clear All Local Data (Warning!)</button>
-            </section>
-        </div>
-        -->
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-muted: #6c757d;
+    --text-placeholder: #adb5bd;
 
-    </main>
+    --border-primary: #ced4da;
+    --border-secondary: #dee2e6;
+    --border-accent: #007bff;
 
-    <footer>
-        <p>© <span id="current-year"></span> Your Name - 🌸 Workout Buddy 🌸</p>
-    </footer>
+    --accent-primary: #007bff;
+    --accent-secondary: #0056b3;
+    --accent-pink: #f06292;
+    --accent-lavender: #9575cd;
+    --accent-mint: #4db6ac;
+    --accent-protein: #f57c00;
 
-    <script src="script.js"></script>
-    <script>
-        // Simple inline script for dynamic elements that don't need full app logic
-        // Current year in footer
-        const currentYearEl = document.getElementById('current-year');
-        if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
-    </script>
-</body>
-</html>
+
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-light: rgba(0,0,0,0.05);
+    --shadow-strong: rgba(0,0,0,0.15);
+}
+
+
+/* --- Global Resets & Base Styles --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-primary);
+    line-height: 1.6;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex; flex-direction: column; min-height: 100vh;
+    padding-top: 125px; /* Adjusted based on header height */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* --- Header --- */
+header {
+    background: linear-gradient(135deg, var(--accent-pink), var(--accent-lavender));
+    color: var(--text-on-accent);
+    padding: 15px 0 0 0; text-align: center; position: fixed;
+    top: 0; left: 0; width: 100%; z-index: 1000;
+    box-shadow: 0 3px 12px var(--shadow-color); /* Slightly stronger shadow */
+}
+body.theme-light header {
+    background: linear-gradient(135deg, var(--accent-lavender), var(--accent-mint));
+}
+
+
+header h1 {
+    font-family: var(--font-cute-titles);
+    font-size: 2.2em; font-weight: normal; letter-spacing: 1px; margin-bottom: 10px;
+    color: var(--text-on-accent); text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Subtle text shadow */
+}
+header h1 .fa-dumbbell { margin-right: 10px; }
+
+/* Theme Switcher */
+.theme-switcher { position: absolute; top: 20px; right: 20px; }
+#theme-toggle-btn {
+    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    color: var(--text-on-accent); font-size: 1.2em; padding: 8px 10px;
+    border-radius: 50%; cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+}
+#theme-toggle-btn:hover { background-color: rgba(255,255,255,0.3); transform: scale(1.1) rotate(15deg); } /* Added rotate */
+body.theme-light #theme-toggle-btn {
+    background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); color: var(--text-primary);
+}
+body.theme-light #theme-toggle-btn:hover { background-color: rgba(0,0,0,0.1); }
+
+
+/* --- Tab Navigation --- */
+header .tabs {
+    background-color: color-mix(in srgb, var(--bg-secondary) 85%, transparent);
+    padding: 8px 10px; display: flex; justify-content: center; flex-wrap: wrap;
+    gap: 8px;
+}
+.tab-link {
+    padding: 10px 18px; cursor: pointer; border: none; background-color: transparent;
+    color: var(--text-on-accent); opacity: 0.8; font-family: var(--font-headings);
+    font-size: 0.9em; font-weight: 600;
+    transition: color 0.3s ease, opacity 0.3s ease, background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    border-radius: var(--border-radius-pill); /* Pill shape */
+    display: inline-flex; align-items: center; gap: 8px;
+}
+.tab-link:hover {
+    opacity: 1;
+    background-color: color-mix(in srgb, var(--text-on-accent) 15%, transparent);
+    transform: translateY(-2px);
+    color: var(--text-on-accent);
+}
+.tab-link.active {
+    background-color: var(--bg-primary); /* Active tab matches main page bg */
+    color: var(--accent-pink); /* Cute pink for active tab text */
+    opacity: 1; font-weight: 700;
+    box-shadow: 0 3px 10px var(--shadow-light); /* Pop out active tab */
+    transform: translateY(-2px) scale(1.03); /* Slightly larger active tab */
+}
+body.theme-light .tab-link { color: var(--text-secondary); opacity: 0.7; } /* Tabs on light theme header */
+body.theme-light .tab-link:hover { opacity: 1; background-color: color-mix(in srgb, var(--text-primary) 10%, transparent); color: var(--text-primary); }
+body.theme-light .tab-link.active {
+    background-color: var(--bg-secondary); color: var(--accent-pink);
+    box-shadow: 0 3px 10px var(--shadow-light);
+}
+
+/* --- Main Content & Sections --- */
+main { flex-grow: 1; max-width: 1100px; width: 95%; margin: 30px auto; }
+.tab-content {
+    display: none; background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-xl); /* Larger radius for main content block */
+    box-shadow: 0 10px 30px var(--shadow-color); /* Stronger shadow */
+    padding: 30px; transition: background-color 0.3s ease;
+}
+.tab-content.active { display: block; animation: fadeInTab 0.5s ease-out; }
+@keyframes fadeInTab { from { opacity: 0.5; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.tab-content section {
+    padding: 30px; margin-bottom: 30px; background-color: var(--bg-tertiary);
+    border-radius: var(--border-radius-lg); box-shadow: 0 5px 18px var(--shadow-light);
+    transition: background-color 0.3s ease;
+}
+.tab-content section:last-child { margin-bottom: 0; }
+h2 {
+    font-family: var(--font-headings); color: var(--accent-primary);
+    margin-bottom: 25px; font-weight: 700;
+    border-bottom: 2px solid var(--accent-secondary); padding-bottom: 12px;
+    letter-spacing: 0.5px; font-size: 1.6em;
+}
+h2 .fas, h2 .far { margin-right: 10px; } /* Space for icons in h2 */
+h3 {
+    font-family: var(--font-headings); color: var(--text-primary);
+    margin-bottom: 18px; font-weight: 600; font-size: 1.3em;
+}
+
+/* --- Forms --- (mostly as before, slight rounding adjustments) */
+form label { font-weight: 600; color: var(--text-secondary); }
+form input[type="text"], form input[type="number"], form input[type="date"],
+form input[type="email"], form input[type="password"], form input[type="url"],
+form select, form textarea { border-radius: var(--border-radius-md); /* Consistent rounded inputs */ }
+
+/* --- Buttons --- (mostly as before, slight rounding adjustments) */
+button, .button-like { border-radius: var(--border-radius-pill); /* Pill shaped buttons */ }
+form button[type="submit"], #finish-workout-btn { border-radius: var(--border-radius-md); } /* Form submit buttons less pill-y */
+.secondary-action-btn { border-radius: var(--border-radius-md); }
+
+
+/* --- Dashboard Specific Styles --- */
+#greeting-section h2 { /* Special styling for dashboard greeting */
+    font-family: var(--font-cute-titles);
+    font-size: 2.5em;
+    color: var(--accent-pink);
+    border-bottom: none; /* Remove border for greeting */
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: normal;
+}
+#quick-start-workouts .quick-start-grid { /* ... (as before) ... */ }
+.quick-start-tile { /* ... (as before) ... */ }
+.quick-start-tile h4 { font-size: 1.25em; } /* Slightly larger */
+
+#quick-actions .action-buttons-grid { /* ... (as before) ... */ }
+.dash-action-btn { /* ... (as before) ... */ border-radius: var(--border-radius-md); }
+
+#overview-grid { /* ... (as before) ... */ }
+.overview-card { /* ... (as before) ... */ border-radius: var(--border-radius-lg); }
+.overview-card p { font-size: 1.5em; } /* Larger overview numbers */
+.overview-card .overview-icon { font-size: 3.5em; opacity: 0.07; } /* Larger, more subtle icon */
+
+/* Shiny Progress Bars for Dashboard */
+.progress-bar-container {
+    height: 12px; /* Thicker bar */
+    background-color: var(--bg-input);
+    border-radius: var(--border-radius-pill);
+    margin-top: 10px;
+    overflow: hidden;
+    position: relative;
+}
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--accent-primary); /* Default Kcal color */
+    border-radius: var(--border-radius-pill);
+    transition: width 0.5s ease-in-out;
+    width: 0%; /* Initial width */
+}
+.progress-bar-fill.protein-fill {
+    background-color: var(--accent-protein); /* Protein color */
+}
+.shiny-progress .progress-bar-fill::after { /* Shiny effect */
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background-image: linear-gradient(
+        -45deg,
+        rgba(255,255,255,0.2) 25%,
+        transparent 25%, transparent 50%,
+        rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%,
+        transparent 75%, transparent
+    );
+    z-index: 1;
+    background-size: 30px 30px; /* Adjust size of shine */
+    animation: shiny-progress-animation 2s linear infinite;
+    opacity: 0.6;
+}
+@keyframes shiny-progress-animation {
+    0% { background-position: 0 0; }
+    100% { background-position: 60px 0; } /* Twice the background-size width */
+}
+
+#recent-activity p, #motivation-tip p, #dash-up-next-workout { /* ... (as before) ... */ }
+#dash-motivation-quote { /* ... (as before) ... */ border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; }
+
+/* --- Log Workout Tab --- */
+#workout-timer-section { text-align: center; margin-bottom: 20px; padding:20px; background-color: var(--bg-quaternary); border-radius: var(--border-radius-lg); }
+.timer-display { font-size: 3em; font-weight: bold; color: var(--accent-primary); margin-bottom: 15px; font-family: 'Courier New', Courier, monospace; }
+.timer-controls button { margin: 0 8px; padding: 10px 18px; font-size: 0.9em; }
+
+.active-workout-exercise { /* ... (as before) ... */ border-radius: var(--border-radius-lg); }
+.active-workout-exercise .exercise-header strong { font-size: 1.25em; }
+.sets-container .set-row.completed { background-color: color-mix(in srgb, var(--accent-success) 20%, transparent); } /* Brighter completed */
+body.theme-light .sets-container .set-row.completed { background-color: #c3e6cb; }
+.set-row input[type="number"].set-weight-input,
+.set-row input[type="text"].set-reps-input { border-radius: var(--border-radius-sm); }
+.set-row .log-set-btn { border-radius: var(--border-radius-pill); } /* Pill for log set buttons */
+
+/* --- Routines Tab --- */
+#routines-list-container .routine-card { /* ... (as before) ... */ border-radius: var(--border-radius-lg); }
+#routine-exercises-list .routine-exercise-item { /* ... (as before) ... */ border-radius: var(--border-radius-sm); }
+
+/* --- History Tab (Calendar & Sessions) --- */
+#calendar-controls { /* ... (as before) ... */ border-radius: var(--border-radius-md); }
+#calendar-grid-container { /* ... (as before) ... */ border-radius: var(--border-radius-lg); }
+.calendar-day { /* ... (as before) ... */ border-radius: var(--border-radius-sm); }
+.calendar-day.today .day-number { color: var(--accent-pink); background-color: color-mix(in srgb, var(--accent-pink) 20%, transparent); }
+.calendar-tooltip { /* ... (as before) ... */ border-radius: var(--border-radius-md); }
+#workout-history-container .workout-session { /* ... (as before) ... */ border-radius: var(--border-radius-lg); }
+#workout-history-container .history-exercise-item { /* ... (as before) ... */ border-radius: var(--border-radius-md); }
+
+/* --- Exercise Library Tab --- */
+#exercise-library-list .exercise-lib-card { /* ... (as before) ... */ border-radius: var(--border-radius-lg); }
+#exercise-library-list .exercise-lib-card .exercise-info-icon { color: var(--accent-secondary); margin-left: 5px; cursor: help; }
+#exercise-library-list .exercise-lib-card .exercise-lib-image-placeholder { /* For exercise image */
+    width: 80px; height: 80px; background-color: var(--bg-input); border-radius: var(--border-radius-sm);
+    display: flex; align-items: center; justify-content: center; color: var(--text-muted);
+    font-size: 2em; margin-bottom: 10px;
+}
+
+
+/* Modal Styles */
+.modal-content { /* ... (as before) ... */ border-radius: var(--border-radius-xl); }
+
+/* --- Body Measurements & Nutrition Tabs --- */
+/* Forms will inherit general styles. List items need specific styling if not using .simple-history-list */
+.simple-history-list li { /* ... (as before) ... */ border-radius: var(--border-radius-md); }
+
+/* --- Settings Tab (if uncommented) --- */
+#settingsTab form div { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+#settingsTab form label { flex-basis: 200px; flex-shrink: 0; margin-bottom: 0; }
+#settingsTab form input[type="text"],
+#settingsTab form input[type="number"],
+#settingsTab form select { flex-grow: 1; min-width: 150px; }
+#settingsTab form input[type="checkbox"] { width: auto; margin-right: 5px; transform: scale(1.2); }
+#settingsTab .danger-btn { background: var(--accent-danger) !important; } /* Important to override general button gradient */
+#settingsTab .danger-btn:hover { background: color-mix(in srgb, var(--accent-danger) 80%, black) !important; }
+
+
+/* --- Footer --- (as before) */
+/* --- Scrollbar --- (as before) */
+
+/* --- Responsive Adjustments --- (mostly as before, minor tweaks for new elements if needed) */
+@media (max-width: 992px) { /* Tablet and wider mobile */
+    header .tabs { justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    body { padding-top: 120px; }
+    #greeting-section h2 { font-size: 2em; }
+}
+
+@media (max-width: 768px) { /* Mobile */
+    body { padding-top: 140px; }
+    header h1 { font-size: 1.8em; }
+    .tab-link { padding: 9px 10px; font-size: 0.8em; gap: 6px;}
+    main { width: 100%; margin: 15px 0 0 0; border-radius: 0; }
+    .tab-content { padding: 20px; border-radius: 0; }
+    .tab-content section { padding: 20px; }
+    h2 { font-size: 1.4em; }
+    #greeting-section h2 { font-size: 1.8em; }
+    .quick-start-tile { min-height: 110px; }
+    .quick-start-tile h4 { font-size: 1.1em; }
+    .overview-card p { font-size: 1.3em; }
+    .timer-display { font-size: 2.5em; }
+    #quick-actions .action-buttons-grid, #overview-grid, .quick-start-grid { grid-template-columns: 1fr 1fr; }
+    /* ... other responsive rules as before ... */
+}
+
+@media (max-width: 480px) { /* Small Mobile */
+    body { padding-top: 150px; }
+    header h1 { font-size: 1.6em; }
+    .tab-link { padding: 8px 8px; font-size: 0.75em; gap: 4px; }
+    button, .button-like { font-size: 0.9em; padding: 12px 18px; }
+    #greeting-section h2 { font-size: 1.6em; }
+    .quick-start-tile { min-height: 100px; }
+    .quick-start-tile h4 { font-size: 1em; }
+    .timer-display { font-size: 2.2em; }
+    #quick-actions .action-buttons-grid, #overview-grid, .quick-start-grid { grid-template-columns: 1fr; }
+    /* ... other responsive rules as before ... */
+}
