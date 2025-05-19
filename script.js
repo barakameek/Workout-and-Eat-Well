@@ -1,10 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Theme Switcher Logic ---
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const bodyElement = document.body;
+
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            bodyElement.classList.add('theme-light');
+            bodyElement.classList.remove('theme-dark');
+            if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            localStorage.setItem('theme', 'light');
+        } else { // Default to dark
+            bodyElement.classList.remove('theme-light');
+            bodyElement.classList.add('theme-dark');
+            if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            localStorage.setItem('theme', 'dark');
+        }
+    }
+    const savedTheme = localStorage.getItem('theme');
+    applyTheme(savedTheme || 'dark'); // Apply saved theme or default to dark
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            let newTheme = bodyElement.classList.contains('theme-light') ? 'dark' : 'light';
+            applyTheme(newTheme);
+        });
+    }
+
     // --- Tab Navigation Elements ---
     const tabs = document.querySelectorAll('.tab-link');
     const tabContents = document.querySelectorAll('.tab-content');
 
     // --- Dashboard Elements ---
     const dashboardDateEl = document.getElementById('dashboard-date');
+    const quickStartGrid = document.getElementById('quick-start-workouts')?.querySelector('.quick-start-grid');
     const dashWorkoutStatusEl = document.getElementById('dash-workout-status');
     const dashKcalConsumedEl = document.getElementById('dash-kcal-consumed');
     const dashKcalGoalEl = document.getElementById('dash-kcal-goal');
@@ -29,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentWorkoutDateDisplay = document.getElementById('current-workout-date-display');
     const currentWorkoutNameDisplay = document.getElementById('current-workout-name-display');
     const finishWorkoutBtn = document.getElementById('finish-workout-btn');
-    const exerciseNameInput = document.getElementById('exercise-name'); // In log form
+    const exerciseNameInput = document.getElementById('exercise-name');
     const commonExercisesDatalist = document.getElementById('common-exercises');
     const logRestDayBtnMain = document.getElementById('log-rest-day-btn-main');
     const startFromRoutineActualBtn = document.getElementById('start-from-routine-actual-btn');
@@ -50,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const addExerciseToRoutineBtn = document.getElementById('add-exercise-to-routine-btn');
     const saveRoutineBtn = document.getElementById('save-routine-btn');
     const cancelRoutineEditBtn = document.getElementById('cancel-routine-edit-btn');
-    let editingRoutineId = null; // To track if editing an existing routine
-    let currentRoutineExercises = []; // Temp storage for exercises while creating/editing a routine
+    let editingRoutineId = null;
+    let currentRoutineExercisesData = [];
 
 
     // --- History Tab Elements ---
@@ -70,15 +98,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeExerciseLibModalBtn = document.getElementById('close-exercise-lib-modal');
     const exerciseLibModalTitle = document.getElementById('exercise-lib-modal-title');
     const exerciseLibForm = document.getElementById('exercise-lib-form');
-    const exerciseLibIdInput = document.getElementById('exercise-lib-id'); // Hidden input for editing
+    const exerciseLibIdInput = document.getElementById('exercise-lib-id');
     const exLibNameInput = document.getElementById('ex-lib-name');
-    // ... (other ex lib form inputs)
+    const exLibMuscleInput = document.getElementById('ex-lib-muscle');
+    const exLibSecondaryMuscleInput = document.getElementById('ex-lib-secondary-muscle');
+    const exLibEquipmentInput = document.getElementById('ex-lib-equipment');
+    const exLibInstructionsInput = document.getElementById('ex-lib-instructions');
+    const exLibVideoInput = document.getElementById('ex-lib-video');
+
 
     // --- Body Measurements Tab Elements ---
     const logMeasurementForm = document.getElementById('log-measurement-form');
     const measurementDateInput = document.getElementById('measurement-date');
     const bodyWeightInput = document.getElementById('body-weight');
-    // ... (other measurement form inputs)
+    const bodyFatInput = document.getElementById('body-fat');
+    const chestSizeInput = document.getElementById('chest-size');
+    const waistSizeInput = document.getElementById('waist-size');
+    const armSizeInput = document.getElementById('arm-size');
+    const thighSizeInput = document.getElementById('thigh-size');
+    const measurementNotesInput = document.getElementById('measurement-notes');
     const measurementHistoryListContainer = document.getElementById('measurement-history-list');
     const progressPhotoUploadInput = document.getElementById('progress-photo-upload');
     const progressPhotosGallery = document.getElementById('progress-photos-gallery');
@@ -89,30 +127,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const nutritionDateInput = document.getElementById('nutrition-date');
     const kcalGoalInput = document.getElementById('kcal-goal');
     const kcalConsumedInput = document.getElementById('kcal-consumed');
-    // ... (other nutrition form inputs)
+    const proteinGoalInput = document.getElementById('protein-goal');
+    const proteinConsumedInput = document.getElementById('protein-consumed');
+    const carbsConsumedInput = document.getElementById('carbs-consumed');
+    const fatsConsumedInput = document.getElementById('fats-consumed');
+    const nutritionNotesInput = document.getElementById('nutrition-notes');
+    const nutritionSummaryEl = document.getElementById('nutrition-summary');
 
 
     // --- Global State ---
-    let currentWorkoutSessionExercises = []; // For exercises in the current log session
+    let currentWorkoutSessionExercisesData = [];
     let currentSessionDate = null;
     let currentCalendarDate = new Date();
 
     // --- LOCALSTORAGE KEYS ---
-    const WORKOUT_STORAGE_KEY = 'ultimateTracker_workouts';
-    const ROUTINES_STORAGE_KEY = 'ultimateTracker_routines';
-    const EXERCISES_STORAGE_KEY = 'ultimateTracker_exercises';
-    const MEASUREMENTS_STORAGE_KEY = 'ultimateTracker_measurements';
-    const NUTRITION_STORAGE_KEY = 'ultimateTracker_nutrition';
-    const SETTINGS_STORAGE_KEY = 'ultimateTracker_settings';
+    const WORKOUT_STORAGE_KEY = 'cuteTracker_workouts';
+    const ROUTINES_STORAGE_KEY = 'cuteTracker_routines';
+    const EXERCISES_STORAGE_KEY = 'cuteTracker_exercises';
+    const MEASUREMENTS_STORAGE_KEY = 'cuteTracker_measurements';
+    const NUTRITION_STORAGE_KEY = 'cuteTracker_nutrition';
+    // const SETTINGS_STORAGE_KEY = 'cuteTracker_settings'; // For future settings
 
     // --- Utility Functions ---
-    function generateId() { return Date.now() + Math.random().toString(36).substr(2, 9); }
+    function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
 
     // --- LocalStorage Helper Functions (Generic) ---
-    function getData(key) {
+    function getData(key, defaultValue = []) {
         const data = localStorage.getItem(key);
-        try { return data ? JSON.parse(data) : []; }
-        catch (e) { console.error(`Error parsing ${key}:`, e); return []; }
+        try { return data ? JSON.parse(data) : defaultValue; }
+        catch (e) { console.error(`Error parsing ${key}:`, e); return defaultValue; }
     }
     function saveData(key, data) {
         try { localStorage.setItem(key, JSON.stringify(data)); }
@@ -129,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetContent = document.getElementById(targetTabId);
             if (targetContent) targetContent.classList.add('active');
 
-            // Actions on tab switch
             if (targetTabId === "dashboardTab") loadDashboardData();
             if (targetTabId === "historyTab") { renderCalendar(); renderWorkoutHistory(); }
             if (targetTabId === "routinesTab") { loadRoutines(); hideRoutineForm(); }
@@ -139,45 +181,82 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    function switchTab(tabId) {
+        const tabButton = document.querySelector(`.tab-link[data-tab="${tabId}"]`);
+        if (tabButton) tabButton.click();
+    }
+
     // --- Dashboard Logic ---
     function loadDashboardData() {
         if (dashboardDateEl) dashboardDateEl.textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         const todayStr = new Date().toISOString().split('T')[0];
         const workouts = getData(WORKOUT_STORAGE_KEY);
-        const todayWorkout = workouts.find(w => w.date === todayStr && w.type !== "REST_DAY");
-        const todayRestDay = workouts.find(w => w.date === todayStr && w.type === "REST_DAY");
+        const todayWorkoutEntry = workouts.find(w => w.date === todayStr && w.type !== "REST_DAY");
+        const todayRestDayEntry = workouts.find(w => w.date === todayStr && w.type === "REST_DAY");
 
         if (dashWorkoutStatusEl) {
-            if (todayWorkout) dashWorkoutStatusEl.textContent = `Completed: ${todayWorkout.name || 'Workout'}`;
-            else if (todayRestDay) dashWorkoutStatusEl.textContent = "Rest Day Logged";
-            else dashWorkoutStatusEl.textContent = "Not Logged";
+            if (todayWorkoutEntry) dashWorkoutStatusEl.textContent = `Completed: ${todayWorkoutEntry.name || 'Workout'} 💪`;
+            else if (todayRestDayEntry) dashWorkoutStatusEl.textContent = "Rest Day Logged 😴";
+            else dashWorkoutStatusEl.textContent = "Not Logged Yet 🤔";
         }
 
-        // TODO: Implement Kcal/Protein summary from nutrition data
-        if (dashKcalConsumedEl) dashKcalConsumedEl.textContent = "0"; // Placeholder
-        if (dashProteinConsumedEl) dashProteinConsumedEl.textContent = "0"; // Placeholder
+        const nutritionData = getData(NUTRITION_STORAGE_KEY);
+        const todayNutrition = nutritionData.find(n => n.date === todayStr);
+        if (todayNutrition) {
+            if (dashKcalConsumedEl) dashKcalConsumedEl.textContent = todayNutrition.kcalConsumed || 0;
+            if (dashKcalGoalEl) dashKcalGoalEl.textContent = todayNutrition.kcalGoal || 2500;
+            if (dashProteinConsumedEl) dashProteinConsumedEl.textContent = todayNutrition.proteinConsumed || 0;
+            if (dashProteinGoalEl) dashProteinGoalEl.textContent = todayNutrition.proteinGoal || 150;
+        } else {
+            if (dashKcalConsumedEl) dashKcalConsumedEl.textContent = "0";
+            if (dashKcalGoalEl) dashKcalGoalEl.textContent = getData(SETTINGS_STORAGE_KEY, { kcalGoal: 2500 }).kcalGoal; // Default goal
+            if (dashProteinConsumedEl) dashProteinConsumedEl.textContent = "0";
+            if (dashProteinGoalEl) dashProteinGoalEl.textContent = getData(SETTINGS_STORAGE_KEY, { proteinGoal: 150 }).proteinGoal;
+        }
 
-        // TODO: Implement workout streak and last workout info
+        // TODO: Implement workout streak (count consecutive days with workouts/rest_days from `workouts` data)
         if (dashWorkoutStreakEl) dashWorkoutStreakEl.textContent = "0"; // Placeholder
-        if (dashLastWorkoutInfoEl) dashLastWorkoutInfoEl.textContent = "Never"; // Placeholder
+        // TODO: Find the last workout date from `workouts` data
+        const lastWorkout = workouts.filter(w => w.type !== "REST_DAY").sort((a,b) => new Date(b.date) - new Date(a.date))[0];
+        if (dashLastWorkoutInfoEl) dashLastWorkoutInfoEl.textContent = lastWorkout ? new Date(lastWorkout.date+'T00:00:00').toLocaleDateString() : "Never";
 
-        // TODO: Dynamic motivation quotes
-        const quotes = ["The only bad workout is the one that didn't happen.", "Sweat is just fat crying.", "Strive for progress, not perfection."];
+
+        const quotes = ["Believe in your #selfie! 🤳", "You're stronger than you think! ✨", "Every rep counts! 💖", "Make today awesome! 🌟"];
         if (dashMotivationQuoteEl) dashMotivationQuoteEl.textContent = quotes[Math.floor(Math.random() * quotes.length)];
 
-        // Dashboard button event listeners (navigate to tabs or open forms)
+        populateQuickStartWorkouts();
+
         if(dashLogWorkoutBtn) dashLogWorkoutBtn.onclick = () => switchTab('logWorkoutTab');
-        if(dashStartRoutineBtn) dashStartRoutineBtn.onclick = () => switchTab('routinesTab'); // Or directly open routine selection
-        if(dashLogRestDayBtn) dashLogRestDayBtn.onclick = () => { switchTab('logWorkoutTab'); setTimeout(logRestDayPrompt, 100); }; // Open log tab then prompt
+        if(dashStartRoutineBtn) dashStartRoutineBtn.onclick = () => switchTab('routinesTab');
+        if(dashLogRestDayBtn) dashLogRestDayBtn.onclick = () => { switchTab('logWorkoutTab'); setTimeout(() => logRestDayPrompt(new Date().toISOString().split('T')[0]), 100); };
         if(dashLogNutritionBtn) dashLogNutritionBtn.onclick = () => switchTab('nutritionTab');
         if(dashLogMeasurementBtn) dashLogMeasurementBtn.onclick = () => switchTab('measurementsTab');
     }
 
-    function switchTab(tabId) {
-        const tabButton = document.querySelector(`.tab-link[data-tab="${tabId}"]`);
-        if (tabButton) tabButton.click();
+    function populateQuickStartWorkouts() {
+        if (!quickStartGrid) return;
+        quickStartGrid.innerHTML = ''; // Clear existing
+        const routines = getData(ROUTINES_STORAGE_KEY);
+        // Show first few routines or predefined ones
+        const routinesToShow = routines.slice(0, 4); // Show up to 4
+        if (routinesToShow.length === 0) {
+            quickStartGrid.innerHTML = '<p>Create some routines in "My Routines" to see them here! 😊</p>';
+        }
+
+        routinesToShow.forEach(routine => {
+            const tile = document.createElement('button');
+            tile.className = 'quick-start-tile';
+            tile.dataset.routineId = routine.id; // Changed from routine-name
+            tile.innerHTML = `
+                <h4>${routine.name}</h4>
+                <p>${routine.description || `${routine.exercises.length} exercises`}</p>
+                <i class="fas fa-chevron-circle-right"></i>`;
+            tile.onclick = () => startWorkoutFromRoutine(routine.id);
+            quickStartGrid.appendChild(tile);
+        });
     }
+
 
     // --- Log Workout/Session Tab Logic ---
     function setDefaultLogDate() {
@@ -187,40 +266,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    exerciseForm.addEventListener('submit', function(event) {
+    if(exerciseForm) exerciseForm.addEventListener('submit', function(event) {
         event.preventDefault();
         const date = workoutDateInput.value;
-        const exerciseName = exerciseNameInput.value.trim();
-        const sets = document.getElementById('sets').value;
-        const reps = document.getElementById('reps').value.trim();
-        const weight = document.getElementById('weight').value;
-        const weightUnit = document.getElementById('weight-unit').value;
-        const notes = document.getElementById('exercise-notes').value.trim();
+        const exerciseNameVal = exerciseNameInput.value.trim();
+        const setsVal = document.getElementById('sets').value;
+        const repsVal = document.getElementById('reps').value.trim();
+        const weightVal = document.getElementById('weight').value;
+        const weightUnitVal = document.getElementById('weight-unit').value;
+        const notesVal = document.getElementById('exercise-notes').value.trim();
 
-        if (!date || !exerciseName || !sets || !reps) {
-            alert('Please fill in Date, Exercise Name, Sets, and Reps.'); return;
+        if (!date || !exerciseNameVal || !setsVal || !repsVal) {
+            alert('Oops! Please fill in Date, Exercise Name, Sets, and Reps. 💖'); return;
         }
 
-        if (currentWorkoutSessionExercises.length === 0) {
+        if (currentWorkoutSessionExercisesData.length === 0) {
             currentSessionDate = date;
             const workoutName = workoutSessionNameInput.value.trim();
             if (currentWorkoutDateDisplay) currentWorkoutDateDisplay.textContent = `Date: ${new Date(date + 'T00:00:00').toLocaleDateString()}`;
             if (currentWorkoutNameDisplay) currentWorkoutNameDisplay.textContent = workoutName ? `Name: ${workoutName}` : '';
         } else if (date !== currentSessionDate) {
-            alert("Date changed. Current session is under the initial date. Save to start new.");
+            alert("Date changed! Current session is under the first date. Save to start a new one. 😊");
             workoutDateInput.value = currentSessionDate; return;
         }
 
         let actualRepsParsed = null;
-        if (!reps.includes('-') && !isNaN(parseInt(reps))) actualRepsParsed = parseInt(reps);
+        if (!repsVal.includes('-') && !isNaN(parseInt(repsVal))) actualRepsParsed = parseInt(repsVal);
 
         const exerciseData = {
-            id: generateId(), name: exerciseName, sets: parseInt(sets), reps: reps,
-            actualReps: actualRepsParsed, weight: parseFloat(weight) || 0, unit: weightUnit, notes: notes
+            id: generateId(), name: exerciseNameVal, sets: parseInt(setsVal), reps: repsVal,
+            actualReps: actualRepsParsed, weight: parseFloat(weightVal) || 0, unit: weightUnitVal, notes: notesVal
         };
-        currentWorkoutSessionExercises.push(exerciseData);
+        currentWorkoutSessionExercisesData.push(exerciseData);
         addExerciseToCurrentLogDOM(exerciseData);
-        exerciseForm.reset(); // exerciseNameInput.value = ''; // Keep date and session name
+        // Don't reset date or session name, just exercise fields
+        exerciseNameInput.value = '';
+        document.getElementById('sets').value = '';
+        document.getElementById('reps').value = '';
+        document.getElementById('weight').value = '';
+        document.getElementById('exercise-notes').value = '';
         exerciseNameInput.focus();
         if (finishWorkoutBtn) finishWorkoutBtn.style.display = 'block';
     });
@@ -236,39 +320,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${weightDisplay ? `${weightDisplay}<br>` : ''}
                 ${exercise.notes ? `<em>Notes: ${exercise.notes}</em>` : ''}
             </div>
-            <div class="exercise-actions"><button class="delete-btn">Delete</button></div>`;
+            <div class="exercise-actions"><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></div>`; // Added icon
         li.querySelector('.delete-btn').addEventListener('click', () => {
-            currentWorkoutSessionExercises = currentWorkoutSessionExercises.filter(ex => ex.id !== exercise.id);
+            currentWorkoutSessionExercisesData = currentWorkoutSessionExercisesData.filter(ex => ex.id !== exercise.id);
             li.remove();
-            if (currentWorkoutSessionExercises.length === 0 && finishWorkoutBtn) finishWorkoutBtn.style.display = 'none';
+            if (currentWorkoutSessionExercisesData.length === 0 && finishWorkoutBtn) finishWorkoutBtn.style.display = 'none';
         });
         if (loggedExercisesList) loggedExercisesList.appendChild(li);
     }
 
     if (finishWorkoutBtn) finishWorkoutBtn.addEventListener('click', function() {
-        if (currentWorkoutSessionExercises.length === 0) { alert("No exercises logged."); return; }
-        if (!currentSessionDate) { alert("Please set a date."); return; }
+        if (currentWorkoutSessionExercisesData.length === 0) { alert("No exercises logged. Add some sparkle! ✨"); return; }
+        if (!currentSessionDate) { alert("Oops, please set a date! 📅"); return; }
 
         const sessionName = workoutSessionNameInput.value.trim();
         const duration = workoutDurationInput.value.trim();
 
         const newWorkoutSession = {
-            id: generateId(), date: currentSessionDate, name: sessionName || "Workout",
+            id: generateId(), date: currentSessionDate, name: sessionName || "My Awesome Workout 💪",
             duration: duration ? parseInt(duration) : null,
-            type: "WORKOUT", exercises: [...currentWorkoutSessionExercises]
+            type: "WORKOUT", exercises: [...currentWorkoutSessionExercisesData]
         };
         const allWorkouts = getData(WORKOUT_STORAGE_KEY);
         allWorkouts.push(newWorkoutSession);
         allWorkouts.sort((a, b) => new Date(b.date) - new Date(a.date));
         saveData(WORKOUT_STORAGE_KEY, allWorkouts);
-        alert("Workout saved!");
+        alert("Workout saved! You're amazing! 🥳");
         resetLogFormAndSession();
-        loadDashboardData(); // Refresh dashboard
-        renderCalendar(); renderWorkoutHistory(); // Refresh history
+        loadDashboardData();
+        renderCalendar(); renderWorkoutHistory();
     });
 
     function resetLogFormAndSession() {
-        currentWorkoutSessionExercises = [];
+        currentWorkoutSessionExercisesData = [];
         if (loggedExercisesList) loggedExercisesList.innerHTML = '';
         if (currentWorkoutDateDisplay) currentWorkoutDateDisplay.textContent = '';
         if (currentWorkoutNameDisplay) currentWorkoutNameDisplay.textContent = '';
@@ -281,81 +365,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function logRestDayPrompt(dateToLog = null) {
         const restDate = dateToLog || workoutDateInput.value || new Date().toISOString().split('T')[0];
-        const notes = prompt(`Log rest day for ${new Date(restDate+'T00:00:00').toLocaleDateString()}? (Optional notes):`, "");
+        const notes = prompt(`Log rest day for ${new Date(restDate+'T00:00:00').toLocaleDateString()}? (Optional notes for your chill time 🧘‍♀️):`, "");
 
-        if (notes === null) { alert("Rest day logging cancelled."); return; } // User pressed cancel
+        if (notes === null) { alert("Rest day logging cancelled. That's okay! 👍"); return; }
 
         const restDayEntry = { id: generateId(), date: restDate, type: "REST_DAY", notes: notes || "" };
         const allEntries = getData(WORKOUT_STORAGE_KEY);
         const existingEntryIndex = allEntries.findIndex(entry => entry.date === restDate);
 
         if (existingEntryIndex > -1) {
-            if (confirm(`An entry already exists for ${restDate}. Overwrite it with a rest day?`)) {
-                allEntries.splice(existingEntryIndex, 1, restDayEntry); // Replace
+            if (confirm(`An entry already exists for ${restDate}. Overwrite it with a rest day? 🤔`)) {
+                allEntries.splice(existingEntryIndex, 1, restDayEntry);
             } else { alert("Rest day not logged."); return; }
         } else {
             allEntries.push(restDayEntry);
         }
         allEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
         saveData(WORKOUT_STORAGE_KEY, allEntries);
-        alert("Rest day logged for " + new Date(restDate+'T00:00:00').toLocaleDateString() + "!");
+        alert("Rest day logged for " + new Date(restDate+'T00:00:00').toLocaleDateString() + "! Sweet dreams! 🌙");
         loadDashboardData(); renderCalendar(); renderWorkoutHistory();
     }
     if(logRestDayBtnMain) logRestDayBtnMain.addEventListener('click', () => logRestDayPrompt());
 
 
     // --- Routines Tab Logic ---
-    if (createNewRoutineBtn) createNewRoutineBtn.addEventListener('click', showRoutineForm);
+    if (createNewRoutineBtn) createNewRoutineBtn.addEventListener('click', () => showRoutineForm());
     if (cancelRoutineEditBtn) cancelRoutineEditBtn.addEventListener('click', hideRoutineForm);
     if (routineForm) routineForm.addEventListener('submit', handleSaveRoutine);
-    if (addExerciseToRoutineBtn) addExerciseToRoutineBtn.addEventListener('click', addExerciseToCurrentRoutine);
+    if (addExerciseToRoutineBtn) addExerciseToRoutineBtn.addEventListener('click', addExerciseToCurrentRoutineData);
 
-    function showRoutineForm(routine = null) { // Pass routine to edit
+    function showRoutineForm(routine = null) {
         if (createEditRoutineSection) createEditRoutineSection.style.display = 'block';
-        if (routinesListContainer) routinesListContainer.style.display = 'none'; // Hide list when form is shown
-        currentRoutineExercises = []; // Reset temp exercises
-        if (routineFormTitle) routineFormTitle.textContent = routine ? "Edit Routine" : "Create New Routine";
+        if (routinesListContainer) routinesListContainer.style.display = 'none';
+        currentRoutineExercisesData = [];
+        if (routineFormTitle) routineFormTitle.textContent = routine ? "Edit Routine ✨" : "Create New Routine 💖";
         if (routine) {
             editingRoutineId = routine.id;
             if (routineNameInput) routineNameInput.value = routine.name;
             if (routineDescriptionInput) routineDescriptionInput.value = routine.description || "";
-            currentRoutineExercises = [...(routine.exercises || [])];
+            currentRoutineExercisesData = [...(routine.exercises || [])];
         } else {
             editingRoutineId = null;
             if (routineForm) routineForm.reset();
         }
-        renderCurrentRoutineExercises();
+        renderCurrentRoutineExercisesDOM();
     }
     function hideRoutineForm() {
         if (createEditRoutineSection) createEditRoutineSection.style.display = 'none';
         if (routinesListContainer) routinesListContainer.style.display = 'block';
         editingRoutineId = null;
-        currentRoutineExercises = [];
+        currentRoutineExercisesData = [];
     }
-    function addExerciseToCurrentRoutine() {
+    function addExerciseToCurrentRoutineData() {
         const selectedExName = addExerciseToRoutineSelect.value;
         const sets = routineExerciseSetsInput.value.trim();
         const reps = routineExerciseRepsInput.value.trim();
-        if (!selectedExName || !sets || !reps) { alert("Select exercise, and enter sets & reps."); return; }
-        currentRoutineExercises.push({ name: selectedExName, sets: sets, reps: reps, id: generateId() });
-        renderCurrentRoutineExercises();
-        // Clear inputs for next exercise
+        if (!selectedExName || !sets || !reps) { alert("Select an exercise, and enter sets & reps, please! 😊"); return; }
+        currentRoutineExercisesData.push({ name: selectedExName, sets: sets, reps: reps, id: generateId() });
+        renderCurrentRoutineExercisesDOM();
         addExerciseToRoutineSelect.value = "";
         routineExerciseSetsInput.value = "";
         routineExerciseRepsInput.value = "";
     }
-    function renderCurrentRoutineExercises() {
+    function renderCurrentRoutineExercisesDOM() {
         if (!routineExercisesList) return;
         routineExercisesList.innerHTML = "";
-        currentRoutineExercises.forEach(ex => {
+        currentRoutineExercisesData.forEach(ex => {
             const item = document.createElement('div');
             item.className = 'routine-exercise-item';
             item.innerHTML = `<span>${ex.name} - Sets: ${ex.sets}, Reps: ${ex.reps}</span>
-                              <button type="button" class="delete-routine-ex-btn" data-id="${ex.id}">×</button>`;
+                              <button type="button" class="delete-routine-ex-btn" data-id="${ex.id}"><i class="fas fa-times-circle"></i></button>`;
             item.querySelector('.delete-routine-ex-btn').onclick = (e) => {
                 const exId = e.target.dataset.id;
-                currentRoutineExercises = currentRoutineExercises.filter(currEx => currEx.id !== exId);
-                renderCurrentRoutineExercises();
+                currentRoutineExercisesData = currentRoutineExercisesData.filter(currEx => currEx.id !== exId);
+                renderCurrentRoutineExercisesDOM();
             };
             routineExercisesList.appendChild(item);
         });
@@ -363,43 +446,39 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleSaveRoutine(event) {
         event.preventDefault();
         const name = routineNameInput.value.trim();
-        if (!name || currentRoutineExercises.length === 0) { alert("Routine name and at least one exercise are required."); return; }
+        if (!name || currentRoutineExercisesData.length === 0) { alert("Routine name and at least one exercise are needed! 🌟"); return; }
         const newRoutine = {
-            id: editingRoutineId || generateId(),
-            name: name,
-            description: routineDescriptionInput.value.trim(),
-            exercises: currentRoutineExercises
+            id: editingRoutineId || generateId(), name: name,
+            description: routineDescriptionInput.value.trim(), exercises: currentRoutineExercisesData
         };
         let routines = getData(ROUTINES_STORAGE_KEY);
-        if (editingRoutineId) { // Editing existing
+        if (editingRoutineId) {
             routines = routines.map(r => r.id === editingRoutineId ? newRoutine : r);
-        } else { // New routine
+        } else {
             routines.push(newRoutine);
         }
         saveData(ROUTINES_STORAGE_KEY, routines);
-        alert(`Routine "${name}" saved!`);
+        alert(`Routine "${name}" saved! Great job! 🎉`);
         hideRoutineForm();
         loadRoutines();
+        populateQuickStartWorkouts(); // Update dashboard quick starts
     }
     function loadRoutines() {
         if (!routinesListContainer) return;
         const routines = getData(ROUTINES_STORAGE_KEY);
         routinesListContainer.innerHTML = "";
         if (routines.length === 0) {
-            routinesListContainer.innerHTML = '<p>No routines created yet.</p>'; return;
+            routinesListContainer.innerHTML = '<p>No routines created yet. Let’s make one! 🌈</p>'; return;
         }
         routines.forEach(routine => {
             const card = document.createElement('div');
             card.className = 'routine-card';
             card.innerHTML = `
-                <div>
-                    <h4>${routine.name}</h4>
-                    <small>${routine.description || ""}</small>
-                </div>
+                <div><h4>${routine.name}</h4><small>${routine.description || `${routine.exercises.length} exercises`}</small></div>
                 <div class="routine-actions">
-                    <button class="start-routine-btn" data-id="${routine.id}"><i class="fas fa-play"></i> Start</button>
-                    <button class="edit-routine-btn" data-id="${routine.id}"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="delete-routine-btn" data-id="${routine.id}"><i class="fas fa-trash"></i> Delete</button>
+                    <button class="start-routine-btn" data-id="${routine.id}" title="Start this Routine"><i class="fas fa-play"></i></button>
+                    <button class="edit-routine-btn" data-id="${routine.id}" title="Edit Routine"><i class="fas fa-edit"></i></button>
+                    <button class="delete-routine-btn" data-id="${routine.id}" title="Delete Routine"><i class="fas fa-trash"></i></button>
                 </div>`;
             card.querySelector('.start-routine-btn').onclick = () => startWorkoutFromRoutine(routine.id);
             card.querySelector('.edit-routine-btn').onclick = () => showRoutineForm(routine);
@@ -408,60 +487,53 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     function deleteRoutine(id, name) {
-        if (!confirm(`Are you sure you want to delete routine: "${name}"?`)) return;
+        if (!confirm(`Are you sure you want to delete routine: "${name}"? 😢`)) return;
         let routines = getData(ROUTINES_STORAGE_KEY);
         routines = routines.filter(r => r.id !== id);
         saveData(ROUTINES_STORAGE_KEY, routines);
         loadRoutines();
+        populateQuickStartWorkouts();
     }
     function startWorkoutFromRoutine(routineId) {
         const routines = getData(ROUTINES_STORAGE_KEY);
         const routine = routines.find(r => r.id === routineId);
-        if (!routine) { alert("Routine not found."); return; }
-
-        resetLogFormAndSession(); // Clear any ongoing log
-        switchTab('logWorkoutTab'); // Go to log tab
-
-        currentSessionDate = new Date().toISOString().split('T')[0]; // Default to today
+        if (!routine) { alert("Routine not found. Spooky! 👻"); return; }
+        resetLogFormAndSession();
+        switchTab('logWorkoutTab');
+        currentSessionDate = new Date().toISOString().split('T')[0];
         setDefaultLogDate();
-        if (workoutSessionNameInput) workoutSessionNameInput.value = routine.name; // Pre-fill session name
+        if (workoutSessionNameInput) workoutSessionNameInput.value = routine.name;
         if (currentWorkoutDateDisplay) currentWorkoutDateDisplay.textContent = `Date: ${new Date(currentSessionDate + 'T00:00:00').toLocaleDateString()}`;
         if (currentWorkoutNameDisplay) currentWorkoutNameDisplay.textContent = `Name: ${routine.name}`;
 
-
-        currentWorkoutSessionExercises = routine.exercises.map(ex => ({
-            ...ex, // Spread existing properties like name, sets, reps
-            id: generateId(), // New unique ID for this specific logged instance
-            weight: "", // User will fill these in
-            notes: "",
-            actualReps: null // User will effectively log this by what they enter in "reps" field for this session
+        currentWorkoutSessionExercisesData = routine.exercises.map(ex => ({
+            ...ex, id: generateId(), weight: "", notes: "", actualReps: null
         }));
-
-        currentWorkoutSessionExercises.forEach(addExerciseToCurrentLogDOM);
-        if (finishWorkoutBtn && currentWorkoutSessionExercises.length > 0) finishWorkoutBtn.style.display = 'block';
-        alert(`Loaded exercises from routine: "${routine.name}". Fill in weights and actual reps.`);
+        currentWorkoutSessionExercisesData.forEach(addExerciseToCurrentLogDOM);
+        if (finishWorkoutBtn && currentWorkoutSessionExercisesData.length > 0) finishWorkoutBtn.style.display = 'block';
+        alert(`Loaded exercises from routine: "${routine.name}". Let's get to it! 🔥`);
     }
     if(startFromRoutineActualBtn) startFromRoutineActualBtn.addEventListener('click', () => {
-        // This button would ideally show a modal to select a routine
-        // For now, let's assume it triggers the first routine or prompts
         const routines = getData(ROUTINES_STORAGE_KEY);
         if (routines.length > 0) {
-            // TODO: Implement a routine selection UI here
-            startWorkoutFromRoutine(routines[0].id); // Placeholder: starts first routine
+            // TODO: Implement a proper routine selection modal/dropdown for this button
+            alert("Please select a routine from the 'My Routines' tab or the Dashboard for now! 😊");
+            switchTab('routinesTab');
         } else {
-            alert("No routines available. Please create one first.");
+            alert("No routines available. Please create one in 'My Routines' first! 💖");
             switchTab('routinesTab');
         }
     });
 
 
     // --- History Tab Logic (Calendar & Session List) ---
+    // (renderCalendar and renderWorkoutHistory are largely the same as previous full JS)
     function renderCalendar() {
         if (!calendarGridContainer) return;
         calendarGridContainer.innerHTML = '';
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth();
-        if (calendarMonthYearDisplay) calendarMonthYearDisplay.textContent = `${currentCalendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
+        if (calendarMonthYearDisplay) calendarMonthYearDisplay.textContent = `${currentCalendarDate.toLocaleString('default', { month: 'long' })} ${year} 🗓️`;
 
         const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         daysOfWeek.forEach(day => {
@@ -493,18 +565,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const indicator = document.createElement('div'); indicator.className = 'workout-indicator';
                 if (isRestDay) {
                     dayCell.classList.add('rest-day');
-                    indicator.style.backgroundColor = '#6c757d'; // Grey for rest
-                } // else green (default) for workout
+                    indicator.innerHTML = '😴'; // Emoji for rest
+                    indicator.style.backgroundColor = 'transparent';
+                    indicator.style.fontSize = '1.2em';
+                } else {
+                     indicator.innerHTML = '💪'; // Emoji for workout
+                     indicator.style.backgroundColor = 'transparent';
+                     indicator.style.fontSize = '1.2em';
+                }
                 dayCell.appendChild(indicator);
                 dayCell.dataset.date = currentDateString;
-                dayCell.title = isRestDay ? `Rest Day` : `${entriesOnThisDay.filter(e=>e.type !== "REST_DAY").length} workout(s)`;
+                dayCell.title = isRestDay ? `Rest Day 😌` : `${entriesOnThisDay.filter(e=>e.type !== "REST_DAY").length} workout(s) 🔥`;
                 dayCell.onclick = () => {
-                    const sessionElement = document.querySelector(`.workout-session[data-date-marker="${currentDateString}"]`);
-                    if (sessionElement) {
-                        sessionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        sessionElement.classList.add('highlighted-session');
-                        setTimeout(() => sessionElement.classList.remove('highlighted-session'), 2000);
-                    } else { alert(`Details for ${new Date(currentDateString+'T00:00:00').toLocaleDateString()}`);}
+                    const sessionElements = document.querySelectorAll(`.workout-session[data-date-marker="${currentDateString}"]`);
+                    if (sessionElements.length > 0) {
+                        sessionElements[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        sessionElements.forEach(el => el.classList.add('highlighted-session'));
+                        setTimeout(() => sessionElements.forEach(el => el.classList.remove('highlighted-session')), 2500);
+                    } else { alert(`Details for ${new Date(currentDateString+'T00:00:00').toLocaleDateString()} 🧐`);}
                 };
             }
             calendarGridContainer.appendChild(dayCell);
@@ -524,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const allEntries = getData(WORKOUT_STORAGE_KEY);
         workoutHistoryContainer.innerHTML = '';
         if (allEntries.length === 0) {
-            workoutHistoryContainer.innerHTML = '<p>No sessions or rest days logged yet.</p>'; return;
+            workoutHistoryContainer.innerHTML = '<p>No sessions or rest days logged yet. Let’s make some memories! ✨</p>'; return;
         }
         allEntries.forEach(entry => {
             const sessionDiv = document.createElement('div');
@@ -534,11 +612,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const formattedDate = new Date(entry.date + 'T00:00:00');
             let sessionHtml = `<h3 class="workout-session-date">${formattedDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>`;
             if (entry.type === "REST_DAY") {
-                sessionHtml += `<div class="history-exercise-item rest-day-entry"><strong>REST DAY</strong>
+                sessionHtml += `<div class="history-exercise-item rest-day-entry"><strong>😴 REST DAY 😴</strong>
                                 ${entry.notes ? `<em>Notes: ${entry.notes}</em>` : ''}</div>`;
             } else { // WORKOUT
-                if(entry.name && entry.name !== "Workout") sessionHtml += `<p style="font-style:italic; margin-top:-15px; margin-bottom:10px;">${entry.name}</p>`;
-                if(entry.duration) sessionHtml += `<p style="font-size:0.9em; margin-top:-10px; margin-bottom:10px;">Duration: ${entry.duration} mins</p>`;
+                if(entry.name && entry.name !== "My Awesome Workout 💪") sessionHtml += `<p style="font-style:italic; margin-top:-15px; margin-bottom:10px;">${entry.name}</p>`;
+                if(entry.duration) sessionHtml += `<p style="font-size:0.9em; margin-top:-10px; margin-bottom:10px;">Duration: ${entry.duration} mins ⏱️</p>`;
                 sessionHtml += '<ul class="history-exercise-list">';
                 entry.exercises.forEach(ex => {
                     let weightDisplay = ex.weight > 0 ? ` - ${ex.weight} ${ex.unit}` : (ex.weight === 0 && ex.unit ? ` - Bodyweight / 0 ${ex.unit}` : "");
@@ -561,23 +639,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchExerciseLibraryInput) searchExerciseLibraryInput.addEventListener('input', (e) => loadExerciseLibrary(e.target.value, filterMuscleGroupSelect.value));
     if (filterMuscleGroupSelect) filterMuscleGroupSelect.addEventListener('change', (e) => loadExerciseLibrary(searchExerciseLibraryInput.value, e.target.value));
 
-
     function showExerciseLibModal(exercise = null) {
         if (!exerciseLibModal) return;
-        exerciseLibModal.style.display = 'flex'; // Use flex for centering
-        if (exerciseLibModalTitle) exerciseLibModalTitle.textContent = exercise ? "Edit Exercise" : "Add New Exercise";
-        if (exercise) { // Populate form for editing
+        exerciseLibModal.style.display = 'flex';
+        if (exerciseLibModalTitle) exerciseLibModalTitle.textContent = exercise ? "Edit Exercise Details ✏️" : "Add New Exercise to Library ➕";
+        if (exercise) {
             if(exerciseLibIdInput) exerciseLibIdInput.value = exercise.id;
             if(exLibNameInput) exLibNameInput.value = exercise.name;
-            // TODO: Populate other fields (muscle, secondary, equipment, instructions, video)
-            document.getElementById('ex-lib-muscle').value = exercise.primaryMuscle || "";
-            document.getElementById('ex-lib-secondary-muscle').value = exercise.secondaryMuscles || "";
-            document.getElementById('ex-lib-equipment').value = exercise.equipment || "";
-            document.getElementById('ex-lib-instructions').value = exercise.instructions || "";
-            document.getElementById('ex-lib-video').value = exercise.videoUrl || "";
-        } else { // Clear form for new
+            if(exLibMuscleInput) exLibMuscleInput.value = exercise.primaryMuscle || "";
+            if(exLibSecondaryMuscleInput) exLibSecondaryMuscleInput.value = exercise.secondaryMuscles || "";
+            if(exLibEquipmentInput) exLibEquipmentInput.value = exercise.equipment || "";
+            if(exLibInstructionsInput) exLibInstructionsInput.value = exercise.instructions || "";
+            if(exLibVideoInput) exLibVideoInput.value = exercise.videoUrl || "";
+        } else {
             if (exerciseLibForm) exerciseLibForm.reset();
-            if(exerciseLibIdInput) exerciseLibIdInput.value = ""; // Clear hidden ID
+            if(exerciseLibIdInput) exerciseLibIdInput.value = "";
         }
     }
     function hideExerciseLibModal() { if (exerciseLibModal) exerciseLibModal.style.display = 'none'; }
@@ -586,27 +662,24 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const id = exerciseLibIdInput.value;
         const name = exLibNameInput.value.trim();
-        if (!name) { alert("Exercise name is required."); return; }
+        if (!name) { alert("Exercise name is required, pretty please! 🙏"); return; }
         const newExercise = {
-            id: id || generateId(),
-            name: name,
-            primaryMuscle: document.getElementById('ex-lib-muscle').value.trim(),
-            secondaryMuscles: document.getElementById('ex-lib-secondary-muscle').value.trim(),
-            equipment: document.getElementById('ex-lib-equipment').value.trim(),
-            instructions: document.getElementById('ex-lib-instructions').value.trim(),
-            videoUrl: document.getElementById('ex-lib-video').value.trim()
+            id: id || generateId(), name: name,
+            primaryMuscle: exLibMuscleInput.value.trim(),
+            secondaryMuscles: exLibSecondaryMuscleInput.value.trim(),
+            equipment: exLibEquipmentInput.value.trim(),
+            instructions: exLibInstructionsInput.value.trim(),
+            videoUrl: exLibVideoInput.value.trim()
         };
         let exercises = getData(EXERCISES_STORAGE_KEY);
-        if (id) { // Editing
-            exercises = exercises.map(ex => ex.id === id ? newExercise : ex);
-        } else { // Adding new
-            exercises.push(newExercise);
-        }
+        if (id) { exercises = exercises.map(ex => ex.id === id ? newExercise : ex); }
+        else { exercises.push(newExercise); }
         saveData(EXERCISES_STORAGE_KEY, exercises);
-        alert(`Exercise "${name}" saved to library!`);
+        alert(`Exercise "${name}" saved to library! Hooray! 📚`);
         hideExerciseLibModal();
         loadExerciseLibrary();
-        populateExerciseSelectors(); // Update datalists and selects
+        populateExerciseSelectors();
+        populateMuscleGroupFilter();
     }
 
     function loadExerciseLibrary(searchTerm = "", muscleFilter = "") {
@@ -620,85 +693,181 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         exerciseLibraryListContainer.innerHTML = "";
         if (exercises.length === 0) {
-            exerciseLibraryListContainer.innerHTML = '<p>No exercises found or library is empty.</p>'; return;
+            exerciseLibraryListContainer.innerHTML = '<p>No exercises found or library is empty. Add some! 🧐</p>'; return;
         }
         exercises.forEach(ex => {
             const card = document.createElement('div');
-            card.className = 'exercise-lib-card'; // Style this card
-            // TODO: Display exercise details (name, muscle, equipment, maybe small image/icon)
-            card.innerHTML = `<h4>${ex.name}</h4>
-                              <p>Muscle: ${ex.primaryMuscle || 'N/A'}</p>
-                              <p>Equipment: ${ex.equipment || 'N/A'}</p>
-                              <button class="edit-ex-lib-btn" data-id="${ex.id}">Edit</button>
-                              <button class="delete-ex-lib-btn" data-id="${ex.id}">Delete</button>`;
+            card.className = 'exercise-lib-card';
+            card.innerHTML = `
+                <h4>${ex.name} <i class="fas fa-info-circle exercise-info-icon" title="View Details"></i></h4>
+                <p><strong>Muscle:</strong> ${ex.primaryMuscle || 'N/A'}</p>
+                <p><strong>Equipment:</strong> ${ex.equipment || 'N/A'}</p>
+                <div class="exercise-lib-actions">
+                    <button class="edit-ex-lib-btn" data-id="${ex.id}" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="delete-ex-lib-btn" data-id="${ex.id}" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>`;
+            // TODO: Clicking info icon or card could show full details in a modal/expanded view
             card.querySelector('.edit-ex-lib-btn').onclick = () => showExerciseLibModal(ex);
             card.querySelector('.delete-ex-lib-btn').onclick = () => deleteExerciseFromLib(ex.id, ex.name);
             exerciseLibraryListContainer.appendChild(card);
         });
     }
     function deleteExerciseFromLib(id, name) {
-        if(!confirm(`Delete "${name}" from library? This won't affect past logs.`)) return;
+        if(!confirm(`Delete "${name}" from library? This won't affect past logs. Are you sure? 🤔`)) return;
         let exercises = getData(EXERCISES_STORAGE_KEY);
         exercises = exercises.filter(ex => ex.id !== id);
         saveData(EXERCISES_STORAGE_KEY, exercises);
         loadExerciseLibrary();
         populateExerciseSelectors();
+        populateMuscleGroupFilter();
     }
     function populateMuscleGroupFilter() {
         if (!filterMuscleGroupSelect) return;
         const exercises = getData(EXERCISES_STORAGE_KEY);
-        const muscleGroups = new Set(exercises.map(ex => ex.primaryMuscle).filter(Boolean));
-        filterMuscleGroupSelect.innerHTML = '<option value="">All Muscle Groups</option>';
+        const muscleGroups = new Set(exercises.map(ex => ex.primaryMuscle).filter(Boolean).map(m => m.trim()).sort());
+        const currentVal = filterMuscleGroupSelect.value;
+        filterMuscleGroupSelect.innerHTML = '<option value="">All Muscle Groups 🎯</option>';
         muscleGroups.forEach(mg => {
             const option = document.createElement('option');
             option.value = mg; option.textContent = mg;
             filterMuscleGroupSelect.appendChild(option);
         });
+        filterMuscleGroupSelect.value = currentVal;
     }
-    function populateExerciseSelectors() { // For datalist and routine exercise select
+    function populateExerciseSelectors() {
         const exercises = getData(EXERCISES_STORAGE_KEY);
+        const sortedExercises = [...exercises].sort((a,b) => a.name.localeCompare(b.name));
+
         if (commonExercisesDatalist) {
             commonExercisesDatalist.innerHTML = "";
-            exercises.forEach(ex => {
-                const option = document.createElement('option');
-                option.value = ex.name;
+            sortedExercises.forEach(ex => {
+                const option = document.createElement('option'); option.value = ex.name;
                 commonExercisesDatalist.appendChild(option);
             });
         }
         if (addExerciseToRoutineSelect) {
             const currentVal = addExerciseToRoutineSelect.value;
             addExerciseToRoutineSelect.innerHTML = '<option value="">-- Select Exercise to Add --</option>';
-            exercises.forEach(ex => {
+            sortedExercises.forEach(ex => {
                 const option = document.createElement('option');
                 option.value = ex.name; option.textContent = ex.name;
                 addExerciseToRoutineSelect.appendChild(option);
             });
-            addExerciseToRoutineSelect.value = currentVal; // Try to preserve selection
+            addExerciseToRoutineSelect.value = currentVal;
         }
+    }
+
+    function prePopulateExerciseLibrary() {
+        let exercises = getData(EXERCISES_STORAGE_KEY);
+        if (exercises.length > 0) return; // Don't re-populate if library already has items
+
+        const defaultExercises = [
+            // Day 1 – Upper Push
+            { name: "Barbell Bench Press", primaryMuscle: "Chest", secondaryMuscles: "Shoulders, Triceps", equipment: "Barbell" },
+            { name: "Standing Overhead Press", primaryMuscle: "Shoulders", secondaryMuscles: "Triceps", equipment: "Barbell" },
+            { name: "Close-Grip Bench Press", primaryMuscle: "Triceps", secondaryMuscles: "Chest", equipment: "Barbell" },
+            { name: "Barbell Front Raise", primaryMuscle: "Shoulders", equipment: "Barbell" },
+            { name: "Plate Raise", primaryMuscle: "Shoulders", equipment: "Plate" },
+            { name: "Overhead Triceps Extension (Barbell)", primaryMuscle: "Triceps", equipment: "Barbell" },
+            { name: "Overhead Triceps Extension (Plate)", primaryMuscle: "Triceps", equipment: "Plate" },
+            // Day 2 – Lower Body
+            { name: "Barbell Back Squat", primaryMuscle: "Quads", secondaryMuscles: "Glutes, Hamstrings", equipment: "Barbell" },
+            { name: "Romanian Deadlift (RDL)", primaryMuscle: "Hamstrings", secondaryMuscles: "Glutes, Lower Back", equipment: "Barbell" },
+            { name: "Walking Lunges", primaryMuscle: "Quads", secondaryMuscles: "Glutes", equipment: "Bodyweight/Dumbbell/Barbell" },
+            { name: "Static Lunges", primaryMuscle: "Quads", secondaryMuscles: "Glutes", equipment: "Bodyweight/Dumbbell" },
+            { name: "Paused Squat", primaryMuscle: "Quads", secondaryMuscles: "Glutes", equipment: "Barbell" },
+            { name: "Calf Raises (Barbell)", primaryMuscle: "Calves", equipment: "Barbell" },
+            { name: "Calf Raises (Holding Plates)", primaryMuscle: "Calves", equipment: "Plate" },
+            // Day 3 – Upper Pull
+            { name: "Barbell Bent-Over Rows", primaryMuscle: "Back", secondaryMuscles: "Biceps, Lats", equipment: "Barbell" },
+            { name: "Deadlifts", primaryMuscle: "Back", secondaryMuscles: "Hamstrings, Glutes, Quads, Core", equipment: "Barbell" },
+            { name: "Barbell Curls", primaryMuscle: "Biceps", equipment: "Barbell" },
+            { name: "Shrugs (Barbell)", primaryMuscle: "Traps", equipment: "Barbell" },
+            { name: "Reverse-Grip Rows (Underhand)", primaryMuscle: "Back", secondaryMuscles: "Biceps", equipment: "Barbell" },
+            // Day 4 – Full-Body Growth & Power
+            { name: "Front Squat", primaryMuscle: "Quads", secondaryMuscles: "Core, Glutes", equipment: "Barbell" },
+            { name: "Incline Bench Press", primaryMuscle: "Chest", secondaryMuscles: "Shoulders, Triceps", equipment: "Barbell/Dumbbell" },
+            // Overhead Press is already there
+            { name: "Power Clean", primaryMuscle: "Full Body", secondaryMuscles: "Legs, Back, Shoulders", equipment: "Barbell" },
+            // Barbell Curl & Close-Grip Bench Press already there
+            // Common additions:
+            { name: "Push-ups", primaryMuscle: "Chest", secondaryMuscles: "Shoulders, Triceps", equipment: "Bodyweight" },
+            { name: "Pull-ups", primaryMuscle: "Back", secondaryMuscles: "Biceps, Lats", equipment: "Bodyweight/Pull-up bar" },
+            { name: "Dips", primaryMuscle: "Triceps", secondaryMuscles: "Chest, Shoulders", equipment: "Dip Bars/Bench" },
+            { name: "Plank", primaryMuscle: "Core", equipment: "Bodyweight"},
+            { name: "Running", primaryMuscle: "Cardio", equipment: "N/A"},
+            { name: "Cycling", primaryMuscle: "Cardio", secondaryMuscles: "Legs", equipment: "Bike"}
+        ];
+
+        const exercisesWithIds = defaultExercises.map(ex => ({ ...ex, id: generateId() }));
+        saveData(EXERCISES_STORAGE_KEY, exercisesWithIds);
+        console.log("Default exercises populated into library.");
+    }
+
+    function prePopulateRoutines() {
+        let routines = getData(ROUTINES_STORAGE_KEY);
+        if (routines.length > 0) return; // Don't re-populate
+
+        const defaultRoutines = [
+            { name: "🌸 Upper Push Day", description: "Chest, Shoulders, Triceps Focus!", exercises: [
+                { name: "Barbell Bench Press", sets: "4", reps: "6-10", id: generateId() },
+                { name: "Standing Overhead Press", sets: "4", reps: "6-10", id: generateId() },
+                { name: "Close-Grip Bench Press", sets: "3", reps: "8-12", id: generateId() },
+                { name: "Barbell Front Raise", sets: "3", reps: "12-15", id: generateId() },
+                { name: "Overhead Triceps Extension (Barbell)", sets: "3", reps: "12-15", id: generateId() }
+            ]},
+            { name: "🦵 Leg Power Day", description: "Legs & Glutes Blast!", exercises: [
+                { name: "Barbell Back Squat", sets: "4", reps: "6-10", id: generateId() },
+                { name: "Romanian Deadlift (RDL)", sets: "3", reps: "8-12", id: generateId() },
+                { name: "Walking Lunges", sets: "3", reps: "10-15 each", id: generateId() },
+                { name: "Paused Squat", sets: "3", reps: "8", id: generateId() },
+                { name: "Calf Raises (Barbell)", sets: "3", reps: "15-20", id: generateId() }
+            ]},
+             { name: "💪 Upper Pull Day", description: "Back, Biceps, Traps Time!", exercises: [
+                { name: "Barbell Bent-Over Rows", sets: "4", reps: "6-10", id: generateId() },
+                { name: "Deadlifts", sets: "3", reps: "5-8", id: generateId() },
+                { name: "Barbell Curls", sets: "3", reps: "10-12", id: generateId() },
+                { name: "Shrugs (Barbell)", sets: "3", reps: "12-15", id: generateId() },
+                { name: "Reverse-Grip Rows (Underhand)", sets: "3", reps: "8-10", id: generateId() }
+            ]},
+            { name: "🌟 Full Body Growth", description: "Overall Power and Growth!", exercises: [
+                { name: "Front Squat", sets: "3", reps: "6-8", id: generateId() },
+                { name: "Incline Bench Press", sets: "4", reps: "8-10", id: generateId() },
+                { name: "Standing Overhead Press", sets: "3", reps: "10", id: generateId()}, // Note: OHP is repeated here per your plan
+                { name: "Power Clean", sets: "3", reps: "3-5", id: generateId()},
+                { name: "Barbell Curls", sets: "3", reps: "12-15", id: generateId() }, // Note: Superset needs manual handling by user
+                { name: "Close-Grip Bench Press", sets: "3", reps: "12-15", id: generateId() } // during workout
+            ]}
+        ];
+        const routinesWithIds = defaultRoutines.map(r => ({ ...r, id: generateId() }));
+        saveData(ROUTINES_STORAGE_KEY, routinesWithIds);
+        console.log("Default routines populated.");
     }
 
 
     // --- Body Measurements Tab Logic ---
     if (logMeasurementForm) logMeasurementForm.addEventListener('submit', handleLogMeasurement);
-    if (progressPhotoUploadInput) progressPhotoUploadInput.addEventListener('change', handlePhotoUpload);
+    // if (progressPhotoUploadInput) progressPhotoUploadInput.addEventListener('change', handlePhotoUpload); // More complex
 
     function setDefaultMeasurementDate() { if (measurementDateInput) measurementDateInput.value = new Date().toISOString().split('T')[0]; }
     function handleLogMeasurement(event) {
         event.preventDefault();
         const measurement = {
-            id: generateId(),
-            date: measurementDateInput.value,
+            id: generateId(), date: measurementDateInput.value,
             weight: bodyWeightInput.value ? parseFloat(bodyWeightInput.value) : null,
-            bodyFat: document.getElementById('body-fat').value ? parseFloat(document.getElementById('body-fat').value) : null,
-            // TODO: Get other measurement values (chest, waist, arm, thigh, notes)
-            notes: document.getElementById('measurement-notes').value.trim()
+            bodyFat: bodyFatInput.value ? parseFloat(bodyFatInput.value) : null,
+            chest: chestSizeInput.value ? parseFloat(chestSizeInput.value) : null,
+            waist: waistSizeInput.value ? parseFloat(waistSizeInput.value) : null,
+            arm: armSizeInput.value ? parseFloat(armSizeInput.value) : null,
+            thigh: thighSizeInput.value ? parseFloat(thighSizeInput.value) : null,
+            notes: measurementNotesInput.value.trim()
         };
-        if (!measurement.date) { alert("Date is required for measurements."); return; }
+        if (!measurement.date) { alert("Date is required for measurements! 📅"); return; }
         let measurements = getData(MEASUREMENTS_STORAGE_KEY);
         measurements.push(measurement);
         measurements.sort((a,b) => new Date(b.date) - new Date(a.date));
         saveData(MEASUREMENTS_STORAGE_KEY, measurements);
-        alert("Measurements logged!");
+        alert("Measurements logged! You're tracking it! 📏");
         logMeasurementForm.reset();
         setDefaultMeasurementDate();
         loadMeasurements();
@@ -708,32 +877,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const measurements = getData(MEASUREMENTS_STORAGE_KEY);
         measurementHistoryListContainer.innerHTML = "";
         if(measurements.length === 0) {
-            measurementHistoryListContainer.innerHTML = "<p>No measurements logged yet.</p>"; return;
+            measurementHistoryListContainer.innerHTML = "<p>No measurements logged yet. Let's start! 💖</p>"; return;
         }
-        // TODO: Display measurement history (table or cards)
+        // TODO: Display measurement history (table or cards) with edit/delete
         // TODO: Implement charts for measurements
+        const list = document.createElement('ul');
+        list.className = 'simple-history-list'; // Style this
         measurements.forEach(m => {
-            const item = document.createElement('div');
-            item.className = 'measurement-history-item'; // Style this
-            item.textContent = `${new Date(m.date+'T00:00:00').toLocaleDateString()}: Weight ${m.weight || '-'} kg, BF ${m.bodyFat || '-'} %`;
-            measurementHistoryListContainer.appendChild(item);
+            const item = document.createElement('li');
+            item.innerHTML = `<strong>${new Date(m.date+'T00:00:00').toLocaleDateString()}</strong>:
+                Weight: ${m.weight || '-'} kg,
+                Body Fat: ${m.bodyFat || '-'}%,
+                Chest: ${m.chest || '-'} cm,
+                Waist: ${m.waist || '-'} cm,
+                Arm: ${m.arm || '-'} cm,
+                Thigh: ${m.thigh || '-'} cm
+                ${m.notes ? `<br><em>Notes: ${m.notes}</em>` : ''}`;
+            list.appendChild(item);
         });
-        loadProgressPhotos(); // Also load photos when measurements are loaded/updated
+        measurementHistoryListContainer.appendChild(list);
+        // loadProgressPhotos(); // Placeholder for photo display
+        if (progressPhotosGallery) progressPhotosGallery.innerHTML = "<p>Photo gallery (display) coming soon! 📸</p>";
+
     }
-    function handlePhotoUpload(event) {
-        const files = event.target.files;
-        if (!files.length) return;
-        // TODO: Handle multiple files, save them (base64 to localStorage or use IndexedDB for larger files)
-        // This is complex for localStorage due to size limits.
-        alert(`Photo upload selected (${files.length} files). Saving actual photos is complex with localStorage.`);
-        // For now, just log. Real implementation needs careful storage strategy.
-        console.log("Photos to upload:", files);
-    }
-    function loadProgressPhotos() {
-        if(!progressPhotosGallery) return;
-        // TODO: Retrieve and display saved photos (from localStorage base64 or IndexedDB)
-        progressPhotosGallery.innerHTML = "<p>Photo gallery feature coming soon (requires advanced storage).</p>";
-    }
+    // TODO: Complex logic for handlePhotoUpload and loadProgressPhotos using IndexedDB or similar for actual image storage
 
 
     // --- Nutrition Tab Logic ---
@@ -743,38 +910,66 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleLogNutrition(event) {
         event.preventDefault();
         const nutritionEntry = {
-            id: generateId(),
-            date: nutritionDateInput.value,
+            id: generateId(), date: nutritionDateInput.value,
             kcalGoal: kcalGoalInput.value ? parseInt(kcalGoalInput.value) : null,
             kcalConsumed: kcalConsumedInput.value ? parseInt(kcalConsumedInput.value) : null,
-            // TODO: Get other nutrition values (protein, carbs, fats, notes)
-            notes: document.getElementById('nutrition-notes').value.trim()
+            proteinGoal: proteinGoalInput.value ? parseInt(proteinGoalInput.value) : null,
+            proteinConsumed: proteinConsumedInput.value ? parseInt(proteinConsumedInput.value) : null,
+            carbsConsumed: carbsConsumedInput.value ? parseInt(carbsConsumedInput.value) : null,
+            fatsConsumed: fatsConsumedInput.value ? parseInt(fatsConsumedInput.value) : null,
+            notes: nutritionNotesInput.value.trim()
         };
-        if (!nutritionEntry.date || nutritionEntry.kcalConsumed === null) { alert("Date and Kcal Consumed are required."); return; }
+        if (!nutritionEntry.date || nutritionEntry.kcalConsumed === null) { alert("Date and Kcal Consumed are required for nutrition log! 🍎"); return; }
         let nutritionData = getData(NUTRITION_STORAGE_KEY);
-        nutritionData.push(nutritionEntry);
+        // Check if entry for this date already exists, if so, offer to update
+        const existingEntryIndex = nutritionData.findIndex(n => n.date === nutritionEntry.date);
+        if (existingEntryIndex > -1) {
+            if (confirm("Nutrition data for this date already exists. Overwrite? 🤔")) {
+                nutritionData[existingEntryIndex] = nutritionEntry; // Update
+            } else {
+                return; // Do nothing if user cancels overwrite
+            }
+        } else {
+            nutritionData.push(nutritionEntry);
+        }
         nutritionData.sort((a,b) => new Date(b.date) - new Date(a.date));
         saveData(NUTRITION_STORAGE_KEY, nutritionData);
-        alert("Nutrition logged!");
-        nutritionLogForm.reset();
+        alert("Nutrition logged! Fueling up! 🥗");
+        nutritionLogForm.reset(); // Or just clear consumed fields
         setDefaultNutritionDate();
         loadNutritionData();
-        loadDashboardData(); // Refresh dashboard with new nutrition info
+        loadDashboardData();
     }
     function loadNutritionData() {
         // TODO: Display nutrition history and summaries/charts
-        console.log("Nutrition data loaded (display not implemented yet):", getData(NUTRITION_STORAGE_KEY));
-        const nutritionSummaryEl = document.getElementById('nutrition-summary');
-        if(nutritionSummaryEl) nutritionSummaryEl.innerHTML = "<p>Nutrition summaries and charts coming soon.</p>";
+        const nutritionData = getData(NUTRITION_STORAGE_KEY);
+        if (nutritionSummaryEl) {
+            if(nutritionData.length === 0) {
+                nutritionSummaryEl.innerHTML = "<p>No nutrition data logged yet. What did you eat today? 😋</p>";
+            } else {
+                // Basic display for now
+                nutritionSummaryEl.innerHTML = "<h3>Recent Nutrition Entries:</h3><ul class='simple-history-list'>";
+                nutritionData.slice(0,5).forEach(n => { // Show last 5
+                    nutritionSummaryEl.innerHTML += `<li><strong>${new Date(n.date+'T00:00:00').toLocaleDateString()}</strong>:
+                    ${n.kcalConsumed} Kcal / ${n.kcalGoal || '-'} Kcal Goal,
+                    ${n.proteinConsumed}g Protein / ${n.proteinGoal || '-'}g Goal
+                    </li>`;
+                });
+                nutritionSummaryEl.innerHTML += "</ul>";
+            }
+        }
     }
 
     // --- Initial Page Load Setup ---
     function initializeApp() {
+        prePopulateExerciseLibrary(); // Populate library with defaults if empty
+        prePopulateRoutines();      // Populate with default routines if empty
+
         setDefaultLogDate();
         setDefaultMeasurementDate();
         setDefaultNutritionDate();
 
-        loadExerciseLibrary(); // Load library first so other parts can use it
+        loadExerciseLibrary();
         populateMuscleGroupFilter();
         populateExerciseSelectors();
 
@@ -785,17 +980,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCalendar();
         renderWorkoutHistory();
 
-        loadDashboardData(); // Load dashboard last as it might depend on other data
+        loadDashboardData();
 
-        // Set the first tab ("Dashboard") as active on initial load
         const firstTab = document.querySelector('.tab-link[data-tab="dashboardTab"]');
-        const firstTabContent = document.getElementById('dashboardTab');
-        if (firstTab && firstTabContent) {
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            firstTab.classList.add('active');
-            firstTabContent.classList.add('active');
-        } else { // Fallback if dashboard tab isn't first or found
+        if (firstTab) firstTab.click(); // Programmatically click to trigger all load functions for the tab
+        else { // Fallback if dashboard tab isn't first
             const fallbackFirstTab = document.querySelector('.tab-link');
             if(fallbackFirstTab) fallbackFirstTab.click();
         }
