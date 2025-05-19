@@ -13,23 +13,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- History Tab Elements ---
     const workoutHistoryContainer = document.getElementById('workout-history-container');
-
-    // --- Progress Tab Elements ---
-    const progressExerciseSelect = document.getElementById('progress-exercise-select');
-    const prTableBody = document.querySelector('#pr-table tbody');
-    const maxWeightCanvas = document.getElementById('maxWeightChart');
-    const e1rmCanvas = document.getElementById('e1rmChart');
-    const volumeCanvas = document.getElementById('volumeChart');
+    // Calendar Elements
+    const calendarControls = document.getElementById('calendar-controls');
+    const prevMonthBtn = document.getElementById('prev-month-btn');
+    const nextMonthBtn = document.getElementById('next-month-btn');
+    const monthYearDisplay = document.getElementById('calendar-month-year');
+    const calendarGrid = document.getElementById('calendar-grid-container');
 
 
     // --- Global State for Current Workout ---
     let currentWorkoutExercises = []; // Array to hold exercises for the current session before saving
     let currentSessionDate = null;
 
-    // --- Chart Instances (to be initialized later) ---
-    let maxWeightChartInstance = null;
-    let e1rmChartInstance = null;
-    let volumeChartInstance = null;
+    // --- Calendar State ---
+    let currentCalendarDate = new Date(); // To keep track of the month/year being viewed
+
 
     // --- LOCALSTORAGE KEY ---
     const WORKOUT_STORAGE_KEY = 'workoutTrackerData';
@@ -49,22 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 targetContent.classList.add('active');
             }
 
-            // If switching to progress tab, and an exercise is selected, refresh charts
-            if (targetTabId === "progressTab") {
-                // Ensure select is populated if it's empty and data exists
-                if (progressExerciseSelect.options.length <= 1 && getAllWorkouts().length > 0) {
-                    populateProgressExerciseSelect();
-                }
-                if (progressExerciseSelect.value) {
-                    updateAllCharts(progressExerciseSelect.value);
-                    displayPersonalRecords(progressExerciseSelect.value);
-                } else {
-                    clearCharts();
-                    clearPRTable();
-                }
-            } else if (targetTabId === "historyTab") {
-                renderWorkoutHistory(); // Refresh history view when tab is clicked
+            // Special actions when switching tabs
+            if (targetTabId === "historyTab") {
+                renderCalendar(); // Render calendar when history tab is active
+                renderWorkoutHistory(); // Render workout list when history tab is active
             }
+            // No specific action needed when switching to logWorkoutTab beyond just displaying it
         });
     });
 
@@ -110,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const date = workoutDateInput.value;
         const exerciseName = exerciseNameInput.value.trim();
         const sets = document.getElementById('sets').value;
-        const reps = document.getElementById('reps').value.trim(); // Keep as string initially
+        const reps = document.getElementById('reps').value.trim();
         const weight = document.getElementById('weight').value;
         const weightUnit = document.getElementById('weight-unit').value;
         const notes = document.getElementById('exercise-notes').value.trim();
@@ -122,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentWorkoutExercises.length === 0) { // First exercise in this session
             currentSessionDate = date;
-            const formattedDate = new Date(date + 'T00:00:00'); // Avoid timezone issues
+            const formattedDate = new Date(date + 'T00:00:00');
             currentWorkoutDateDisplay.textContent = `Workout Date: ${formattedDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`;
         } else if (date !== currentSessionDate) {
             alert("Date changed. Current workout session is still under the initially set date. Please save this workout to start a new one with a different date.");
@@ -130,18 +118,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Try to parse actual reps if a single number is provided
+        // Try to parse actual reps if a single number is provided (useful for potential future features)
         let actualRepsParsed = null;
         if (!reps.includes('-') && !isNaN(parseInt(reps))) {
             actualRepsParsed = parseInt(reps);
         }
 
         const exerciseData = {
-            id: Date.now() + Math.random(), // More unique ID
+            id: Date.now() + Math.random(), // Unique ID for the exercise entry
             name: exerciseName,
             sets: parseInt(sets),
-            reps: reps, // Store original reps string (e.g., "8-10" or "12")
-            actualReps: actualRepsParsed, // Store parsed single rep number if available
+            reps: reps, // Store original reps string
+            actualReps: actualRepsParsed, // Store parsed single rep number
             weight: parseFloat(weight) || 0,
             unit: weightUnit,
             notes: notes
@@ -184,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const deleteBtn = li.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', function() {
-            const exerciseIdToRemove = parseFloat(li.dataset.id); // Ensure type consistency
+            const exerciseIdToRemove = parseFloat(li.dataset.id);
             currentWorkoutExercises = currentWorkoutExercises.filter(ex => ex.id !== exerciseIdToRemove);
             li.remove();
             if (currentWorkoutExercises.length === 0) {
@@ -203,15 +191,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (!currentSessionDate) {
-            alert("Please ensure a date is set for this workout (this shouldn't happen if exercises are logged).");
+             // Should not happen if exercises are logged, but safety check
+            alert("Workout date is missing. Cannot save.");
             workoutDateInput.focus();
             return;
         }
 
         const newWorkoutSession = {
-            id: Date.now(),
+            id: Date.now(), // Unique ID for the session
             date: currentSessionDate,
-            exercises: [...currentWorkoutExercises]
+            exercises: [...currentWorkoutExercises] // Create a copy of exercises
         };
 
         const allWorkouts = getAllWorkouts();
@@ -223,33 +212,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Reset current workout state
         currentWorkoutExercises = [];
-        loggedExercisesList.innerHTML = '';
+        loggedExercisesList.innerHTML = ''; // Clear the list display
         currentWorkoutDateDisplay.textContent = '';
         finishWorkoutBtn.style.display = 'none';
-        currentSessionDate = null;
-        setDefaultDate();
+        currentSessionDate = null; // Clear the session date
+        setDefaultDate(); // Reset date input to today
 
-        // Refresh other views that depend on this data
-        renderWorkoutHistory(); // Update history tab
-        populateProgressExerciseSelect(); // Update exercise dropdown in progress tab
-
-        // Clear or update charts in progress tab
-        if (progressExerciseSelect.value) { // If an exercise was selected
-            updateAllCharts(progressExerciseSelect.value);
-            displayPersonalRecords(progressExerciseSelect.value);
-        } else {
-            clearCharts();
-            clearPRTable();
+        // Refresh history view as it now has new data
+        // Only refresh if history tab is currently active to avoid rendering hidden content
+        if (document.getElementById('historyTab').classList.contains('active')) {
+             renderCalendar();
+             renderWorkoutHistory();
         }
+
+        // Future: switch to history tab automatically?
+        // document.querySelector('.tab-link[data-tab="historyTab"]').click();
     });
 
     // --- History Tab Logic ---
     function renderWorkoutHistory() {
         const allWorkouts = getAllWorkouts();
-        workoutHistoryContainer.innerHTML = '';
+        workoutHistoryContainer.innerHTML = ''; // Clear previous content
 
         if (allWorkouts.length === 0) {
-            workoutHistoryContainer.innerHTML = '<p>No workouts saved yet. Log a workout and click "Finish & Save Workout".</p>';
+            workoutHistoryContainer.innerHTML = '<p>No workouts saved yet. Log a workout and click "Finish & Save Workout" on the "Log Workout" tab.</p>';
             return;
         }
 
@@ -257,6 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const sessionDiv = document.createElement('div');
             sessionDiv.className = 'workout-session';
             sessionDiv.dataset.sessionId = session.id;
+             // Add data attribute for calendar linking
+            sessionDiv.dataset.dateMarker = session.date;
+
 
             const formattedDate = new Date(session.date + 'T00:00:00');
             let sessionHtml = `<h3 class="workout-session-date">${formattedDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>`;
@@ -277,278 +266,152 @@ document.addEventListener('DOMContentLoaded', () => {
                     </li>`;
             });
             sessionHtml += '</ul>';
+            // Future: Add edit/delete buttons for the session
             sessionDiv.innerHTML = sessionHtml;
             workoutHistoryContainer.appendChild(sessionDiv);
         });
     }
 
-    // --- Progress Tab Logic ---
-    function populateProgressExerciseSelect() {
-        const allWorkouts = getAllWorkouts();
-        const uniqueExerciseNames = new Set();
-        allWorkouts.forEach(session => {
-            session.exercises.forEach(ex => uniqueExerciseNames.add(ex.name));
+    // --- Calendar Logic (History Tab) ---
+    function renderCalendar() {
+        if (!calendarGrid || !monthYearDisplay) return; // Safety check
+
+        calendarGrid.innerHTML = ''; // Clear previous grid
+
+        const year = currentCalendarDate.getFullYear();
+        const month = currentCalendarDate.getMonth(); // 0-indexed
+
+        monthYearDisplay.textContent = `${currentCalendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
+
+        // Add day headers (Sun, Mon, Tue...)
+        const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        daysOfWeek.forEach(day => {
+            const dayHeaderEl = document.createElement('div');
+            dayHeaderEl.classList.add('calendar-day-header');
+            dayHeaderEl.textContent = day;
+            calendarGrid.appendChild(dayHeaderEl);
         });
 
-        const currentSelectedValue = progressExerciseSelect.value; // Preserve selection if possible
-        progressExerciseSelect.innerHTML = '<option value="">-- Select an Exercise --</option>';
-        Array.from(uniqueExerciseNames).sort().forEach(name => {
-            const option = document.createElement('option');
-            option.value = name;
-            option.textContent = name;
-            progressExerciseSelect.appendChild(option);
-        });
-        // Try to re-select previously selected exercise
-        if (uniqueExerciseNames.has(currentSelectedValue)) {
-            progressExerciseSelect.value = currentSelectedValue;
-        } else if (progressExerciseSelect.options.length > 1) {
-            // If previous selection gone, clear charts if new list has items
-             clearCharts(); clearPRTable();
+        const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 for Sunday, 1 for Monday...
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        const allWorkouts = getAllWorkouts(); // Get workout data
+
+        // Create cells for previous month's days (if any) to fill the first week
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.classList.add('calendar-day', 'other-month');
+            calendarGrid.appendChild(emptyCell);
         }
-    }
 
-    progressExerciseSelect.addEventListener('change', function() {
-        const selectedExercise = this.value;
-        if (selectedExercise) {
-            updateAllCharts(selectedExercise);
-            displayPersonalRecords(selectedExercise);
-        } else {
-            clearCharts();
-            clearPRTable();
-        }
-    });
+        // Create cells for current month's days
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayCell = document.createElement('div');
+            dayCell.classList.add('calendar-day');
+            const dayNumberSpan = document.createElement('span');
+            dayNumberSpan.classList.add('day-number');
+            dayNumberSpan.textContent = day;
+            dayCell.appendChild(dayNumberSpan);
 
-    function getExerciseDataForProgress(exerciseName) {
-        const allWorkouts = getAllWorkouts();
-        let exerciseEntries = [];
-        allWorkouts.forEach(session => {
-            session.exercises.forEach(ex => {
-                if (ex.name === exerciseName) {
-                    let repsForCalc = null;
-                    if (ex.actualReps !== undefined && ex.actualReps !== null && !isNaN(parseInt(ex.actualReps))) {
-                        repsForCalc = parseInt(ex.actualReps);
-                    } else if (typeof ex.reps === 'string') {
-                        if (!ex.reps.includes('-')) {
-                            const parsed = parseInt(ex.reps);
-                            if(!isNaN(parsed)) repsForCalc = parsed;
-                        } else {
-                            const parts = ex.reps.split('-');
-                            if (parts.length === 2) {
-                                const parsedPart = parseInt(parts[1].trim()); // Use highest of range for potential
-                                if(!isNaN(parsedPart)) repsForCalc = parsedPart;
-                            }
-                        }
-                    } else if (typeof ex.reps === 'number' && !isNaN(ex.reps)) {
-                        repsForCalc = ex.reps;
-                    }
+            const currentDateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-                    if (ex.weight > 0 && repsForCalc !== null && repsForCalc > 0) {
-                        exerciseEntries.push({
-                            date: session.date,
-                            weight: ex.weight,
-                            reps: repsForCalc,
-                            sets: ex.sets,
-                            unit: ex.unit
-                        });
-                    }
-                }
-            });
-        });
-        return exerciseEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
-    }
-
-    function calculateE1RM(weight, reps) {
-        if (!reps || reps <= 0 || !weight || weight <=0) return 0;
-        if (reps === 1) return weight;
-        return weight * (1 + (reps / 30)); // Epley formula
-    }
-
-    function updateAllCharts(exerciseName) {
-        const data = getExerciseDataForProgress(exerciseName);
-        if (!data || data.length === 0) {
-            console.warn(`No chartable data found for ${exerciseName}. Ensure entries have weight > 0 and valid reps.`);
-            clearCharts();
-            return;
-        }
-        renderMaxWeightChart(data);
-        renderE1RMChart(data);
-        renderVolumeChart(data);
-    }
-
-    function createChartConfig(labels, datasetsData, yAxisLabel) {
-        const defaultColors = ['#00c6fb', '#28a745', '#ffc107', '#6f42c1', '#fd7e14'];
-        datasetsData.forEach((dataset, index) => {
-            dataset.borderColor = dataset.borderColor || defaultColors[index % defaultColors.length];
-            dataset.backgroundColor = dataset.backgroundColor || (dataset.borderColor + '80'); // For bar/area charts
-            dataset.pointBackgroundColor = dataset.borderColor;
-            dataset.pointBorderColor = '#fff';
-            dataset.pointHoverBackgroundColor = '#fff';
-            dataset.pointHoverBorderColor = dataset.borderColor;
-        });
-
-        return {
-            type: 'line',
-            data: { labels: labels, datasets: datasetsData },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        title: { display: true, text: 'Date', color: '#e0e0e0' },
-                        ticks: { color: '#b0b0b0' },
-                        grid: { color: '#3a3f4b' }
-                    },
-                    y: {
-                        title: { display: true, text: yAxisLabel, color: '#e0e0e0' },
-                        ticks: { color: '#b0b0b0' },
-                        grid: { color: '#3a3f4b' },
-                        beginAtZero: false
-                    }
-                },
-                plugins: {
-                    legend: { labels: { color: '#e0e0e0'} },
-                    tooltip: {
-                        backgroundColor: '#1f232a', // Darker tooltip
-                        titleColor: '#00c6fb', // Accent for title
-                        bodyColor: '#e0e0e0',
-                        borderColor: '#3a3f4b',
-                        borderWidth: 1,
-                        padding: 10,
-                        cornerRadius: 4,
-                        boxPadding: 3
-                    }
-                }
+            // Check if today
+            const today = new Date();
+            if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                dayCell.classList.add('today');
             }
-        };
-    }
 
-    function renderMaxWeightChart(data) {
-        if (maxWeightChartInstance) maxWeightChartInstance.destroy();
-        const labels = data.map(d => new Date(d.date + 'T00:00:00').toLocaleDateString());
-        const weights = data.map(d => d.weight);
-        const unit = data.length > 0 ? data[0].unit : 'units';
+            // Check if workout exists for this day
+            const workoutsOnThisDay = allWorkouts.filter(w => w.date === currentDateString);
+            if (workoutsOnThisDay.length > 0) {
+                // Add a small dot indicator
+                const indicator = document.createElement('div');
+                indicator.classList.add('workout-indicator');
+                dayCell.appendChild(indicator);
 
-        maxWeightChartInstance = new Chart(maxWeightCanvas,
-            createChartConfig(labels, [{
-                label: `Weight Lifted (${unit})`,
-                data: weights,
-                tension: 0.1
-            }], `Weight (${unit})`)
-        );
-    }
+                dayCell.dataset.date = currentDateString; // Store date for click events
+                dayCell.title = `${workoutsOnThisDay.length} workout(s) on ${new Date(currentDateString+'T00:00:00').toLocaleDateString()}. Click to see details.`;
 
-    function renderE1RMChart(data) {
-        if (e1rmChartInstance) e1rmChartInstance.destroy();
-        const labels = data.map(d => new Date(d.date + 'T00:00:00').toLocaleDateString());
-        const e1rms = data.map(d => parseFloat(calculateE1RM(d.weight, d.reps).toFixed(2)));
-        const unit = data.length > 0 ? data[0].unit : 'units';
-
-        e1rmChartInstance = new Chart(e1rmCanvas,
-            createChartConfig(labels, [{
-                label: `Estimated 1RM (${unit})`,
-                data: e1rms,
-                borderColor: '#28a745', // Different color
-                tension: 0.1
-            }], `e1RM (${unit})`)
-        );
-    }
-
-    function renderVolumeChart(data) {
-        if (volumeChartInstance) volumeChartInstance.destroy();
-        const labels = data.map(d => new Date(d.date + 'T00:00:00').toLocaleDateString());
-        const volumes = data.map(d => d.sets * d.reps * d.weight);
-        const unitSuffix = data.length > 0 ? data[0].unit : 'units';
-        const yAxisLabel = `Total Volume (Weight x Reps x Sets)`;
-
-        const config = createChartConfig(labels, [{
-            label: `Session Volume (${unitSuffix})`,
-            data: volumes,
-            type: 'bar', // Bar chart for volume
-            borderColor: '#ffc107', // Different color
-            backgroundColor: '#ffc107' + '80'
-        }], yAxisLabel);
-
-        config.options.scales.y.beginAtZero = true; // Volume charts usually start at zero
-        volumeChartInstance = new Chart(volumeCanvas, config);
-    }
-
-    function displayPersonalRecords(exerciseName) {
-        const allWorkouts = getAllWorkouts();
-        const prs = {};
-
-        allWorkouts.forEach(session => {
-            session.exercises.forEach(ex => {
-                if (ex.name === exerciseName && ex.weight > 0) {
-                    let repsForPR = null;
-                    if (ex.actualReps !== undefined && ex.actualReps !== null && !isNaN(parseInt(ex.actualReps))) {
-                        repsForPR = parseInt(ex.actualReps);
-                    } else if (typeof ex.reps === 'string' && !ex.reps.includes('-')) {
-                         const parsed = parseInt(ex.reps);
-                         if(!isNaN(parsed)) repsForPR = parsed;
-                    } else if (typeof ex.reps === 'number' && !isNaN(ex.reps)){
-                        repsForPR = ex.reps;
+                // Add click listener to scroll to/highlight session
+                dayCell.addEventListener('click', () => {
+                     const sessionElement = document.querySelector(`.workout-session[data-date-marker="${currentDateString}"]`);
+                    if (sessionElement) {
+                        // Remove existing highlights first
+                         document.querySelectorAll('.highlighted-session').forEach(el => el.classList.remove('highlighted-session'));
+                        // Scroll and add highlight
+                        sessionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        sessionElement.classList.add('highlighted-session');
+                        // Remove highlight after a few seconds
+                        setTimeout(() => sessionElement.classList.remove('highlighted-session'), 2500);
+                    } else {
+                         // Fallback or alternative action if element not found/scrolling issue
+                         console.warn("Could not find workout session element for date:", currentDateString);
+                         // You could display details in a modal here instead
                     }
-                    // For PRs, we typically don't consider ranges unless a specific rep count was achieved.
-                    // If a range was logged like "3-5", a PR is usually for 3, 4, or 5 reps specifically.
-                    // So, only use actualReps or single rep values.
-
-                    if (repsForPR !== null && repsForPR > 0) {
-                        if (!prs[repsForPR] || ex.weight > prs[repsForPR].weight ||
-                            (ex.weight === prs[repsForPR].weight && new Date(session.date) > new Date(prs[repsForPR].date))) {
-                            prs[repsForPR] = { weight: ex.weight, date: session.date, unit: ex.unit };
-                        }
-                    }
-                }
-            });
-        });
-
-        prTableBody.innerHTML = '';
-        const repCountsToShow = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20];
-        let prsFound = false;
-        repCountsToShow.forEach(rc => {
-            const prData = prs[rc];
-            const row = prTableBody.insertRow();
-            row.insertCell().textContent = `${rc} Rep Max`;
-            if (prData) {
-                row.insertCell().textContent = `${prData.weight} ${prData.unit}`;
-                row.insertCell().textContent = new Date(prData.date + 'T00:00:00').toLocaleDateString();
-                prsFound = true;
-            } else {
-                row.insertCell().textContent = '-';
-                row.insertCell().textContent = '-';
+                });
             }
-        });
-        if (!prsFound) {
-             prTableBody.innerHTML = '<tr><td colspan="3">No PRs recorded for this exercise for these rep counts. Ensure exact rep counts are logged.</td></tr>';
+            calendarGrid.appendChild(dayCell);
+        }
+
+        // Add cells for next month's days to fill the grid (optional)
+        const totalCells = firstDayOfMonth + daysInMonth;
+        const remainingCells = (7 - (totalCells % 7)) % 7;
+        for (let i = 0; i < remainingCells; i++) {
+             const emptyCell = document.createElement('div');
+            emptyCell.classList.add('calendar-day', 'other-month');
+            calendarGrid.appendChild(emptyCell);
         }
     }
 
-    function clearCharts() {
-        if (maxWeightChartInstance) { maxWeightChartInstance.destroy(); maxWeightChartInstance = null; }
-        if (e1rmChartInstance) { e1rmChartInstance.destroy(); e1rmChartInstance = null; }
-        if (volumeChartInstance) { volumeChartInstance.destroy(); volumeChartInstance = null; }
-    }
+    // Event listeners for calendar navigation buttons
+     if (prevMonthBtn) { // Check if element exists
+         prevMonthBtn.addEventListener('click', () => {
+             currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+             renderCalendar();
+             // Re-render history list for the month? Or keep showing all?
+             // Keeping all for now, just calendar updates. Scrolling links them.
+         });
+     }
 
-    function clearPRTable() {
-        if (prTableBody) { // Check if element exists
-            prTableBody.innerHTML = '<tr><td colspan="3">Select an exercise to view PRs.</td></tr>';
-        }
-    }
+     if (nextMonthBtn) { // Check if element exists
+         nextMonthBtn.addEventListener('click', () => {
+             currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+             renderCalendar();
+              // Re-render history list for the month? Or keep showing all?
+         });
+     }
+
 
     // --- Initial Page Load Setup ---
     setDefaultDate(); // Set initial date for log form
-    renderWorkoutHistory(); // Load and display any saved workouts
-    populateProgressExerciseSelect(); // Populate exercise dropdown for progress tab
-    clearPRTable(); // Ensure PR table is clear initially
-    clearCharts(); // Ensure charts are clear initially
 
-    // Set the first tab ("Log Workout") as active on initial load
-    const firstTab = document.querySelector('.tab-link[data-tab="logWorkoutTab"]');
-    const firstTabContent = document.getElementById('logWorkoutTab');
-    if (firstTab && firstTabContent) {
-        tabs.forEach(t => t.classList.remove('active'));
-        tabContents.forEach(c => c.classList.remove('active'));
-        firstTab.classList.add('active');
-        firstTabContent.classList.add('active');
+    // Check which tab should be active on load (default to log workout)
+    const activeTab = document.querySelector('.tab-link.active');
+    const activeContent = document.getElementById(activeTab ? activeTab.getAttribute('data-tab') : 'logWorkoutTab');
+
+     // Deactivate all first
+     tabs.forEach(t => t.classList.remove('active'));
+     tabContents.forEach(c => c.classList.remove('active'));
+
+     // Activate the determined tab and content
+    if (activeTab) {
+        activeTab.classList.add('active');
+    } else { // Default to log workout if no active class found
+         const defaultTab = document.querySelector('.tab-link[data-tab="logWorkoutTab"]');
+         if(defaultTab) defaultTab.classList.add('active');
     }
+     if (activeContent) {
+        activeContent.classList.add('active');
+     } else { // Default to log workout content
+         const defaultContent = document.getElementById('logWorkoutTab');
+         if(defaultContent) defaultContent.classList.add('active');
+     }
+
+
+    // Initial rendering based on which tab is active on load
+    if (document.getElementById('historyTab').classList.contains('active')) {
+        renderCalendar();
+        renderWorkoutHistory();
+    }
+    // Log tab content is just the static form/list, no initial render needed besides default state
 });
