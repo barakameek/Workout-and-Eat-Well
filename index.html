@@ -4,88 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Workout Tracker</title>
-    <link rel="stylesheet" href="style.css"> <!-- Link to your new AAA style.css -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Include Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
         <h1>Workout Tracker</h1>
+        <!-- Tab Navigation -->
+        <nav class="tabs">
+            <button class="tab-link active" data-tab="logWorkoutTab">Log Workout</button>
+            <button class="tab-link" data-tab="historyTab">History</button>
+            <button class="tab-link" data-tab="progressTab">Progress</button>
+            <!-- <button class="tab-link" data-tab="nutritionTab">Nutrition</button> --> <!-- Placeholder for future -->
+        </nav>
     </header>
 
     <main>
-        <section id="workout-entry">
-            <h2>Log New Workout Exercise</h2>
-            <form id="log-exercise-form">
-                <div>
-                    <label for="workout-date">Date:</label>
-                    <input type="date" id="workout-date" name="workout-date" required>
-                </div>
-                <div>
-                    <label for="exercise-name">Exercise Name:</label>
-                    <input type="text" id="exercise-name" name="exercise-name" list="common-exercises" placeholder="e.g., Barbell Bench Press or type" required>
-                    <datalist id="common-exercises">
-                        <option value="Barbell Bench Press">
-                        <option value="Standing Overhead Press">
-                        <option value="Close-Grip Bench Press">
-                        <option value="Barbell Front Raise">
-                        <option value="Plate Raise">
-                        <option value="Overhead Triceps Extension (Barbell)">
-                        <option value="Overhead Triceps Extension (Plate)">
-                        <option value="Barbell Back Squat">
-                        <option value="Romanian Deadlift (RDL)">
-                        <option value="Walking Lunges">
-                        <option value="Static Lunges">
-                        <option value="Paused Squat">
-                        <option value="Calf Raises (Barbell)">
-                        <option value="Calf Raises (Plate)">
-                        <option value="Barbell Bent-Over Rows">
-                        <option value="Deadlifts">
-                        <option value="Barbell Curls">
-                        <option value="Shrugs (Barbell)">
-                        <option value="Reverse-Grip Rows">
-                        <option value="Front Squat">
-                        <option value="Incline Bench Press">
-                        <option value="Paused Flat Bench">
-                        <option value="Power Clean">
-                    </datalist>
-                </div>
-                <div>
-                    <label for="sets">Sets:</label>
-                    <input type="number" id="sets" name="sets" min="1" placeholder="e.g., 3" required>
-                </div>
-                <div>
-                    <label for="reps">Reps (per set):</label>
-                    <input type="text" id="reps" name="reps" placeholder="e.g., 8-10 or 10" required>
-                </div>
-
-                <!-- MODIFIED SECTION for Weight Input -->
-                <div>
-                    <label for="weight">Weight:</label>
-                    <div class="input-group-inline"> <!-- New wrapper for input + select -->
-                        <input type="number" id="weight" name="weight" min="0" step="0.1" placeholder="e.g., 50">
-                        <select id="weight-unit" name="weight-unit">
-                            <option value="kg">kg</option>
-                            <option value="lbs">lbs</option>
-                        </select>
+        <!-- Tab Content: Log Workout -->
+        <div id="logWorkoutTab" class="tab-content active">
+            <section id="workout-entry">
+                <h2>Log New Workout Exercise</h2>
+                <form id="log-exercise-form">
+                    <div>
+                        <label for="workout-date">Date:</label>
+                        <input type="date" id="workout-date" name="workout-date" required>
                     </div>
-                </div>
-                <!-- END OF MODIFIED SECTION -->
+                    <div>
+                        <label for="exercise-name">Exercise Name:</label>
+                        <input type="text" id="exercise-name" name="exercise-name" list="common-exercises" placeholder="e.g., Barbell Bench Press or type" required>
+                        <datalist id="common-exercises">
+                            <option value="Barbell Bench Press">
+                            <option value="Standing Overhead Press">
+                            <option value="Close-Grip Bench Press">
+                            <option value="Barbell Front Raise">
+                            <option value="Plate Raise">
+                            <option value="Overhead Triceps Extension (Barbell)">
+                            <option value="Overhead Triceps Extension (Plate)">
+                            <option value="Barbell Back Squat">
+                            <option value="Romanian Deadlift (RDL)">
+                            <option value="Walking Lunges">
+                            <option value="Static Lunges">
+                            <option value="Paused Squat">
+                            <option value="Calf Raises (Barbell)">
+                            <option value="Calf Raises (Plate)">
+                            <option value="Barbell Bent-Over Rows">
+                            <option value="Deadlifts">
+                            <option value="Barbell Curls">
+                            <option value="Shrugs (Barbell)">
+                            <option value="Reverse-Grip Rows">
+                            <option value="Front Squat">
+                            <option value="Incline Bench Press">
+                            <option value="Paused Flat Bench">
+                            <option value="Power Clean">
+                        </datalist>
+                    </div>
+                    <div>
+                        <label for="sets">Sets:</label>
+                        <input type="number" id="sets" name="sets" min="1" placeholder="e.g., 3" required>
+                    </div>
+                    <div>
+                        <label for="reps">Reps (per set):</label>
+                        <input type="text" id="reps" name="reps" placeholder="e.g., 8-10 or 10" required>
+                    </div>
+                    <div>
+                        <label for="weight">Weight:</label>
+                        <div class="input-group-inline">
+                            <input type="number" id="weight" name="weight" min="0" step="0.1" placeholder="e.g., 50">
+                            <select id="weight-unit" name="weight-unit">
+                                <option value="kg">kg</option>
+                                <option value="lbs">lbs</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="exercise-notes">Notes (optional):</label>
+                        <textarea id="exercise-notes" name="exercise-notes" rows="3" placeholder="e.g., Felt strong, good form"></textarea>
+                    </div>
+                    <button type="submit">Add Exercise to Current Workout</button> <!-- Renamed button -->
+                </form>
+            </section>
 
-                <div>
-                    <label for="exercise-notes">Notes (optional):</label>
-                    <textarea id="exercise-notes" name="exercise-notes" rows="3" placeholder="e.g., Felt strong, good form"></textarea>
-                </div>
-                <button type="submit">Add Exercise to Workout</button>
-            </form>
-        </section>
+            <section id="current-workout-summary">
+                <h2>Today's Workout Log</h2> <!-- Renamed heading -->
+                <div id="current-workout-date-display"></div>
+                <ul id="logged-exercises-list">
+                    <!-- Logged exercises for the current session will be added here -->
+                </ul>
+                <button id="finish-workout-btn" style="display:none;">Finish & Save Workout</button>
+            </section>
+        </div>
 
-        <section id="current-workout-summary">
-            <h2>Today's Logged Exercises</h2>
-            <div id="current-workout-date-display"></div>
-            <ul id="logged-exercises-list">
-                <!-- Logged exercises will be added here by JavaScript -->
-            </ul>
-            <button id="finish-workout-btn" style="display:none;">Finish & Save Workout</button> <!-- Updated button text slightly -->
-        </section>
+        <!-- Tab Content: History -->
+        <div id="historyTab" class="tab-content">
+            <section>
+                <h2>Workout History</h2>
+                <div id="workout-history-container">
+                    <!-- Past workouts will be loaded here by JavaScript -->
+                    <p>No workouts saved yet. Complete a workout in the "Log Workout" tab and click "Finish & Save Workout".</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Tab Content: Progress -->
+        <div id="progressTab" class="tab-content">
+            <section>
+                <h2>Track Your Progress</h2>
+                <div class="progress-controls">
+                    <label for="progress-exercise-select">Select Exercise:</label>
+                    <select id="progress-exercise-select">
+                        <option value="">-- Select an Exercise --</option>
+                        <!-- Options will be populated by JS from logged exercises -->
+                    </select>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <h3>Max Weight Lifted</h3>
+                        <canvas id="maxWeightChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <h3>Estimated 1 Rep Max (e1RM)</h3>
+                        <canvas id="e1rmChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <h3>Total Volume (Sets x Reps x Weight)</h3>
+                        <canvas id="volumeChart"></canvas>
+                    </div>
+                    <!-- Add more chart wrappers as needed -->
+                </div>
+                 <div id="personal-records-container">
+                    <h3>Personal Records</h3>
+                    <table id="pr-table">
+                        <thead>
+                            <tr>
+                                <th>Reps</th>
+                                <th>Max Weight</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- PRs will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
     </main>
 
     <footer>
