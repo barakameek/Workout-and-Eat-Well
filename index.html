@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌸 Cute Workout Tracker 🌸</title> <!-- Cuter Title -->
+    <title>🌸 Cute Workout Tracker 🌸</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </head>
 <body class="theme-dark"> <!-- Default to dark, JS will handle switching -->
     <header>
         <h1><i class="fas fa-dumbbell"></i> 🌸 Workout Buddy 🌸</h1>
-        <!-- Theme Switcher -->
         <div class="theme-switcher">
             <button id="theme-toggle-btn" title="Toggle Theme">
-                <i class="fas fa-sun"></i> <!-- Sun icon for light mode, moon for dark -->
+                <i class="fas fa-sun"></i> <!-- Icon changes via JS -->
             </button>
         </div>
         <nav class="tabs">
@@ -24,23 +25,22 @@
             <button class="tab-link" data-tab="exercisesTab"><i class="fas fa-book-open"></i> Exercises</button>
             <button class="tab-link" data-tab="measurementsTab"><i class="fas fa-ruler-combined"></i> Body Stats</button>
             <button class="tab-link" data-tab="nutritionTab"><i class="fas fa-utensils"></i> Nutrition</button>
+            <!-- <button class="tab-link" data-tab="settingsTab"><i class="fas fa-cog"></i> Settings</button> --> <!-- For future settings tab -->
         </nav>
     </header>
 
     <main>
         <!-- Tab Content: Dashboard -->
         <div id="dashboardTab" class="tab-content active">
+            <section id="greeting-section"> <!-- Moved Greeting to its own section for prominence -->
+                <h2 id="dash-greeting">Hello, Fitness Star! ☀️</h2>
+            </section>
+
             <section id="quick-start-workouts">
                 <h2>✨ Quick Start Workouts ✨</h2>
                 <div class="quick-start-grid">
                     <!-- Tiles will be populated by JS -->
-                    <!-- Example Tile:
-                    <button class="quick-start-tile" data-routine-name="Upper Push">
-                        <h4>Upper Push</h4>
-                        <p>Chest, Shoulders, Triceps</p>
-                        <i class="fas fa-chevron-circle-right"></i>
-                    </button>
-                    -->
+                    <p>Loading quick starts...</p>
                 </div>
             </section>
 
@@ -66,11 +66,13 @@
                     <div class="overview-card">
                         <h3>Calories (Kcal) 🔥</h3>
                         <p><span id="dash-kcal-consumed">0</span> / <span id="dash-kcal-goal">2500</span></p>
+                        <div class="progress-bar-container shiny-progress"><div id="kcal-progress-bar" class="progress-bar-fill"></div></div>
                         <i class="fas fa-fire overview-icon"></i>
                     </div>
                     <div class="overview-card">
                         <h3>Protein (g) 🍗</h3>
                         <p><span id="dash-protein-consumed">0</span> / <span id="dash-protein-goal">150</span></p>
+                        <div class="progress-bar-container shiny-progress"><div id="protein-progress-bar" class="progress-bar-fill protein-fill"></div></div>
                         <i class="fas fa-drumstick-bite overview-icon"></i>
                     </div>
                 </div>
@@ -79,6 +81,7 @@
                 <h2>Recent Activity / Streaks 🌟</h2>
                 <p>Your current workout streak: <span id="dash-workout-streak">0</span> days.</p>
                 <p>Last workout: <span id="dash-last-workout-info">Never</span></p>
+                <p id="dash-up-next-workout">What's next on the agenda? 🤔</p>
             </section>
             <section id="motivation-tip">
                 <h2>💖 Tip of the Day 💖</h2>
@@ -86,12 +89,17 @@
             </section>
         </div>
 
-        <!-- Other Tabs (Log Workout, Routines, History, Exercises, Measurements, Nutrition) -->
-        <!-- No structural changes needed in these tabs for these specific requests, -->
-        <!-- but their content might be affected by the pre-populated exercises and routines. -->
-
-        <!-- Tab Content: Log Workout / Session (ensure it's still there) -->
+        <!-- Tab Content: Log Workout / Session -->
         <div id="logWorkoutTab" class="tab-content">
+             <section id="workout-timer-section">
+                <h3>Workout Timer ⏱️</h3>
+                <div id="workout-timer-display" class="timer-display">00:00</div>
+                <div class="timer-controls">
+                    <button id="start-timer-btn" class="secondary-action-btn"><i class="fas fa-play"></i> Start</button>
+                    <button id="stop-timer-btn" class="secondary-action-btn" disabled><i class="fas fa-pause"></i> Pause</button>
+                    <button id="reset-timer-btn" class="secondary-action-btn"><i class="fas fa-undo"></i> Reset</button>
+                </div>
+            </section>
              <section id="workout-entry">
                 <h2>Log New Workout Exercise 📝</h2>
                 <div class="log-session-controls">
@@ -100,14 +108,15 @@
                 <form id="log-exercise-form">
                     <div><label for="workout-date">Date:</label><input type="date" id="workout-date" name="workout-date" required></div>
                     <div><label for="workout-session-name">Workout Name (Optional):</label><input type="text" id="workout-session-name" name="workout-session-name" placeholder="e.g., Awesome Push Day! 🎉"></div>
-                    <div><label for="exercise-name">Exercise Name:</label><input type="text" id="exercise-name" name="exercise-name" list="common-exercises" placeholder="e.g., Barbell Bench Press or type" required>
+                    <div><label for="exercise-name">Exercise Name (for custom add):</label><input type="text" id="exercise-name" name="exercise-name" list="common-exercises" placeholder="e.g., Barbell Bench Press or type">
                         <datalist id="common-exercises"></datalist>
                     </div>
-                    <div><label for="sets">Sets:</label><input type="number" id="sets" name="sets" min="1" placeholder="e.g., 3" required></div>
-                    <div><label for="reps">Reps (per set):</label><input type="text" id="reps" name="reps" placeholder="e.g., 8-10 or 10" required></div>
-                    <div><label for="weight">Weight:</label><div class="input-group-inline"><input type="number" id="weight" name="weight" min="0" step="0.1" placeholder="e.g., 50"><select id="weight-unit" name="weight-unit"><option value="kg">kg</option><option value="lbs">lbs</option></select></div></div>
-                    <div><label for="exercise-notes">Notes (optional):</label><textarea id="exercise-notes" name="exercise-notes" rows="3" placeholder="e.g., Felt super strong! 💪"></textarea></div>
-                    <button type="submit"><i class="fas fa-plus"></i> Add Exercise to Current Workout</button>
+                    <div><label for="sets">Target Sets (for custom add):</label><input type="number" id="sets" name="sets" min="1" placeholder="e.g., 3"></div>
+                    <div><label for="reps">Target Reps (for custom add):</label><input type="text" id="reps" name="reps" placeholder="e.g., 8-10 or 10"></div>
+                    <input type="hidden" id="weight">
+                    <input type="hidden" id="weight-unit">
+                    <div><label for="exercise-notes">Initial Notes (for custom add):</label><textarea id="exercise-notes" name="exercise-notes" rows="2" placeholder="e.g., Focus on form"></textarea></div>
+                    <button type="submit"><i class="fas fa-plus"></i> Add Custom Exercise to Log</button>
                 </form>
                  <button id="log-rest-day-btn-main" class="secondary-action-btn full-width-secondary"><i class="fas fa-bed"></i> Log This Date as Rest Day 😴</button>
             </section>
@@ -115,24 +124,25 @@
                 <h2>Current Workout Session Log 📋</h2>
                 <div id="current-workout-date-display"></div>
                 <div id="current-workout-name-display" style="font-style: italic; margin-bottom: 10px;"></div>
-                <ul id="logged-exercises-list"></ul>
+                <ul id="logged-exercises-list">
+                </ul>
                 <div class="session-meta-inputs"><div><label for="workout-duration">Workout Duration (minutes, optional):</label><input type="number" id="workout-duration" min="0" placeholder="e.g., 60"></div></div>
                 <button id="finish-workout-btn" style="display:none;"><i class="fas fa-save"></i> Finish & Save Workout</button>
             </section>
         </div>
 
-        <!-- Routines Tab (ensure it's there) -->
+        <!-- Tab Content: Routines -->
         <div id="routinesTab" class="tab-content">
             <section id="manage-routines">
                 <h2>My Workout Routines 💖</h2>
                 <button id="create-new-routine-btn" class="primary-action"><i class="fas fa-plus-circle"></i> Create New Routine</button>
-                <div id="routines-list-container"><p>No routines created yet. Click "Create New Routine" to start.</p></div>
+                <div id="routines-list-container"><p>Loading routines... ✨</p></div>
             </section>
             <section id="create-edit-routine-section" style="display:none;">
                 <h2 id="routine-form-title">Create New Routine</h2>
                 <form id="routine-form">
                     <div><label for="routine-name">Routine Name:</label><input type="text" id="routine-name" required placeholder="e.g., Super Push Day 💪"></div>
-                    <div><label for="routine-description">Description (Optional):</label><textarea id="routine-description" rows="3"></textarea></div>
+                    <div><label for="routine-description">Description (Optional):</label><textarea id="routine-description" rows="3" placeholder="What's this routine about?"></textarea></div>
                     <h3>Exercises in this Routine:</h3><div id="routine-exercises-list"></div>
                     <div class="routine-exercise-adder">
                         <select id="add-exercise-to-routine-select"><option value="">-- Select Exercise to Add --</option></select>
@@ -146,31 +156,57 @@
             </section>
         </div>
 
-        <!-- History Tab (ensure it's there) -->
+        <!-- Tab Content: History -->
         <div id="historyTab" class="tab-content">
              <section><h2>Workout Calendar 🗓️</h2><div id="calendar-controls"><button id="prev-month-btn"><i class="fas fa-chevron-left"></i> Prev</button><h3 id="calendar-month-year">Month Year</h3><button id="next-month-btn">Next <i class="fas fa-chevron-right"></i></button></div><div id="calendar-grid-container"></div></section>
              <section><h2>Workout Sessions 📜</h2><div id="workout-history-container"></div></section>
         </div>
 
-        <!-- Exercises Tab (ensure it's there) -->
+        <!-- Tab Content: Exercise Library -->
         <div id="exercisesTab" class="tab-content">
-            <section id="exercise-library-controls"><h2>Exercise Library 📚</h2><input type="text" id="search-exercise-library" placeholder="Search exercises..."><select id="filter-muscle-group"><option value="">All Muscle Groups</option></select><button id="add-new-exercise-to-lib-btn" class="primary-action"><i class="fas fa-plus-circle"></i> Add New Exercise</button></section>
-            <section id="exercise-library-list"><p>Loading exercises...</p></section>
-            <div id="exercise-lib-modal" class="modal" style="display:none;"><div class="modal-content"><span class="close-btn" id="close-exercise-lib-modal">×</span><h3 id="exercise-lib-modal-title">Add New Exercise</h3><form id="exercise-lib-form"><input type="hidden" id="exercise-lib-id"><div><label for="ex-lib-name">Name:</label><input type="text" id="ex-lib-name" required></div><div><label for="ex-lib-muscle">Primary Muscle Group:</label><input type="text" id="ex-lib-muscle" placeholder="e.g., Chest, Quads"></div><div><label for="ex-lib-secondary-muscle">Secondary Muscles:</label><input type="text" id="ex-lib-secondary-muscle" placeholder="e.g., Triceps, Shoulders"></div><div><label for="ex-lib-equipment">Equipment:</label><input type="text" id="ex-lib-equipment" placeholder="e.g., Barbell, Dumbbell, Bodyweight"></div><div><label for="ex-lib-instructions">Instructions:</label><textarea id="ex-lib-instructions" rows="4"></textarea></div><div><label for="ex-lib-video">Video URL (Optional):</label><input type="url" id="ex-lib-video"></div><button type="submit"><i class="fas fa-save"></i> Save Exercise</button></form></div></div>
+            <section id="exercise-library-controls"><h2>Exercise Library 📚</h2><input type="text" id="search-exercise-library" placeholder="Search exercises..."><select id="filter-muscle-group"><option value="">All Muscle Groups 🎯</option></select><button id="add-new-exercise-to-lib-btn" class="primary-action"><i class="fas fa-plus-circle"></i> Add New Exercise</button></section>
+            <section id="exercise-library-list"><p>Loading exercises... 💪</p></section>
+            <div id="exercise-lib-modal" class="modal" style="display:none;"><div class="modal-content"><span class="close-btn" id="close-exercise-lib-modal">×</span><h3 id="exercise-lib-modal-title">Add New Exercise</h3><form id="exercise-lib-form"><input type="hidden" id="exercise-lib-id"><div><label for="ex-lib-name">Name:</label><input type="text" id="ex-lib-name" required></div><div><label for="ex-lib-muscle">Primary Muscle Group:</label><input type="text" id="ex-lib-muscle" placeholder="e.g., Chest, Quads"></div><div><label for="ex-lib-secondary-muscle">Secondary Muscles:</label><input type="text" id="ex-lib-secondary-muscle" placeholder="e.g., Triceps, Shoulders"></div><div><label for="ex-lib-equipment">Equipment:</label><input type="text" id="ex-lib-equipment" placeholder="e.g., Barbell, Dumbbell, Bodyweight"></div><div><label for="ex-lib-instructions">Instructions:</label><textarea id="ex-lib-instructions" rows="4"></textarea></div><div><label for="ex-lib-video">Video URL (Optional):</label><input type="url" id="ex-lib-video" placeholder="https://youtube.com/watch?v=..."></div><div><label for="ex-lib-image">Image URL (Optional):</label><input type="url" id="ex-lib-image" placeholder="https://example.com/image.png"></div><button type="submit"><i class="fas fa-save"></i> Save Exercise</button></form></div></div>
         </div>
 
-        <!-- Measurements Tab (ensure it's there) -->
+        <!-- Tab Content: Body Measurements -->
         <div id="measurementsTab" class="tab-content">
             <section id="log-measurements"><h2>Log Body Measurements 📏</h2><form id="log-measurement-form"><div><label for="measurement-date">Date:</label><input type="date" id="measurement-date" required></div><div><label for="body-weight">Weight (<span id="user-weight-unit">kg</span>):</label><input type="number" step="0.1" id="body-weight"></div><div><label for="body-fat">Body Fat (%):</label><input type="number" step="0.1" id="body-fat"></div><div><label for="chest-size">Chest (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="chest-size"></div><div><label for="waist-size">Waist (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="waist-size"></div><div><label for="arm-size">Arm (Bicep, <span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="arm-size"></div><div><label for="thigh-size">Thigh (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="thigh-size"></div><div><label for="measurement-notes">Notes:</label><textarea id="measurement-notes" rows="3"></textarea></div><button type="submit"><i class="fas fa-save"></i> Log Measurements</button></form></section>
-            <section id="measurement-history-charts"><h2>Measurement Progress 📈</h2><div id="measurement-chart-container"><p>Select a measurement type to view graph (Graphs coming soon).</p></div><div id="measurement-history-list"></div></section>
-            <section id="progress-photos-section"><h2>Progress Photos 📸</h2><input type="file" id="progress-photo-upload" accept="image/*" multiple><div id="progress-photos-gallery"></div></section>
+            <section id="measurement-history-charts"><h2>Measurement Progress 📈</h2><div id="measurement-chart-container"><p>Graphs for measurements are coming soon! Keep tracking! 💖</p></div><div id="measurement-history-list"></div></section>
+            <section id="progress-photos-section"><h2>Progress Photos 📸</h2><p><small>Note: Photos are currently just for show and not saved long-term with this app version.</small></p><input type="file" id="progress-photo-upload" accept="image/*" multiple><div id="progress-photos-gallery"></div></section>
         </div>
 
-        <!-- Nutrition Tab (ensure it's there) -->
+        <!-- Tab Content: Nutrition -->
         <div id="nutritionTab" class="tab-content">
-            <section id="log-nutrition-daily"><h2>Log Daily Nutrition 🥗</h2><form id="nutrition-log-form"><div><label for="nutrition-date">Date:</label><input type="date" id="nutrition-date" required></div><div><label for="kcal-goal">Kcal Goal:</label><input type="number" id="kcal-goal" value="2500"></div><div><label for="kcal-consumed">Kcal Consumed:</label><input type="number" id="kcal-consumed" required></div><div><label for="protein-goal">Protein Goal (g):</label><input type="number" id="protein-goal" value="150"></div><div><label for="protein-consumed">Protein Consumed (g):</label><input type="number" id="protein-consumed" required></div><div><label for="carbs-consumed">Carbs Consumed (g, optional):</label><input type="number" id="carbs-consumed"></div><div><label for="fats-consumed">Fats Consumed (g, optional):</label><input type="number" id="fats-consumed"></div><div><label for="nutrition-notes">Notes:</label><textarea id="nutrition-notes" rows="3"></textarea></div><button type="submit"><i class="fas fa-save"></i> Log Nutrition</button></form></section>
-            <section id="nutrition-summary"><h2>Nutrition Overview 📊</h2><p>Daily/Weekly summaries and charts will go here.</p></section>
+            <section id="log-nutrition-daily"><h2>Log Daily Nutrition 🥗</h2><form id="nutrition-log-form"><div><label for="nutrition-date">Date:</label><input type="date" id="nutrition-date" required></div><div><label for="kcal-goal">Kcal Goal:</label><input type="number" id="kcal-goal" value="2500"></div><div><label for="kcal-consumed">Kcal Consumed:</label><input type="number" id="kcal-consumed" required></div><div><label for="protein-goal">Protein Goal (g):</label><input type="number" id="protein-goal" value="150"></div><div><label for="protein-consumed">Protein Consumed (g):</label><input type="number" id="protein-consumed" required></div><div><label for="carbs-consumed">Carbs Consumed (g, opt.):</label><input type="number" id="carbs-consumed"></div><div><label for="fats-consumed">Fats Consumed (g, opt.):</label><input type="number" id="fats-consumed"></div><div><label for="nutrition-notes">Notes:</label><textarea id="nutrition-notes" rows="3"></textarea></div><button type="submit"><i class="fas fa-save"></i> Log Nutrition</button></form></section>
+            <section id="nutrition-summary"><h2>Nutrition Overview 📊</h2><p>Daily/Weekly summaries and charts will go here. Keep logging for yummy data! 😋</p></section>
         </div>
+
+        <!-- Settings Tab (Conceptual - can be built out later) -->
+        <div id="settingsTab" class="tab-content" style="display: none;"> <!-- Add style display none initially -->
+            <h2>App Settings ⚙️</h2>
+            <form id="user-settings-form">
+                 <div><label for="setting-user-name">Your Name:</label><input type="text" id="setting-user-name"></div>
+                 <div><label>Preferred Weight Unit:</label> <select id="setting-weight-unit"><option value="kg">kg</option><option value="lbs">lbs</option></select></div>
+                 <div><label>Preferred Measurement Unit:</label> <select id="setting-measure-unit"><option value="cm">cm</option><option value="in">inches</option></select></div>
+                 <div><label>Default Kcal Goal:</label><input type="number" id="setting-kcal-goal"></div>
+                 <div><label>Default Protein Goal (g):</label><input type="number" id="setting-protein-goal"></div>
+                 <div><label for="setting-smart-defaults">Enable Smart Exercise Defaults:</label><input type="checkbox" id="setting-smart-defaults"></div>
+                 <div><label for="setting-show-confetti">Show Confetti on Completion:</label><input type="checkbox" id="setting-show-confetti"></div>
+                 <button type="submit"><i class="fas fa-save"></i> Save Settings</button>
+            </form>
+             <section>
+                <h3>Data Management</h3>
+                <button id="export-data-btn" class="secondary-action-btn">Export My Data (JSON)</button>
+                <br><br>
+                <label for="import-data-file">Import Data (JSON):</label>
+                <input type="file" id="import-data-file" accept=".json">
+                <button id="import-data-btn-action" class="secondary-action-btn">Import Now</button>
+                <br><br>
+                <button id="clear-all-data-btn" class="danger-btn" style="background-color: var(--accent-danger); color:white;"><i class="fas fa-exclamation-triangle"></i> Clear All Local Data (Warning!)</button>
+            </section>
+        </div>
+
 
     </main>
 
@@ -181,7 +217,8 @@
     <script src="script.js"></script>
     <script>
         // Simple inline script for dynamic elements that don't need full app logic
-        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const currentYearEl = document.getElementById('current-year');
+        if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
     </script>
 </body>
 </html>
