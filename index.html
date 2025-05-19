@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Workout Tracker</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css"> <!-- Link to your new AAA style.css -->
 </head>
 <body>
     <header>
@@ -21,9 +21,7 @@
                 </div>
                 <div>
                     <label for="exercise-name">Exercise Name:</label>
-                    <!-- MODIFIED: Added list attribute to link to datalist -->
                     <input type="text" id="exercise-name" name="exercise-name" list="common-exercises" placeholder="e.g., Barbell Bench Press or type" required>
-                    <!-- NEW: Datalist for suggestions -->
                     <datalist id="common-exercises">
                         <option value="Barbell Bench Press">
                         <option value="Standing Overhead Press">
@@ -48,7 +46,6 @@
                         <option value="Incline Bench Press">
                         <option value="Paused Flat Bench">
                         <option value="Power Clean">
-                        <!-- Add more common exercises here -->
                     </datalist>
                 </div>
                 <div>
@@ -59,14 +56,20 @@
                     <label for="reps">Reps (per set):</label>
                     <input type="text" id="reps" name="reps" placeholder="e.g., 8-10 or 10" required>
                 </div>
+
+                <!-- MODIFIED SECTION for Weight Input -->
                 <div>
                     <label for="weight">Weight:</label>
-                    <input type="number" id="weight" name="weight" min="0" step="0.1" placeholder="e.g., 50">
-                    <select id="weight-unit" name="weight-unit">
-                        <option value="kg">kg</option>
-                        <option value="lbs">lbs</option>
-                    </select>
+                    <div class="input-group-inline"> <!-- New wrapper for input + select -->
+                        <input type="number" id="weight" name="weight" min="0" step="0.1" placeholder="e.g., 50">
+                        <select id="weight-unit" name="weight-unit">
+                            <option value="kg">kg</option>
+                            <option value="lbs">lbs</option>
+                        </select>
+                    </div>
                 </div>
+                <!-- END OF MODIFIED SECTION -->
+
                 <div>
                     <label for="exercise-notes">Notes (optional):</label>
                     <textarea id="exercise-notes" name="exercise-notes" rows="3" placeholder="e.g., Felt strong, good form"></textarea>
@@ -81,7 +84,7 @@
             <ul id="logged-exercises-list">
                 <!-- Logged exercises will be added here by JavaScript -->
             </ul>
-            <button id="finish-workout-btn" style="display:none;">Finish & Save Workout (Coming Soon)</button>
+            <button id="finish-workout-btn" style="display:none;">Finish & Save Workout</button> <!-- Updated button text slightly -->
         </section>
     </main>
 
