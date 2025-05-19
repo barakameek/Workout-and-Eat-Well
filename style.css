@@ -18,14 +18,14 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding-top: 70px; /* Space for fixed header */
+    padding-top: 120px; /* Increased space for fixed header + tabs */
 }
 
 /* --- Header --- */
 header {
     background: linear-gradient(90deg, #005bea, #00c6fb); /* Gradient for a modern touch */
     color: #ffffff;
-    padding: 15px 0;
+    padding: 15px 0 0 0; /* Padding top, bottom will be handled by tabs or direct content */
     text-align: center;
     position: fixed; /* Fixed header */
     top: 0;
@@ -39,33 +39,93 @@ header h1 {
     font-size: 1.8em;
     font-weight: 500;
     letter-spacing: 1px;
+    margin-bottom: 10px; /* Space between title and tabs */
+}
+
+/* --- Tab Navigation (Inside Header) --- */
+header .tabs {
+    background-color: #252a34; /* Match main content area background if desired, or a slightly different shade */
+    padding: 8px 0;
+    display: flex;
+    justify-content: center;
+    gap: 5px; /* Spacing between tab buttons */
+    border-bottom: 2px solid #005bea; /* Accent border */
+}
+
+.tab-link {
+    padding: 10px 18px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    color: #b0b0b0; /* Default tab text color */
+    font-size: 0.95em; /* Slightly smaller for tabs */
+    font-weight: 500;
+    transition: color 0.3s ease, border-bottom-color 0.3s ease, background-color 0.2s ease;
+    border-bottom: 3px solid transparent; /* For active state indicator */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px 4px 0 0; /* Slight rounding at the top */
+}
+
+.tab-link:hover {
+    color: #ffffff; /* Brighter on hover */
+    background-color: #313742; /* Subtle background on hover for tabs */
+    transform: none; /* Override default button hover */
+    box-shadow: none; /* Override default button hover */
+}
+
+.tab-link.active {
+    color: #00c6fb; /* Active tab text color (accent) */
+    background-color: #2c313c; /* Match section background for active tab */
+    border-bottom-color: #00c6fb; /* Active tab indicator */
+    font-weight: 700;
 }
 
 /* --- Main Content Area --- */
 main {
     flex-grow: 1;
-    max-width: 900px;
+    max-width: 1000px; /* Slightly wider for more content */
     width: 95%;
     margin: 30px auto;
-    padding: 25px;
-    background-color: #252a34; /* Slightly lighter dark for content area */
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    /* Padding handled by individual tab content sections if needed */
 }
 
-section {
+/* --- Tab Content Styling --- */
+.tab-content {
+    display: none; /* Hide all tab content by default */
+    background-color: #252a34; /* Background for the tab content area */
+    border-radius: 0 0 12px 12px; /* Round bottom corners if tabs are above */
+    /* Or remove if tabs are inside main and main has radius */
+    /* padding: 25px; */ /* General padding for tab content area */
+    /* box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); */ /* Shadow if main doesn't have it */
+}
+/* If tabs are separate from main, apply main-like styling to tab content */
+.tab-content {
+    background-color: #252a34;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    padding: 25px; /* Add padding here if not on individual sections */
+}
+
+
+.tab-content.active {
+    display: block; /* Show only the active tab content */
+}
+
+/* Sections within tab content */
+.tab-content section {
     padding: 25px;
     margin-bottom: 30px;
-    background-color: #2c313c; /* Even lighter for sections within main */
+    background-color: #2c313c; /* Section background */
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-section:last-child {
+.tab-content section:last-child {
     margin-bottom: 0;
 }
 
-h2 {
+h2 { /* Section headings */
     color: #00c6fb; /* Accent color for headings */
     margin-bottom: 20px;
     font-weight: 500;
@@ -74,7 +134,7 @@ h2 {
     letter-spacing: 0.5px;
 }
 
-/* --- Form Styles --- */
+/* --- Form Styles (Mostly from previous AAA, ensure they are within .tab-content scope if needed) --- */
 #log-exercise-form div {
     margin-bottom: 20px;
 }
@@ -83,7 +143,7 @@ h2 {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: #b0b0b0; /* Slightly lighter grey for labels */
+    color: #b0b0b0;
     font-size: 0.95em;
 }
 
@@ -94,8 +154,8 @@ h2 {
 #log-exercise-form textarea {
     width: 100%;
     padding: 12px 15px;
-    background-color: #1f232a; /* Darker input background */
-    border: 1px solid #3a3f4b; /* Subtle border */
+    background-color: #1f232a;
+    border: 1px solid #3a3f4b;
     border-radius: 6px;
     color: #e0e0e0;
     font-size: 1em;
@@ -112,34 +172,35 @@ h2 {
 #log-exercise-form select:focus,
 #log-exercise-form textarea:focus {
     outline: none;
-    border-color: #007bff; /* Accent color on focus */
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Glow effect on focus */
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
-/* Specific styling for weight input and unit select to be inline */
-#log-exercise-form div:has(#weight) {
+/* Inline group for weight input */
+.input-group-inline {
     display: flex;
     align-items: center;
     gap: 10px;
 }
-#log-exercise-form input[type="number"]#weight {
+.input-group-inline input[type="number"]#weight {
     flex-grow: 1;
 }
-#log-exercise-form select#weight-unit {
-    width: auto; /* Adjust width based on content */
+.input-group-inline select#weight-unit {
+    width: auto;
     min-width: 70px;
     flex-shrink: 0;
 }
 
 
-/* --- Buttons --- */
+/* --- Buttons (General Styling, then specifics) --- */
 button,
-#log-exercise-form button[type="submit"],
-#finish-workout-btn {
-    display: inline-block; /* Changed for potential side-by-side buttons later */
-    width: auto; /* Auto width based on content */
+#log-exercise-form button[type="submit"], /* Log exercise form button */
+#finish-workout-btn /* Finish workout button */
+{
+    display: inline-block;
+    width: auto;
     padding: 12px 25px;
-    background: linear-gradient(90deg, #007bff, #00c6fb);
+    background: linear-gradient(90deg, #007bff, #00c6fb); /* Blue gradient */
     color: white;
     border: none;
     border-radius: 6px;
@@ -151,15 +212,16 @@ button,
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
     box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
 }
-/* Make main action buttons full width if preferred for the form */
-#log-exercise-form button[type="submit"]{
+/* Make main action buttons full width for forms */
+#log-exercise-form button[type="submit"],
+#finish-workout-btn {
     width: 100%;
 }
-#finish-workout-btn {
-     width: 100%; /* Or keep auto if you prefer */
+
+#finish-workout-btn { /* Specific styling for finish button */
      background: linear-gradient(90deg, #28a745, #20c997); /* Green gradient for finish */
      box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
-     margin-top: 20px;
+     margin-top: 20px; /* Space above finish button */
 }
 
 
@@ -167,9 +229,9 @@ button:hover,
 #log-exercise-form button[type="submit"]:hover,
 #finish-workout-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3); /* Default hover shadow */
 }
-#finish-workout-btn:hover {
+#finish-workout-btn:hover { /* Specific hover shadow for finish button */
     box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
 }
 
@@ -181,34 +243,34 @@ button:active,
 }
 
 
-/* --- Logged Exercises List Styles --- */
-#current-workout-summary {
-    margin-top: 30px;
+/* --- Current Workout Logged Exercises List Styles (Log Workout Tab) --- */
+#current-workout-summary h2 { /* Custom heading for this specific summary */
+    color: #e0e0e0;
+    border-bottom-color: #444;
 }
-
 #current-workout-date-display {
     font-size: 1.2em;
     font-weight: 500;
     margin-bottom: 15px;
-    color: #00c6fb; /* Accent color */
+    color: #00c6fb;
     padding-bottom: 5px;
     border-bottom: 1px dashed #444;
 }
 
-#logged-exercises-list {
+#logged-exercises-list { /* List of exercises in CURRENT workout */
     list-style-type: none;
     padding: 0;
 }
 
 #logged-exercises-list li {
-    background-color: #343a45; /* Darker card background for logged items */
+    background-color: #343a45;
     border: 1px solid #444a55;
     padding: 20px;
     margin-bottom: 15px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Align items to top for potentially multi-line notes */
+    align-items: flex-start;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -220,25 +282,24 @@ button:active,
 
 #logged-exercises-list li .exercise-details {
     flex-grow: 1;
-    padding-right: 15px; /* Space before delete button */
+    padding-right: 15px;
 }
 #logged-exercises-list li .exercise-details strong {
-    color: #00c6fb; /* Accent color for exercise name */
+    color: #00c6fb;
     font-size: 1.1em;
     display: block;
     margin-bottom: 5px;
 }
-#logged-exercises-list li .exercise-details em { /* Notes styling */
+#logged-exercises-list li .exercise-details em {
     color: #a0a0a0;
     font-size: 0.9em;
     display: block;
     margin-top: 5px;
 }
 
-
 #logged-exercises-list li .exercise-actions button.delete-btn {
-    background: transparent; /* Transparent background for delete */
-    color: #ff4d4d; /* Red for delete action */
+    background: transparent;
+    color: #ff4d4d;
     border: 1px solid #ff4d4d;
     padding: 8px 12px;
     border-radius: 5px;
@@ -247,14 +308,170 @@ button:active,
     font-weight: 500;
     text-transform: uppercase;
     transition: background-color 0.3s ease, color 0.3s ease;
-    min-width: 80px; /* Ensure button isn't too small */
+    min-width: 80px;
 }
 
 #logged-exercises-list li .exercise-actions button.delete-btn:hover {
     background-color: #ff4d4d;
     color: white;
-    box-shadow: none; /* Remove main button hover effect */
-    transform: none; /* Remove main button hover effect */
+    box-shadow: none;
+    transform: none;
+}
+
+
+/* --- History Tab Specifics --- */
+#workout-history-container .workout-session {
+    background-color: #2c313c; /* Match section background */
+    padding: 25px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#workout-history-container .workout-session-date {
+    font-size: 1.4em; /* Larger date for history session */
+    font-weight: 500;
+    color: #00c6fb;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #4a4f5b;
+    padding-bottom: 12px;
+}
+
+#workout-history-container .history-exercise-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#workout-history-container .history-exercise-item {
+    background-color: #343a45; /* Darker card for individual exercises in history */
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border-left: 4px solid #007bff; /* Accent border on the left */
+}
+#workout-history-container .history-exercise-item strong {
+    color: #00c6fb; /* Exercise name */
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1.05em;
+}
+#workout-history-container .history-exercise-item div { /* Sets, reps, weight line */
+    font-size: 0.95em;
+    color: #c0c0c0;
+}
+#workout-history-container .history-exercise-item em { /* Notes */
+     color: #a0a0a0;
+    font-size: 0.9em;
+    display: block;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+
+/* --- Progress Tab Specifics --- */
+.progress-controls {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #343a45; /* Slightly different for control panel */
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.progress-controls label {
+    font-weight: 500;
+    color: #b0b0b0;
+    margin-bottom: 0; /* Override general label margin */
+}
+
+#progress-exercise-select {
+    flex-grow: 1;
+    padding: 10px 12px;
+    background-color: #1f232a;
+    border: 1px solid #3a3f4b;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 1em;
+}
+#progress-exercise-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.chart-wrapper {
+    background-color: #2c313c; /* Match section background */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    min-height: 300px; /* Ensure charts have some minimum height */
+    display: flex;
+    flex-direction: column;
+}
+.chart-wrapper h3 { /* Chart titles */
+    text-align: center;
+    margin-bottom: 20px;
+    color: #e0e0e0;
+    font-weight: 500;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+    font-size: 1.1em;
+}
+.chart-wrapper canvas { /* Ensure canvas is responsive within its wrapper */
+    max-width: 100%;
+    flex-grow: 1; /* Allow canvas to fill available space in flex column */
+    height: auto !important; /* Chart.js sometimes sets fixed height */
+}
+
+/* Personal Records Table Styling (Progress Tab) */
+#personal-records-container {
+    margin-top: 30px;
+    background-color: #2c313c; /* Match section background */
+    padding: 20px;
+    border-radius: 8px;
+}
+#personal-records-container h3 { /* PR Table Title */
+    text-align: center;
+    margin-bottom: 20px;
+    color: #e0e0e0;
+    font-weight: 500;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+    font-size: 1.1em;
+}
+#pr-table {
+    width: 100%;
+    border-collapse: collapse; /* Cleaner table lines */
+    margin-top: 15px;
+}
+#pr-table th, #pr-table td {
+    padding: 12px 15px; /* More padding for table cells */
+    text-align: left;
+    border-bottom: 1px solid #3a3f4b; /* Darker border for table rows */
+    color: #c0c0c0;
+}
+#pr-table th {
+    background-color: #343a45; /* Slightly different header for table */
+    color: #e0e0e0;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+}
+#pr-table tbody tr:hover {
+    background-color: #343a45; /* Hover effect for table rows */
+}
+#pr-table tbody tr td:first-child { /* First column (Reps) can be bolder */
+    font-weight: 500;
+    color: #d0d0d0;
 }
 
 
@@ -262,71 +479,107 @@ button:active,
 footer {
     text-align: center;
     padding: 25px 20px;
-    margin-top: auto; /* Pushes footer to bottom */
+    margin-top: auto;
     font-size: 0.9em;
     color: #777;
-    background-color: #1f232a; /* Slightly different dark for footer */
+    background-color: #1f232a;
     border-top: 1px solid #30353f;
 }
 
 /* --- Scrollbar (Optional, WebKit browsers) --- */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 10px;
 }
 ::-webkit-scrollbar-track {
-    background: #252a34;
+    background: #1f232a; /* Darker track */
 }
 ::-webkit-scrollbar-thumb {
-    background: #007bff;
-    border-radius: 4px;
+    background: #007bff; /* Accent color thumb */
+    border-radius: 5px;
+    border: 2px solid #1f232a; /* Creates padding around thumb */
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #0056b3;
+    background: #0056b3; /* Darker on hover */
 }
 
 
 /* --- Responsive Adjustments --- */
 @media (max-width: 768px) {
     body {
-        padding-top: 60px; /* Adjust for smaller header */
+        padding-top: 110px; /* Adjust for smaller header + tabs */
     }
     header h1 {
         font-size: 1.5em;
+        margin-bottom: 8px;
     }
+    header .tabs {
+        gap: 2px; /* Reduce gap for smaller screens */
+        overflow-x: auto; /* Allow horizontal scrolling for tabs if too many */
+        justify-content: flex-start; /* Align tabs to start for scrolling */
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .tab-link {
+        padding: 8px 12px;
+        font-size: 0.85em;
+        white-space: nowrap; /* Prevent tab text from wrapping */
+    }
+
     main {
         width: 100%;
-        margin: 15px 0;
-        border-radius: 0;
+        margin: 15px 0 0 0; /* Remove side margin on mobile */
+        border-radius: 0; /* Full width main content */
+    }
+    .tab-content {
+        padding: 15px;
+        border-radius: 0; /* Full width tab content */
+    }
+    .tab-content section {
         padding: 15px;
     }
-    section {
-        padding: 15px;
-    }
-    #log-exercise-form div:has(#weight) {
+
+    .input-group-inline { /* Stack weight input and unit on mobile */
         flex-direction: column;
         align-items: stretch;
     }
-    #log-exercise-form input[type="number"]#weight,
-    #log-exercise-form select#weight-unit {
+    .input-group-inline input[type="number"]#weight,
+    .input-group-inline select#weight-unit {
         width: 100%;
     }
-    #logged-exercises-list li {
+
+    #logged-exercises-list li { /* Stack logged exercise details and actions */
         flex-direction: column;
         align-items: stretch;
     }
     #logged-exercises-list li .exercise-actions {
         margin-top: 15px;
-        text-align: right; /* Align delete button to the right on mobile */
+        text-align: right;
     }
     #logged-exercises-list li .exercise-actions button.delete-btn {
-        width: auto; /* Let it size to content or set a specific width */
+        width: auto;
+    }
+    .charts-container {
+        grid-template-columns: 1fr; /* Stack charts on mobile */
+        gap: 20px;
+    }
+    .progress-controls {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 
 @media (max-width: 480px) {
+    body {
+        padding-top: 100px;
+    }
     header h1 {
         font-size: 1.3em;
     }
+    .tab-link {
+        padding: 8px 10px;
+        font-size: 0.8em;
+    }
+
     button,
     #log-exercise-form button[type="submit"],
     #finish-workout-btn {
@@ -339,34 +592,14 @@ footer {
     #logged-exercises-list li .exercise-details strong {
         font-size: 1em;
     }
-}
-.input-group-inline {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Space between the input and the select */
-}
-
-/* Adjustments for elements within this specific group */
-.input-group-inline input[type="number"]#weight {
-    flex-grow: 1; /* Allows the weight input to take available space */
-    /* width is implicitly handled by flex-grow, no need to set it to 100% here */
-}
-
-.input-group-inline select#weight-unit {
-    width: auto; /* Let the select box size itself */
-    min-width: 70px; /* Or your preferred minimum width */
-    flex-shrink: 0; /* Prevent it from shrinking too much */
-}
-
-/* Responsive adjustment for this specific group if needed */
-@media (max-width: 768px) {
-    .input-group-inline {
-        flex-direction: column; /* Stack them vertically on smaller screens */
-        align-items: stretch; /* Make them full width in the column */
+    .chart-wrapper {
+        padding: 15px;
     }
-    .input-group-inline input[type="number"]#weight,
-    .input-group-inline select#weight-unit {
-        width: 100%; /* Ensure they take full width when stacked */
+    .chart-wrapper h3 {
+        font-size: 1em;
+    }
+    #pr-table th, #pr-table td {
+        padding: 8px 10px;
+        font-size: 0.9em;
     }
 }
-
