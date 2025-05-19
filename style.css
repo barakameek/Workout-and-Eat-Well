@@ -18,16 +18,16 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding-top: 120px; /* Increased space for fixed header + tabs */
+    padding-top: 120px; /* Space for fixed header + tabs */
 }
 
 /* --- Header --- */
 header {
-    background: linear-gradient(90deg, #005bea, #00c6fb); /* Gradient for a modern touch */
+    background: linear-gradient(90deg, #005bea, #00c6fb);
     color: #ffffff;
-    padding: 15px 0 0 0; /* Padding top, bottom will be handled by tabs or direct content */
+    padding: 15px 0 0 0;
     text-align: center;
-    position: fixed; /* Fixed header */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -39,17 +39,17 @@ header h1 {
     font-size: 1.8em;
     font-weight: 500;
     letter-spacing: 1px;
-    margin-bottom: 10px; /* Space between title and tabs */
+    margin-bottom: 10px;
 }
 
 /* --- Tab Navigation (Inside Header) --- */
 header .tabs {
-    background-color: #252a34; /* Match main content area background if desired, or a slightly different shade */
+    background-color: #252a34;
     padding: 8px 0;
     display: flex;
     justify-content: center;
-    gap: 5px; /* Spacing between tab buttons */
-    border-bottom: 2px solid #005bea; /* Accent border */
+    gap: 5px;
+    border-bottom: 2px solid #005bea;
 }
 
 .tab-link {
@@ -57,66 +57,56 @@ header .tabs {
     cursor: pointer;
     border: none;
     background-color: transparent;
-    color: #b0b0b0; /* Default tab text color */
-    font-size: 0.95em; /* Slightly smaller for tabs */
+    color: #b0b0b0;
+    font-size: 0.95em;
     font-weight: 500;
     transition: color 0.3s ease, border-bottom-color 0.3s ease, background-color 0.2s ease;
-    border-bottom: 3px solid transparent; /* For active state indicator */
+    border-bottom: 3px solid transparent;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-radius: 4px 4px 0 0; /* Slight rounding at the top */
+    border-radius: 4px 4px 0 0;
 }
 
 .tab-link:hover {
-    color: #ffffff; /* Brighter on hover */
-    background-color: #313742; /* Subtle background on hover for tabs */
-    transform: none; /* Override default button hover */
-    box-shadow: none; /* Override default button hover */
+    color: #ffffff;
+    background-color: #313742;
+    transform: none;
+    box-shadow: none;
 }
 
 .tab-link.active {
-    color: #00c6fb; /* Active tab text color (accent) */
-    background-color: #2c313c; /* Match section background for active tab */
-    border-bottom-color: #00c6fb; /* Active tab indicator */
+    color: #00c6fb;
+    background-color: #2c313c;
+    border-bottom-color: #00c6fb;
     font-weight: 700;
 }
 
 /* --- Main Content Area --- */
 main {
     flex-grow: 1;
-    max-width: 1000px; /* Slightly wider for more content */
+    max-width: 1000px;
     width: 95%;
     margin: 30px auto;
-    /* Padding handled by individual tab content sections if needed */
 }
 
 /* --- Tab Content Styling --- */
 .tab-content {
-    display: none; /* Hide all tab content by default */
-    background-color: #252a34; /* Background for the tab content area */
-    border-radius: 0 0 12px 12px; /* Round bottom corners if tabs are above */
-    /* Or remove if tabs are inside main and main has radius */
-    /* padding: 25px; */ /* General padding for tab content area */
-    /* box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); */ /* Shadow if main doesn't have it */
-}
-/* If tabs are separate from main, apply main-like styling to tab content */
-.tab-content {
+    display: none;
     background-color: #252a34;
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    padding: 25px; /* Add padding here if not on individual sections */
+    padding: 25px;
 }
 
-
 .tab-content.active {
-    display: block; /* Show only the active tab content */
+    display: block;
 }
 
 /* Sections within tab content */
 .tab-content section {
     padding: 25px;
     margin-bottom: 30px;
-    background-color: #2c313c; /* Section background */
+    background-color: #2c313c;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
@@ -126,7 +116,7 @@ main {
 }
 
 h2 { /* Section headings */
-    color: #00c6fb; /* Accent color for headings */
+    color: #00c6fb;
     margin-bottom: 20px;
     font-weight: 500;
     border-bottom: 2px solid #007bff;
@@ -134,7 +124,7 @@ h2 { /* Section headings */
     letter-spacing: 0.5px;
 }
 
-/* --- Form Styles (Mostly from previous AAA, ensure they are within .tab-content scope if needed) --- */
+/* --- Form Styles (Log Workout Tab) --- */
 #log-exercise-form div {
     margin-bottom: 20px;
 }
@@ -176,7 +166,6 @@ h2 { /* Section headings */
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
-/* Inline group for weight input */
 .input-group-inline {
     display: flex;
     align-items: center;
@@ -191,16 +180,14 @@ h2 { /* Section headings */
     flex-shrink: 0;
 }
 
-
-/* --- Buttons (General Styling, then specifics) --- */
+/* --- Buttons --- */
 button,
-#log-exercise-form button[type="submit"], /* Log exercise form button */
-#finish-workout-btn /* Finish workout button */
-{
+#log-exercise-form button[type="submit"],
+#finish-workout-btn {
     display: inline-block;
     width: auto;
     padding: 12px 25px;
-    background: linear-gradient(90deg, #007bff, #00c6fb); /* Blue gradient */
+    background: linear-gradient(90deg, #007bff, #00c6fb);
     color: white;
     border: none;
     border-radius: 6px;
@@ -212,26 +199,24 @@ button,
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
     box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
 }
-/* Make main action buttons full width for forms */
 #log-exercise-form button[type="submit"],
 #finish-workout-btn {
     width: 100%;
 }
 
-#finish-workout-btn { /* Specific styling for finish button */
-     background: linear-gradient(90deg, #28a745, #20c997); /* Green gradient for finish */
+#finish-workout-btn {
+     background: linear-gradient(90deg, #28a745, #20c997);
      box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
-     margin-top: 20px; /* Space above finish button */
+     margin-top: 20px;
 }
-
 
 button:hover,
 #log-exercise-form button[type="submit"]:hover,
 #finish-workout-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3); /* Default hover shadow */
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
 }
-#finish-workout-btn:hover { /* Specific hover shadow for finish button */
+#finish-workout-btn:hover {
     box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
 }
 
@@ -242,9 +227,8 @@ button:active,
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-
 /* --- Current Workout Logged Exercises List Styles (Log Workout Tab) --- */
-#current-workout-summary h2 { /* Custom heading for this specific summary */
+#current-workout-summary h2 {
     color: #e0e0e0;
     border-bottom-color: #444;
 }
@@ -257,7 +241,7 @@ button:active,
     border-bottom: 1px dashed #444;
 }
 
-#logged-exercises-list { /* List of exercises in CURRENT workout */
+#logged-exercises-list {
     list-style-type: none;
     padding: 0;
 }
@@ -318,18 +302,117 @@ button:active,
     transform: none;
 }
 
+/* --- History Tab Specifics (Including Calendar) --- */
+#calendar-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #343a45;
+    border-radius: 6px;
+}
 
-/* --- History Tab Specifics --- */
+#calendar-controls button { /* Styles for prev/next month buttons */
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    /* Reset general button hover if needed, or leave as is */
+}
+#calendar-controls button:hover {
+    background: #0056b3;
+    transform: none;
+    box-shadow: none;
+}
+
+#calendar-month-year {
+    font-size: 1.3em;
+    font-weight: 500;
+    color: #e0e0e0;
+}
+
+#calendar-grid-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    background-color: #2c313c;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.calendar-day-header {
+    font-weight: 500;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 0.85em;
+    color: #b0b0b0;
+    text-transform: uppercase;
+}
+
+.calendar-day {
+    min-height: 80px;
+    background-color: #343a45;
+    border: 1px solid #444a55;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 0.9em;
+    position: relative;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;
+}
+.calendar-day .day-number {
+    font-weight: bold;
+    color: #e0e0e0;
+}
+.calendar-day.other-month .day-number {
+    color: #6c757d;
+}
+.calendar-day.today .day-number {
+    color: #00c6fb;
+    background-color: rgba(0,198,251,0.15);
+    border-radius: 50%;
+    padding: 2px 4px;
+    display: inline-block;
+}
+.calendar-day .workout-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #28a745;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+/* Example Heatmap-like hover for days with workouts */
+.calendar-day[data-date]:hover { /* Selects days with workout data */
+    border-color: #00c6fb;
+    box-shadow: 0 0 8px rgba(0, 198, 251, 0.5);
+    cursor: pointer;
+}
+
+
 #workout-history-container .workout-session {
-    background-color: #2c313c; /* Match section background */
+    background-color: #2c313c;
     padding: 25px;
     margin-bottom: 25px;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+/* Highlight class for session linked from calendar */
+#workout-history-container .workout-session.highlighted-session {
+    outline: 3px solid #00c6fb;
+    transform: scale(1.01); /* Subtle scale */
+    box-shadow: 0 6px 20px rgba(0, 198, 251, 0.3);
 }
 
+
 #workout-history-container .workout-session-date {
-    font-size: 1.4em; /* Larger date for history session */
+    font-size: 1.4em;
     font-weight: 500;
     color: #00c6fb;
     margin-bottom: 20px;
@@ -343,137 +426,29 @@ button:active,
 }
 
 #workout-history-container .history-exercise-item {
-    background-color: #343a45; /* Darker card for individual exercises in history */
+    background-color: #343a45;
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 6px;
-    border-left: 4px solid #007bff; /* Accent border on the left */
+    border-left: 4px solid #007bff;
 }
 #workout-history-container .history-exercise-item strong {
-    color: #00c6fb; /* Exercise name */
+    color: #00c6fb;
     display: block;
     margin-bottom: 5px;
     font-size: 1.05em;
 }
-#workout-history-container .history-exercise-item div { /* Sets, reps, weight line */
+#workout-history-container .history-exercise-item div {
     font-size: 0.95em;
     color: #c0c0c0;
 }
-#workout-history-container .history-exercise-item em { /* Notes */
+#workout-history-container .history-exercise-item em {
      color: #a0a0a0;
     font-size: 0.9em;
     display: block;
     margin-top: 5px;
     font-style: italic;
 }
-
-
-/* --- Progress Tab Specifics --- */
-.progress-controls {
-    margin-bottom: 30px;
-    padding: 20px;
-    background-color: #343a45; /* Slightly different for control panel */
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.progress-controls label {
-    font-weight: 500;
-    color: #b0b0b0;
-    margin-bottom: 0; /* Override general label margin */
-}
-
-#progress-exercise-select {
-    flex-grow: 1;
-    padding: 10px 12px;
-    background-color: #1f232a;
-    border: 1px solid #3a3f4b;
-    border-radius: 6px;
-    color: #e0e0e0;
-    font-size: 1em;
-}
-#progress-exercise-select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-}
-
-.charts-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-    margin-bottom: 30px;
-}
-
-.chart-wrapper {
-    background-color: #2c313c; /* Match section background */
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    min-height: 300px; /* Ensure charts have some minimum height */
-    display: flex;
-    flex-direction: column;
-}
-.chart-wrapper h3 { /* Chart titles */
-    text-align: center;
-    margin-bottom: 20px;
-    color: #e0e0e0;
-    font-weight: 500;
-    border-bottom: 1px solid #444;
-    padding-bottom: 10px;
-    font-size: 1.1em;
-}
-.chart-wrapper canvas { /* Ensure canvas is responsive within its wrapper */
-    max-width: 100%;
-    flex-grow: 1; /* Allow canvas to fill available space in flex column */
-    height: auto !important; /* Chart.js sometimes sets fixed height */
-}
-
-/* Personal Records Table Styling (Progress Tab) */
-#personal-records-container {
-    margin-top: 30px;
-    background-color: #2c313c; /* Match section background */
-    padding: 20px;
-    border-radius: 8px;
-}
-#personal-records-container h3 { /* PR Table Title */
-    text-align: center;
-    margin-bottom: 20px;
-    color: #e0e0e0;
-    font-weight: 500;
-    border-bottom: 1px solid #444;
-    padding-bottom: 10px;
-    font-size: 1.1em;
-}
-#pr-table {
-    width: 100%;
-    border-collapse: collapse; /* Cleaner table lines */
-    margin-top: 15px;
-}
-#pr-table th, #pr-table td {
-    padding: 12px 15px; /* More padding for table cells */
-    text-align: left;
-    border-bottom: 1px solid #3a3f4b; /* Darker border for table rows */
-    color: #c0c0c0;
-}
-#pr-table th {
-    background-color: #343a45; /* Slightly different header for table */
-    color: #e0e0e0;
-    font-weight: 500;
-    text-transform: uppercase;
-    font-size: 0.9em;
-    letter-spacing: 0.5px;
-}
-#pr-table tbody tr:hover {
-    background-color: #343a45; /* Hover effect for table rows */
-}
-#pr-table tbody tr td:first-child { /* First column (Reps) can be bolder */
-    font-weight: 500;
-    color: #d0d0d0;
-}
-
 
 /* --- Footer --- */
 footer {
@@ -486,59 +461,58 @@ footer {
     border-top: 1px solid #30353f;
 }
 
-/* --- Scrollbar (Optional, WebKit browsers) --- */
+/* --- Scrollbar --- */
 ::-webkit-scrollbar {
     width: 10px;
 }
 ::-webkit-scrollbar-track {
-    background: #1f232a; /* Darker track */
+    background: #1f232a;
 }
 ::-webkit-scrollbar-thumb {
-    background: #007bff; /* Accent color thumb */
+    background: #007bff;
     border-radius: 5px;
-    border: 2px solid #1f232a; /* Creates padding around thumb */
+    border: 2px solid #1f232a;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #0056b3; /* Darker on hover */
+    background: #0056b3;
 }
-
 
 /* --- Responsive Adjustments --- */
 @media (max-width: 768px) {
     body {
-        padding-top: 110px; /* Adjust for smaller header + tabs */
+        padding-top: 110px;
     }
     header h1 {
         font-size: 1.5em;
         margin-bottom: 8px;
     }
     header .tabs {
-        gap: 2px; /* Reduce gap for smaller screens */
-        overflow-x: auto; /* Allow horizontal scrolling for tabs if too many */
-        justify-content: flex-start; /* Align tabs to start for scrolling */
+        gap: 2px;
+        overflow-x: auto;
+        justify-content: flex-start;
         padding-left: 10px;
         padding-right: 10px;
     }
     .tab-link {
         padding: 8px 12px;
         font-size: 0.85em;
-        white-space: nowrap; /* Prevent tab text from wrapping */
+        white-space: nowrap;
     }
 
     main {
         width: 100%;
-        margin: 15px 0 0 0; /* Remove side margin on mobile */
-        border-radius: 0; /* Full width main content */
+        margin: 15px 0 0 0;
+        border-radius: 0;
     }
     .tab-content {
         padding: 15px;
-        border-radius: 0; /* Full width tab content */
+        border-radius: 0;
     }
     .tab-content section {
         padding: 15px;
     }
 
-    .input-group-inline { /* Stack weight input and unit on mobile */
+    .input-group-inline {
         flex-direction: column;
         align-items: stretch;
     }
@@ -547,7 +521,7 @@ footer {
         width: 100%;
     }
 
-    #logged-exercises-list li { /* Stack logged exercise details and actions */
+    #logged-exercises-list li {
         flex-direction: column;
         align-items: stretch;
     }
@@ -558,13 +532,18 @@ footer {
     #logged-exercises-list li .exercise-actions button.delete-btn {
         width: auto;
     }
-    .charts-container {
-        grid-template-columns: 1fr; /* Stack charts on mobile */
-        gap: 20px;
+    /* Calendar on mobile */
+    .calendar-day {
+        min-height: 60px; /* Smaller day cells */
+        padding: 5px;
+        font-size: 0.8em;
     }
-    .progress-controls {
-        flex-direction: column;
-        align-items: stretch;
+    #calendar-month-year {
+        font-size: 1.1em;
+    }
+    #calendar-controls button {
+        padding: 6px 10px;
+        font-size: 0.8em;
     }
 }
 
@@ -592,14 +571,14 @@ footer {
     #logged-exercises-list li .exercise-details strong {
         font-size: 1em;
     }
-    .chart-wrapper {
-        padding: 15px;
+    .calendar-day {
+        min-height: 50px;
     }
-    .chart-wrapper h3 {
-        font-size: 1em;
-    }
-    #pr-table th, #pr-table td {
-        padding: 8px 10px;
+    .calendar-day .day-number {
         font-size: 0.9em;
+    }
+     #calendar-controls {
+        flex-direction: column;
+        gap: 10px;
     }
 }
