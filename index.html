@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Workout Tracker</title>
-    <!-- We will link CSS file here later -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,7 +21,35 @@
                 </div>
                 <div>
                     <label for="exercise-name">Exercise Name:</label>
-                    <input type="text" id="exercise-name" name="exercise-name" placeholder="e.g., Barbell Bench Press" required>
+                    <!-- MODIFIED: Added list attribute to link to datalist -->
+                    <input type="text" id="exercise-name" name="exercise-name" list="common-exercises" placeholder="e.g., Barbell Bench Press or type" required>
+                    <!-- NEW: Datalist for suggestions -->
+                    <datalist id="common-exercises">
+                        <option value="Barbell Bench Press">
+                        <option value="Standing Overhead Press">
+                        <option value="Close-Grip Bench Press">
+                        <option value="Barbell Front Raise">
+                        <option value="Plate Raise">
+                        <option value="Overhead Triceps Extension (Barbell)">
+                        <option value="Overhead Triceps Extension (Plate)">
+                        <option value="Barbell Back Squat">
+                        <option value="Romanian Deadlift (RDL)">
+                        <option value="Walking Lunges">
+                        <option value="Static Lunges">
+                        <option value="Paused Squat">
+                        <option value="Calf Raises (Barbell)">
+                        <option value="Calf Raises (Plate)">
+                        <option value="Barbell Bent-Over Rows">
+                        <option value="Deadlifts">
+                        <option value="Barbell Curls">
+                        <option value="Shrugs (Barbell)">
+                        <option value="Reverse-Grip Rows">
+                        <option value="Front Squat">
+                        <option value="Incline Bench Press">
+                        <option value="Paused Flat Bench">
+                        <option value="Power Clean">
+                        <!-- Add more common exercises here -->
+                    </datalist>
                 </div>
                 <div>
                     <label for="sets">Sets:</label>
@@ -56,15 +83,12 @@
             </ul>
             <button id="finish-workout-btn" style="display:none;">Finish & Save Workout (Coming Soon)</button>
         </section>
-
-        <!-- We will add other sections/tabs later (e.g., Nutrition, Templates) -->
     </main>
 
     <footer>
         <p>© 2023 Your Name - Workout Tracker</p>
     </footer>
 
-    <!-- We will link JavaScript file here later -->
     <script src="script.js"></script>
 </body>
 </html>
