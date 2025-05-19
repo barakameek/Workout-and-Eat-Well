@@ -1,28 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Tab Navigation ---
+    // --- Tab Navigation Elements ---
     const tabs = document.querySelectorAll('.tab-link');
     const tabContents = document.querySelectorAll('.tab-content');
 
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(item => item.classList.remove('active'));
-            tab.classList.add('active');
-
-            const targetTab = tab.getAttribute('data-tab');
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === targetTab) {
-                    content.classList.add('active');
-                }
-            });
-            // If switching to progress tab, and an exercise is selected, refresh charts
-            if (targetTab === "progressTab" && progressExerciseSelect.value) {
-                updateAllCharts(progressExerciseSelect.value);
-            }
-        });
-    });
-
-    // --- Existing Workout Log Elements ---
+    // --- Workout Log Elements ---
     const exerciseForm = document.getElementById('log-exercise-form');
     const loggedExercisesList = document.getElementById('logged-exercises-list'); // For current workout
     const workoutDateInput = document.getElementById('workout-date');
@@ -30,10 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const finishWorkoutBtn = document.getElementById('finish-workout-btn');
     const exerciseNameInput = document.getElementById('exercise-name');
 
-    // --- New Elements ---
+    // --- History Tab Elements ---
     const workoutHistoryContainer = document.getElementById('workout-history-container');
+
+    // --- Progress Tab Elements ---
     const progressExerciseSelect = document.getElementById('progress-exercise-select');
     const prTableBody = document.querySelector('#pr-table tbody');
+    const maxWeightCanvas = document.getElementById('maxWeightChart');
+    const e1rmCanvas = document.getElementById('e1rmChart');
+    const volumeCanvas = document.getElementById('volumeChart');
 
 
     // --- Global State for Current Workout ---
@@ -48,18 +34,60 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LOCALSTORAGE KEY ---
     const WORKOUT_STORAGE_KEY = 'workoutTrackerData';
 
-    // --- Load All Saved Workouts from localStorage ---
+    // --- Tab Navigation Logic ---
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Deactivate all tabs and content
+            tabs.forEach(item => item.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Activate clicked tab and corresponding content
+            tab.classList.add('active');
+            const targetTabId = tab.getAttribute('data-tab');
+            const targetContent = document.getElementById(targetTabId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+
+            // If switching to progress tab, and an exercise is selected, refresh charts
+            if (targetTabId === "progressTab") {
+                // Ensure select is populated if it's empty and data exists
+                if (progressExerciseSelect.options.length <= 1 && getAllWorkouts().length > 0) {
+                    populateProgressExerciseSelect();
+                }
+                if (progressExerciseSelect.value) {
+                    updateAllCharts(progressExerciseSelect.value);
+                    displayPersonalRecords(progressExerciseSelect.value);
+                } else {
+                    clearCharts();
+                    clearPRTable();
+                }
+            } else if (targetTabId === "historyTab") {
+                renderWorkoutHistory(); // Refresh history view when tab is clicked
+            }
+        });
+    });
+
+    // --- LocalStorage Helper Functions ---
     function getAllWorkouts() {
         const data = localStorage.getItem(WORKOUT_STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
+        try {
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            console.error("Error parsing workouts from localStorage:", e);
+            return []; // Return empty array on error
+        }
     }
 
-    // --- Save All Workouts to localStorage ---
     function saveAllWorkouts(workouts) {
-        localStorage.setItem(WORKOUT_STORAGE_KEY, JSON.stringify(workouts));
+        try {
+            localStorage.setItem(WORKOUT_STORAGE_KEY, JSON.stringify(workouts));
+        } catch (e) {
+            console.error("Error saving workouts to localStorage:", e);
+        }
     }
 
-    // --- Initialize Default Date ---
+    // --- Initialize Default Date for Workout Log ---
     function setDefaultDate() {
         if (workoutDateInput) {
             const today = new Date();
@@ -68,24 +96,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const day = String(today.getDate()).padStart(2, '0');
             const todayString = `${year}-${month}-${day}`;
 
-            // Set for current workout log if no session is active
-            if (!currentSessionDate) {
+            if (!currentSessionDate) { // If no active session, default to today
                  workoutDateInput.value = todayString;
-            } else {
-                workoutDateInput.value = currentSessionDate; // Persist session date on form
+            } else { // Otherwise, keep the active session's date
+                workoutDateInput.value = currentSessionDate;
             }
         }
     }
-    setDefaultDate(); // Set date on initial load
 
-    // --- Current Workout Log Logic (Modified) ---
+    // --- Workout Log Tab Logic ---
     exerciseForm.addEventListener('submit', function(event) {
         event.preventDefault();
         const date = workoutDateInput.value;
-        // ... (rest of form value retrieval as before)
         const exerciseName = exerciseNameInput.value.trim();
         const sets = document.getElementById('sets').value;
-        const reps = document.getElementById('reps').value.trim();
+        const reps = document.getElementById('reps').value.trim(); // Keep as string initially
         const weight = document.getElementById('weight').value;
         const weightUnit = document.getElementById('weight-unit').value;
         const notes = document.getElementById('exercise-notes').value.trim();
@@ -95,34 +120,35 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Update current session date if this is the first exercise of the session
-        if (currentWorkoutExercises.length === 0) {
+        if (currentWorkoutExercises.length === 0) { // First exercise in this session
             currentSessionDate = date;
-            const formattedDate = new Date(date + 'T00:00:00');
+            const formattedDate = new Date(date + 'T00:00:00'); // Avoid timezone issues
             currentWorkoutDateDisplay.textContent = `Workout Date: ${formattedDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`;
         } else if (date !== currentSessionDate) {
-            // If date changes mid-session, alert user or handle as new session.
-            // For now, we'll stick with the initially set currentSessionDate for the ongoing log.
-            // You could prompt to save current and start new.
-            alert("Date changed. Current workout session is still under the initially set date. Save this workout to start a new one with a different date.");
+            alert("Date changed. Current workout session is still under the initially set date. Please save this workout to start a new one with a different date.");
             workoutDateInput.value = currentSessionDate; // Revert date input to session date
             return;
         }
 
+        // Try to parse actual reps if a single number is provided
+        let actualRepsParsed = null;
+        if (!reps.includes('-') && !isNaN(parseInt(reps))) {
+            actualRepsParsed = parseInt(reps);
+        }
 
         const exerciseData = {
-            id: Date.now(), // Unique ID for the exercise entry for easier management
+            id: Date.now() + Math.random(), // More unique ID
             name: exerciseName,
-            sets: parseInt(sets), // Store as number
-            reps: reps, // Keep as string for ranges like "8-10"
-            actualReps: reps.includes('-') ? null : parseInt(reps), // Store actual reps if not a range for calculations
-            weight: parseFloat(weight) || 0, // Store as number, default to 0 if empty
+            sets: parseInt(sets),
+            reps: reps, // Store original reps string (e.g., "8-10" or "12")
+            actualReps: actualRepsParsed, // Store parsed single rep number if available
+            weight: parseFloat(weight) || 0,
             unit: weightUnit,
             notes: notes
         };
 
         currentWorkoutExercises.push(exerciseData);
-        addExerciseToCurrentLogDOM(exerciseData); // Update DOM for current workout
+        addExerciseToCurrentLogDOM(exerciseData);
 
         exerciseForm.reset();
         setDefaultDate(); // Re-apply session date or today's date
@@ -135,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function addExerciseToCurrentLogDOM(exercise) {
         const li = document.createElement('li');
-        li.dataset.id = exercise.id; // Store exercise ID on the element
+        li.dataset.id = exercise.id;
 
         let weightDisplay = "";
         if (exercise.weight > 0) {
@@ -158,14 +184,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const deleteBtn = li.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', function() {
-            const exerciseIdToRemove = parseInt(li.dataset.id);
+            const exerciseIdToRemove = parseFloat(li.dataset.id); // Ensure type consistency
             currentWorkoutExercises = currentWorkoutExercises.filter(ex => ex.id !== exerciseIdToRemove);
             li.remove();
             if (currentWorkoutExercises.length === 0) {
                 finishWorkoutBtn.style.display = 'none';
                 currentWorkoutDateDisplay.textContent = '';
                 currentSessionDate = null;
-                setDefaultDate(); // Reset date input to today if session is cleared
+                setDefaultDate();
             }
         });
         loggedExercisesList.appendChild(li);
@@ -177,15 +203,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (!currentSessionDate) {
-            alert("Please set a date for this workout.");
+            alert("Please ensure a date is set for this workout (this shouldn't happen if exercises are logged).");
             workoutDateInput.focus();
             return;
         }
 
         const newWorkoutSession = {
-            id: Date.now(), // Unique ID for the session
+            id: Date.now(),
             date: currentSessionDate,
-            exercises: [...currentWorkoutExercises] // Create a copy
+            exercises: [...currentWorkoutExercises]
         };
 
         const allWorkouts = getAllWorkouts();
@@ -193,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allWorkouts.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date descending
         saveAllWorkouts(allWorkouts);
 
-        alert("Workout finished and saved!");
+        alert("Workout finished and saved successfully!");
 
         // Reset current workout state
         currentWorkoutExercises = [];
@@ -201,28 +227,29 @@ document.addEventListener('DOMContentLoaded', () => {
         currentWorkoutDateDisplay.textContent = '';
         finishWorkoutBtn.style.display = 'none';
         currentSessionDate = null;
-        setDefaultDate(); // Reset date input to today
+        setDefaultDate();
 
-        // Refresh history and progress views
-        renderWorkoutHistory();
-        populateProgressExerciseSelect();
-        // If an exercise is selected in progress tab, clear its charts or update
-        if (progressExerciseSelect.value) {
-            clearCharts(); // A new function to clear chart data
+        // Refresh other views that depend on this data
+        renderWorkoutHistory(); // Update history tab
+        populateProgressExerciseSelect(); // Update exercise dropdown in progress tab
+
+        // Clear or update charts in progress tab
+        if (progressExerciseSelect.value) { // If an exercise was selected
             updateAllCharts(progressExerciseSelect.value);
+            displayPersonalRecords(progressExerciseSelect.value);
         } else {
             clearCharts();
+            clearPRTable();
         }
     });
-
 
     // --- History Tab Logic ---
     function renderWorkoutHistory() {
         const allWorkouts = getAllWorkouts();
-        workoutHistoryContainer.innerHTML = ''; // Clear previous content
+        workoutHistoryContainer.innerHTML = '';
 
         if (allWorkouts.length === 0) {
-            workoutHistoryContainer.innerHTML = '<p>No workouts saved yet. Complete a workout in the "Log Workout" tab and click "Finish & Save Workout".</p>';
+            workoutHistoryContainer.innerHTML = '<p>No workouts saved yet. Log a workout and click "Finish & Save Workout".</p>';
             return;
         }
 
@@ -250,13 +277,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </li>`;
             });
             sessionHtml += '</ul>';
-            // Future: Add edit/delete buttons for the session
-            // sessionHtml += `<button class="delete-session-btn" data-session-id="${session.id}">Delete Session</button>`;
             sessionDiv.innerHTML = sessionHtml;
             workoutHistoryContainer.appendChild(sessionDiv);
         });
     }
-
 
     // --- Progress Tab Logic ---
     function populateProgressExerciseSelect() {
@@ -266,13 +290,21 @@ document.addEventListener('DOMContentLoaded', () => {
             session.exercises.forEach(ex => uniqueExerciseNames.add(ex.name));
         });
 
-        progressExerciseSelect.innerHTML = '<option value="">-- Select an Exercise --</option>'; // Reset
+        const currentSelectedValue = progressExerciseSelect.value; // Preserve selection if possible
+        progressExerciseSelect.innerHTML = '<option value="">-- Select an Exercise --</option>';
         Array.from(uniqueExerciseNames).sort().forEach(name => {
             const option = document.createElement('option');
             option.value = name;
             option.textContent = name;
             progressExerciseSelect.appendChild(option);
         });
+        // Try to re-select previously selected exercise
+        if (uniqueExerciseNames.has(currentSelectedValue)) {
+            progressExerciseSelect.value = currentSelectedValue;
+        } else if (progressExerciseSelect.options.length > 1) {
+            // If previous selection gone, clear charts if new list has items
+             clearCharts(); clearPRTable();
+        }
     }
 
     progressExerciseSelect.addEventListener('change', function() {
@@ -292,23 +324,29 @@ document.addEventListener('DOMContentLoaded', () => {
         allWorkouts.forEach(session => {
             session.exercises.forEach(ex => {
                 if (ex.name === exerciseName) {
-                    // Ensure actualReps is a number for calculations.
-                    // If reps is a range like "8-10", we might take the average or highest for e1RM.
-                    // For simplicity, we'll use 'actualReps' if available, or try to parse 'reps'.
-                    let repsForCalc = ex.actualReps;
-                    if (repsForCalc == null && typeof ex.reps === 'string' && !ex.reps.includes('-')) {
-                        repsForCalc = parseInt(ex.reps);
-                    } else if (repsForCalc == null && typeof ex.reps === 'string' && ex.reps.includes('-')) {
-                        // Handle rep ranges e.g., "8-10" -> take highest for PR potential
-                        repsForCalc = parseInt(ex.reps.split('-')[1]);
+                    let repsForCalc = null;
+                    if (ex.actualReps !== undefined && ex.actualReps !== null && !isNaN(parseInt(ex.actualReps))) {
+                        repsForCalc = parseInt(ex.actualReps);
+                    } else if (typeof ex.reps === 'string') {
+                        if (!ex.reps.includes('-')) {
+                            const parsed = parseInt(ex.reps);
+                            if(!isNaN(parsed)) repsForCalc = parsed;
+                        } else {
+                            const parts = ex.reps.split('-');
+                            if (parts.length === 2) {
+                                const parsedPart = parseInt(parts[1].trim()); // Use highest of range for potential
+                                if(!isNaN(parsedPart)) repsForCalc = parsedPart;
+                            }
+                        }
+                    } else if (typeof ex.reps === 'number' && !isNaN(ex.reps)) {
+                        repsForCalc = ex.reps;
                     }
 
-
-                    if (ex.weight > 0 && repsForCalc > 0) { // Only include entries with weight and valid reps for most charts
+                    if (ex.weight > 0 && repsForCalc !== null && repsForCalc > 0) {
                         exerciseEntries.push({
                             date: session.date,
                             weight: ex.weight,
-                            reps: repsForCalc, // Use the determined repsForCalc
+                            reps: repsForCalc,
                             sets: ex.sets,
                             unit: ex.unit
                         });
@@ -316,20 +354,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
-        // Sort by date ascending for charts
         return exerciseEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
     }
 
     function calculateE1RM(weight, reps) {
-        if (reps === 0) return 0;
-        if (reps === 1) return weight; // Epley and others are approximations, 1RM is 1RM
+        if (!reps || reps <= 0 || !weight || weight <=0) return 0;
+        if (reps === 1) return weight;
         return weight * (1 + (reps / 30)); // Epley formula
     }
 
     function updateAllCharts(exerciseName) {
         const data = getExerciseDataForProgress(exerciseName);
         if (!data || data.length === 0) {
-            alert(`No data found for ${exerciseName} with weight and reps.`);
+            console.warn(`No chartable data found for ${exerciseName}. Ensure entries have weight > 0 and valid reps.`);
             clearCharts();
             return;
         }
@@ -339,28 +376,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createChartConfig(labels, datasetsData, yAxisLabel) {
+        const defaultColors = ['#00c6fb', '#28a745', '#ffc107', '#6f42c1', '#fd7e14'];
+        datasetsData.forEach((dataset, index) => {
+            dataset.borderColor = dataset.borderColor || defaultColors[index % defaultColors.length];
+            dataset.backgroundColor = dataset.backgroundColor || (dataset.borderColor + '80'); // For bar/area charts
+            dataset.pointBackgroundColor = dataset.borderColor;
+            dataset.pointBorderColor = '#fff';
+            dataset.pointHoverBackgroundColor = '#fff';
+            dataset.pointHoverBorderColor = dataset.borderColor;
+        });
+
         return {
             type: 'line',
-            data: {
-                labels: labels,
-                datasets: datasetsData // datasetsData should be an array of dataset objects
-            },
+            data: { labels: labels, datasets: datasetsData },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
                     x: {
                         title: { display: true, text: 'Date', color: '#e0e0e0' },
-                        ticks: { color: '#b0b0b0' }
+                        ticks: { color: '#b0b0b0' },
+                        grid: { color: '#3a3f4b' }
                     },
                     y: {
                         title: { display: true, text: yAxisLabel, color: '#e0e0e0' },
                         ticks: { color: '#b0b0b0' },
-                        beginAtZero: false // Usually better not to begin at zero for weight/strength
+                        grid: { color: '#3a3f4b' },
+                        beginAtZero: false
                     }
                 },
                 plugins: {
-                    legend: { labels: { color: '#e0e0e0'} }
+                    legend: { labels: { color: '#e0e0e0'} },
+                    tooltip: {
+                        backgroundColor: '#1f232a', // Darker tooltip
+                        titleColor: '#00c6fb', // Accent for title
+                        bodyColor: '#e0e0e0',
+                        borderColor: '#3a3f4b',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 4,
+                        boxPadding: 3
+                    }
                 }
             }
         };
@@ -372,11 +428,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const weights = data.map(d => d.weight);
         const unit = data.length > 0 ? data[0].unit : 'units';
 
-        maxWeightChartInstance = new Chart(document.getElementById('maxWeightChart'),
+        maxWeightChartInstance = new Chart(maxWeightCanvas,
             createChartConfig(labels, [{
-                label: `Max Weight Lifted (${unit})`,
+                label: `Weight Lifted (${unit})`,
                 data: weights,
-                borderColor: '#00c6fb',
                 tension: 0.1
             }], `Weight (${unit})`)
         );
@@ -388,12 +443,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const e1rms = data.map(d => parseFloat(calculateE1RM(d.weight, d.reps).toFixed(2)));
         const unit = data.length > 0 ? data[0].unit : 'units';
 
-
-        e1rmChartInstance = new Chart(document.getElementById('e1rmChart'),
+        e1rmChartInstance = new Chart(e1rmCanvas,
             createChartConfig(labels, [{
                 label: `Estimated 1RM (${unit})`,
                 data: e1rms,
-                borderColor: '#28a745',
+                borderColor: '#28a745', // Different color
                 tension: 0.1
             }], `e1RM (${unit})`)
         );
@@ -402,87 +456,99 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderVolumeChart(data) {
         if (volumeChartInstance) volumeChartInstance.destroy();
         const labels = data.map(d => new Date(d.date + 'T00:00:00').toLocaleDateString());
-        const volumes = data.map(d => d.sets * d.reps * d.weight); // Simple volume
-        const unit = data.length > 0 ? `Volume (${data[0].unit})` : 'Volume';
+        const volumes = data.map(d => d.sets * d.reps * d.weight);
+        const unitSuffix = data.length > 0 ? data[0].unit : 'units';
+        const yAxisLabel = `Total Volume (Weight x Reps x Sets)`;
 
-        volumeChartInstance = new Chart(document.getElementById('volumeChart'),
-             createChartConfig(labels, [{
-                label: `Total Volume (${unit})`,
-                data: volumes,
-                borderColor: '#ffc107',
-                tension: 0.1,
-                type: 'bar' // Volume often looks good as a bar chart
-            }], unit)
-        );
-         // For bar chart, ensure y-axis starts at zero for better context
-        if (volumeChartInstance) volumeChartInstance.options.scales.y.beginAtZero = true;
-        volumeChartInstance.update();
+        const config = createChartConfig(labels, [{
+            label: `Session Volume (${unitSuffix})`,
+            data: volumes,
+            type: 'bar', // Bar chart for volume
+            borderColor: '#ffc107', // Different color
+            backgroundColor: '#ffc107' + '80'
+        }], yAxisLabel);
+
+        config.options.scales.y.beginAtZero = true; // Volume charts usually start at zero
+        volumeChartInstance = new Chart(volumeCanvas, config);
     }
 
     function displayPersonalRecords(exerciseName) {
         const allWorkouts = getAllWorkouts();
-        const prs = {}; // Store PRs like { 5: {weight: 100, date: '...'}, 1: {weight:120, date:'...'} }
+        const prs = {};
 
         allWorkouts.forEach(session => {
             session.exercises.forEach(ex => {
                 if (ex.name === exerciseName && ex.weight > 0) {
-                    let repsArray = [];
-                    if (typeof ex.reps === 'string' && ex.reps.includes('-')) {
-                        // For ranges like "6-8", consider both ends or highest
-                        const parts = ex.reps.split('-').map(p => parseInt(p.trim()));
-                        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-                             for (let r = parts[0]; r <= parts[1]; r++) repsArray.push(r); // Or just parts[1]
-                        }
-                    } else if (!isNaN(parseInt(ex.reps))) {
-                        repsArray.push(parseInt(ex.reps));
+                    let repsForPR = null;
+                    if (ex.actualReps !== undefined && ex.actualReps !== null && !isNaN(parseInt(ex.actualReps))) {
+                        repsForPR = parseInt(ex.actualReps);
+                    } else if (typeof ex.reps === 'string' && !ex.reps.includes('-')) {
+                         const parsed = parseInt(ex.reps);
+                         if(!isNaN(parsed)) repsForPR = parsed;
+                    } else if (typeof ex.reps === 'number' && !isNaN(ex.reps)){
+                        repsForPR = ex.reps;
                     }
+                    // For PRs, we typically don't consider ranges unless a specific rep count was achieved.
+                    // If a range was logged like "3-5", a PR is usually for 3, 4, or 5 reps specifically.
+                    // So, only use actualReps or single rep values.
 
-                    repsArray.forEach(r => {
-                        if (r > 0) {
-                             if (!prs[r] || ex.weight > prs[r].weight || (ex.weight === prs[r].weight && new Date(session.date) > new Date(prs[r].date))) {
-                                prs[r] = { weight: ex.weight, date: session.date, unit: ex.unit };
-                            }
+                    if (repsForPR !== null && repsForPR > 0) {
+                        if (!prs[repsForPR] || ex.weight > prs[repsForPR].weight ||
+                            (ex.weight === prs[repsForPR].weight && new Date(session.date) > new Date(prs[repsForPR].date))) {
+                            prs[repsForPR] = { weight: ex.weight, date: session.date, unit: ex.unit };
                         }
-                    });
+                    }
                 }
             });
         });
 
-        prTableBody.innerHTML = ''; // Clear previous PRs
-        const repCountsToShow = [1, 3, 5, 8, 10, 12, 15, 20]; // Common PR rep ranges
+        prTableBody.innerHTML = '';
+        const repCountsToShow = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20];
+        let prsFound = false;
         repCountsToShow.forEach(rc => {
             const prData = prs[rc];
             const row = prTableBody.insertRow();
-            row.insertCell().textContent = `${rc} Reps`;
+            row.insertCell().textContent = `${rc} Rep Max`;
             if (prData) {
                 row.insertCell().textContent = `${prData.weight} ${prData.unit}`;
                 row.insertCell().textContent = new Date(prData.date + 'T00:00:00').toLocaleDateString();
+                prsFound = true;
             } else {
                 row.insertCell().textContent = '-';
                 row.insertCell().textContent = '-';
             }
         });
-        if (Object.keys(prs).length === 0) {
-             prTableBody.innerHTML = '<tr><td colspan="3">No PR data available for this exercise.</td></tr>';
+        if (!prsFound) {
+             prTableBody.innerHTML = '<tr><td colspan="3">No PRs recorded for this exercise for these rep counts. Ensure exact rep counts are logged.</td></tr>';
         }
     }
 
-
     function clearCharts() {
-        if (maxWeightChartInstance) maxWeightChartInstance.destroy();
-        if (e1rmChartInstance) e1rmChartInstance.destroy();
-        if (volumeChartInstance) volumeChartInstance.destroy();
-        maxWeightChartInstance = null;
-        e1rmChartInstance = null;
-        volumeChartInstance = null;
+        if (maxWeightChartInstance) { maxWeightChartInstance.destroy(); maxWeightChartInstance = null; }
+        if (e1rmChartInstance) { e1rmChartInstance.destroy(); e1rmChartInstance = null; }
+        if (volumeChartInstance) { volumeChartInstance.destroy(); volumeChartInstance = null; }
     }
+
     function clearPRTable() {
-        prTableBody.innerHTML = '<tr><td colspan="3">Select an exercise to view PRs.</td></tr>';
+        if (prTableBody) { // Check if element exists
+            prTableBody.innerHTML = '<tr><td colspan="3">Select an exercise to view PRs.</td></tr>';
+        }
     }
 
+    // --- Initial Page Load Setup ---
+    setDefaultDate(); // Set initial date for log form
+    renderWorkoutHistory(); // Load and display any saved workouts
+    populateProgressExerciseSelect(); // Populate exercise dropdown for progress tab
+    clearPRTable(); // Ensure PR table is clear initially
+    clearCharts(); // Ensure charts are clear initially
 
-    // --- Initial Load ---
-    renderWorkoutHistory();
-    populateProgressExerciseSelect();
-    clearPRTable(); // Initialize PR table
+    // Set the first tab ("Log Workout") as active on initial load
+    const firstTab = document.querySelector('.tab-link[data-tab="logWorkoutTab"]');
+    const firstTabContent = document.getElementById('logWorkoutTab');
+    if (firstTab && firstTabContent) {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        firstTab.classList.add('active');
+        firstTabContent.classList.add('active');
+    }
 });
