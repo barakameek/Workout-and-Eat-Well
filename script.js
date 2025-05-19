@@ -13,21 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- History Tab Elements ---
     const workoutHistoryContainer = document.getElementById('workout-history-container');
-    // Calendar Elements
-    const calendarControls = document.getElementById('calendar-controls');
     const prevMonthBtn = document.getElementById('prev-month-btn');
     const nextMonthBtn = document.getElementById('next-month-btn');
-    const monthYearDisplay = document.getElementById('calendar-month-year');
-    const calendarGrid = document.getElementById('calendar-grid-container');
+    const calendarMonthYearDisplay = document.getElementById('calendar-month-year');
+    const calendarGridContainer = document.getElementById('calendar-grid-container');
 
-
-    // --- Global State for Current Workout ---
+    // --- Global State for Current Workout Session ---
     let currentWorkoutExercises = []; // Array to hold exercises for the current session before saving
     let currentSessionDate = null;
 
     // --- Calendar State ---
-    let currentCalendarDate = new Date(); // To keep track of the month/year being viewed
-
+    let currentCalendarDate = new Date(); // To keep track of the month/year being viewed in the calendar
 
     // --- LOCALSTORAGE KEY ---
     const WORKOUT_STORAGE_KEY = 'workoutTrackerData';
@@ -47,12 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 targetContent.classList.add('active');
             }
 
-            // Special actions when switching tabs
+            // Specific actions when switching tabs
             if (targetTabId === "historyTab") {
                 renderCalendar(); // Render calendar when history tab is active
-                renderWorkoutHistory(); // Render workout list when history tab is active
+                renderWorkoutHistory(); // Refresh history list
             }
-            // No specific action needed when switching to logWorkoutTab beyond just displaying it
+            // No action needed for "logWorkoutTab" for now, as it's the default view
         });
     });
 
@@ -98,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const date = workoutDateInput.value;
         const exerciseName = exerciseNameInput.value.trim();
         const sets = document.getElementById('sets').value;
-        const reps = document.getElementById('reps').value.trim();
+        const reps = document.getElementById('reps').value.trim(); // Keep as string initially
         const weight = document.getElementById('weight').value;
         const weightUnit = document.getElementById('weight-unit').value;
         const notes = document.getElementById('exercise-notes').value.trim();
@@ -110,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentWorkoutExercises.length === 0) { // First exercise in this session
             currentSessionDate = date;
-            const formattedDate = new Date(date + 'T00:00:00');
+            const formattedDate = new Date(date + 'T00:00:00'); // Avoid timezone issues
             currentWorkoutDateDisplay.textContent = `Workout Date: ${formattedDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`;
         } else if (date !== currentSessionDate) {
             alert("Date changed. Current workout session is still under the initially set date. Please save this workout to start a new one with a different date.");
@@ -118,19 +114,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Try to parse actual reps if a single number is provided (useful for potential future features)
+        // Try to parse actual reps if a single number is provided
         let actualRepsParsed = null;
         if (!reps.includes('-') && !isNaN(parseInt(reps))) {
             actualRepsParsed = parseInt(reps);
         }
 
         const exerciseData = {
-            id: Date.now() + Math.random(), // Unique ID for the exercise entry
+            id: Date.now() + Math.random(), // More unique ID (float)
             name: exerciseName,
             sets: parseInt(sets),
-            reps: reps, // Store original reps string
-            actualReps: actualRepsParsed, // Store parsed single rep number
-            weight: parseFloat(weight) || 0,
+            reps: reps, // Store original reps string (e.g., "8-10" or "12")
+            actualReps: actualRepsParsed, // Store parsed single rep number if available
+            weight: parseFloat(weight) || 0, // Store as number, default to 0 if empty/invalid
             unit: weightUnit,
             notes: notes
         };
@@ -149,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function addExerciseToCurrentLogDOM(exercise) {
         const li = document.createElement('li');
-        li.dataset.id = exercise.id;
+        li.dataset.id = exercise.id; // Store exercise ID on the DOM element
 
         let weightDisplay = "";
         if (exercise.weight > 0) {
@@ -172,14 +168,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const deleteBtn = li.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', function() {
-            const exerciseIdToRemove = parseFloat(li.dataset.id);
+            const exerciseIdToRemove = parseFloat(li.dataset.id); // Ensure type consistency for filtering
             currentWorkoutExercises = currentWorkoutExercises.filter(ex => ex.id !== exerciseIdToRemove);
             li.remove();
             if (currentWorkoutExercises.length === 0) {
                 finishWorkoutBtn.style.display = 'none';
                 currentWorkoutDateDisplay.textContent = '';
                 currentSessionDate = null;
-                setDefaultDate();
+                setDefaultDate(); // Reset date input to today if session is cleared
             }
         });
         loggedExercisesList.appendChild(li);
@@ -191,8 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (!currentSessionDate) {
-             // Should not happen if exercises are logged, but safety check
-            alert("Workout date is missing. Cannot save.");
+            alert("Please ensure a date is set for this workout (this shouldn't happen if exercises are logged).");
             workoutDateInput.focus();
             return;
         }
@@ -210,78 +205,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         alert("Workout finished and saved successfully!");
 
-        // Reset current workout state
+        // Reset current workout session state
         currentWorkoutExercises = [];
-        loggedExercisesList.innerHTML = ''; // Clear the list display
-        currentWorkoutDateDisplay.textContent = '';
-        finishWorkoutBtn.style.display = 'none';
-        currentSessionDate = null; // Clear the session date
+        loggedExercisesList.innerHTML = ''; // Clear exercises from current log display
+        currentWorkoutDateDisplay.textContent = ''; // Clear date display
+        finishWorkoutBtn.style.display = 'none'; // Hide finish button
+        currentSessionDate = null; // Reset session date
         setDefaultDate(); // Reset date input to today
 
-        // Refresh history view as it now has new data
-        // Only refresh if history tab is currently active to avoid rendering hidden content
-        if (document.getElementById('historyTab').classList.contains('active')) {
-             renderCalendar();
-             renderWorkoutHistory();
-        }
-
-        // Future: switch to history tab automatically?
-        // document.querySelector('.tab-link[data-tab="historyTab"]').click();
+        // Refresh History tab (including calendar) as new data is available
+        renderCalendar();
+        renderWorkoutHistory();
     });
 
-    // --- History Tab Logic ---
-    function renderWorkoutHistory() {
-        const allWorkouts = getAllWorkouts();
-        workoutHistoryContainer.innerHTML = ''; // Clear previous content
-
-        if (allWorkouts.length === 0) {
-            workoutHistoryContainer.innerHTML = '<p>No workouts saved yet. Log a workout and click "Finish & Save Workout" on the "Log Workout" tab.</p>';
-            return;
-        }
-
-        allWorkouts.forEach(session => {
-            const sessionDiv = document.createElement('div');
-            sessionDiv.className = 'workout-session';
-            sessionDiv.dataset.sessionId = session.id;
-             // Add data attribute for calendar linking
-            sessionDiv.dataset.dateMarker = session.date;
-
-
-            const formattedDate = new Date(session.date + 'T00:00:00');
-            let sessionHtml = `<h3 class="workout-session-date">${formattedDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>`;
-            sessionHtml += '<ul class="history-exercise-list">';
-
-            session.exercises.forEach(ex => {
-                let weightDisplay = "";
-                if (ex.weight > 0) {
-                    weightDisplay = ` - ${ex.weight} ${ex.unit}`;
-                } else if (ex.weight === 0 && ex.unit) {
-                     weightDisplay = ` - Bodyweight / 0 ${ex.unit}`;
-                }
-                sessionHtml += `
-                    <li class="history-exercise-item">
-                        <strong>${ex.name}</strong>
-                        <div>Sets: ${ex.sets}, Reps: ${ex.reps}${weightDisplay}</div>
-                        ${ex.notes ? `<em>Notes: ${ex.notes}</em>` : ''}
-                    </li>`;
-            });
-            sessionHtml += '</ul>';
-            // Future: Add edit/delete buttons for the session
-            sessionDiv.innerHTML = sessionHtml;
-            workoutHistoryContainer.appendChild(sessionDiv);
-        });
-    }
-
-    // --- Calendar Logic (History Tab) ---
+    // --- History Tab Logic (Calendar & Session List) ---
     function renderCalendar() {
-        if (!calendarGrid || !monthYearDisplay) return; // Safety check
-
-        calendarGrid.innerHTML = ''; // Clear previous grid
+        calendarGridContainer.innerHTML = ''; // Clear previous grid
 
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth(); // 0-indexed
 
-        monthYearDisplay.textContent = `${currentCalendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
+        calendarMonthYearDisplay.textContent = `${currentCalendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
 
         // Add day headers (Sun, Mon, Tue...)
         const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -289,19 +233,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const dayHeaderEl = document.createElement('div');
             dayHeaderEl.classList.add('calendar-day-header');
             dayHeaderEl.textContent = day;
-            calendarGrid.appendChild(dayHeaderEl);
+            calendarGridContainer.appendChild(dayHeaderEl);
         });
 
         const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 for Sunday, 1 for Monday...
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInMonth = new Date(year, month + 1, 0).getDate(); // Get last day of month
 
-        const allWorkouts = getAllWorkouts(); // Get workout data
+        const allWorkouts = getAllWorkouts(); // Get all saved workout data
 
-        // Create cells for previous month's days (if any) to fill the first week
+        // Create cells for previous month's days (to fill the first week)
         for (let i = 0; i < firstDayOfMonth; i++) {
             const emptyCell = document.createElement('div');
             emptyCell.classList.add('calendar-day', 'other-month');
-            calendarGrid.appendChild(emptyCell);
+            calendarGridContainer.appendChild(emptyCell);
         }
 
         // Create cells for current month's days
@@ -324,33 +268,28 @@ document.addEventListener('DOMContentLoaded', () => {
             // Check if workout exists for this day
             const workoutsOnThisDay = allWorkouts.filter(w => w.date === currentDateString);
             if (workoutsOnThisDay.length > 0) {
-                // Add a small dot indicator
                 const indicator = document.createElement('div');
                 indicator.classList.add('workout-indicator');
                 dayCell.appendChild(indicator);
 
                 dayCell.dataset.date = currentDateString; // Store date for click events
-                dayCell.title = `${workoutsOnThisDay.length} workout(s) on ${new Date(currentDateString+'T00:00:00').toLocaleDateString()}. Click to see details.`;
+                dayCell.title = `${workoutsOnThisDay.length} workout(s) on ${new Date(currentDateString+'T00:00:00').toLocaleDateString()}`;
 
-                // Add click listener to scroll to/highlight session
                 dayCell.addEventListener('click', () => {
-                     const sessionElement = document.querySelector(`.workout-session[data-date-marker="${currentDateString}"]`);
+                    // Scroll to or highlight the workout session in the list below
+                    const sessionElement = document.querySelector(`.workout-session[data-date-marker="${currentDateString}"]`);
                     if (sessionElement) {
-                        // Remove existing highlights first
-                         document.querySelectorAll('.highlighted-session').forEach(el => el.classList.remove('highlighted-session'));
-                        // Scroll and add highlight
                         sessionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Add a temporary highlight class
                         sessionElement.classList.add('highlighted-session');
-                        // Remove highlight after a few seconds
-                        setTimeout(() => sessionElement.classList.remove('highlighted-session'), 2500);
+                        setTimeout(() => sessionElement.classList.remove('highlighted-session'), 2000);
                     } else {
-                         // Fallback or alternative action if element not found/scrolling issue
-                         console.warn("Could not find workout session element for date:", currentDateString);
-                         // You could display details in a modal here instead
+                        // Fallback/alternative if no element found or for summary
+                        alert(`Workouts on ${new Date(currentDateString+'T00:00:00').toLocaleDateString()}:\n${workoutsOnThisDay.map(s => s.exercises.map(e => e.name).join(', ')).join('\n---\n')}`);
                     }
                 });
             }
-            calendarGrid.appendChild(dayCell);
+            calendarGridContainer.appendChild(dayCell);
         }
 
         // Add cells for next month's days to fill the grid (optional)
@@ -359,59 +298,73 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < remainingCells; i++) {
              const emptyCell = document.createElement('div');
             emptyCell.classList.add('calendar-day', 'other-month');
-            calendarGrid.appendChild(emptyCell);
+            calendarGridContainer.appendChild(emptyCell);
         }
     }
 
     // Event listeners for calendar navigation buttons
-     if (prevMonthBtn) { // Check if element exists
-         prevMonthBtn.addEventListener('click', () => {
-             currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-             renderCalendar();
-             // Re-render history list for the month? Or keep showing all?
-             // Keeping all for now, just calendar updates. Scrolling links them.
-         });
-     }
+    prevMonthBtn.addEventListener('click', () => {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+        renderCalendar();
+    });
 
-     if (nextMonthBtn) { // Check if element exists
-         nextMonthBtn.addEventListener('click', () => {
-             currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-             renderCalendar();
-              // Re-render history list for the month? Or keep showing all?
-         });
-     }
+    nextMonthBtn.addEventListener('click', () => {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+        renderCalendar();
+    });
 
+    function renderWorkoutHistory() {
+        const allWorkouts = getAllWorkouts();
+        workoutHistoryContainer.innerHTML = ''; // Clear previous content
+
+        if (allWorkouts.length === 0) {
+            workoutHistoryContainer.innerHTML = '<p>No workouts saved yet. Log a workout and click "Finish & Save Workout".</p>';
+            return;
+        }
+
+        allWorkouts.forEach(session => {
+            const sessionDiv = document.createElement('div');
+            sessionDiv.className = 'workout-session';
+            sessionDiv.dataset.sessionId = session.id;
+            sessionDiv.dataset.dateMarker = session.date; // Add data attribute for calendar linking
+
+            const formattedDate = new Date(session.date + 'T00:00:00');
+            let sessionHtml = `<h3 class="workout-session-date">${formattedDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>`;
+            sessionHtml += '<ul class="history-exercise-list">';
+
+            session.exercises.forEach(ex => {
+                let weightDisplay = "";
+                if (ex.weight > 0) {
+                    weightDisplay = ` - ${ex.weight} ${ex.unit}`;
+                } else if (ex.weight === 0 && ex.unit) {
+                     weightDisplay = ` - Bodyweight / 0 ${ex.unit}`;
+                }
+                sessionHtml += `
+                    <li class="history-exercise-item">
+                        <strong>${ex.name}</strong>
+                        <div>Sets: ${ex.sets}, Reps: ${ex.reps}${weightDisplay}</div>
+                        ${ex.notes ? `<em>Notes: ${ex.notes}</em>` : ''}
+                    </li>`;
+            });
+            sessionHtml += '</ul>';
+            sessionDiv.innerHTML = sessionHtml;
+            workoutHistoryContainer.appendChild(sessionDiv);
+        });
+    }
 
     // --- Initial Page Load Setup ---
     setDefaultDate(); // Set initial date for log form
 
-    // Check which tab should be active on load (default to log workout)
-    const activeTab = document.querySelector('.tab-link.active');
-    const activeContent = document.getElementById(activeTab ? activeTab.getAttribute('data-tab') : 'logWorkoutTab');
-
-     // Deactivate all first
-     tabs.forEach(t => t.classList.remove('active'));
-     tabContents.forEach(c => c.classList.remove('active'));
-
-     // Activate the determined tab and content
-    if (activeTab) {
-        activeTab.classList.add('active');
-    } else { // Default to log workout if no active class found
-         const defaultTab = document.querySelector('.tab-link[data-tab="logWorkoutTab"]');
-         if(defaultTab) defaultTab.classList.add('active');
+    // Set the first tab ("Log Workout") as active on initial load
+    const firstTab = document.querySelector('.tab-link[data-tab="logWorkoutTab"]');
+    const firstTabContent = document.getElementById('logWorkoutTab');
+    if (firstTab && firstTabContent) {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        firstTab.classList.add('active');
+        firstTabContent.classList.add('active');
     }
-     if (activeContent) {
-        activeContent.classList.add('active');
-     } else { // Default to log workout content
-         const defaultContent = document.getElementById('logWorkoutTab');
-         if(defaultContent) defaultContent.classList.add('active');
-     }
 
-
-    // Initial rendering based on which tab is active on load
-    if (document.getElementById('historyTab').classList.contains('active')) {
-        renderCalendar();
-        renderWorkoutHistory();
-    }
-    // Log tab content is just the static form/list, no initial render needed besides default state
+    // Call renderCalendar and renderWorkoutHistory for the History tab if it's the default active tab
+    // or when that tab is first selected. Since Log Workout is default, these will be called via tab click.
 });
