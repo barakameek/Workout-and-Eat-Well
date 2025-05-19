@@ -3,59 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Workout Tracker</title>
+    <title>Ultimate Workout & Wellness Tracker</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Chart.js CDN REMOVED as Progress Tab is removed -->
+    <!-- Font Awesome for icons (optional, but good for AAA feel) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>Workout Tracker</h1>
+        <h1><i class="fas fa-dumbbell"></i> Ultimate Tracker</h1>
         <!-- Tab Navigation -->
         <nav class="tabs">
-            <button class="tab-link active" data-tab="logWorkoutTab">Log Workout</button>
-            <button class="tab-link" data-tab="historyTab">History</button>
-            <!-- Progress Tab Button REMOVED -->
-            <!-- <button class="tab-link" data-tab="nutritionTab">Nutrition</button> --> <!-- Placeholder for future -->
+            <button class="tab-link active" data-tab="dashboardTab"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+            <button class="tab-link" data-tab="logWorkoutTab"><i class="fas fa-plus-square"></i> Log Session</button>
+            <button class="tab-link" data-tab="routinesTab"><i class="fas fa-clipboard-list"></i> Routines</button>
+            <button class="tab-link" data-tab="historyTab"><i class="fas fa-history"></i> History</button>
+            <button class="tab-link" data-tab="exercisesTab"><i class="fas fa-book-open"></i> Exercises</button>
+            <button class="tab-link" data-tab="measurementsTab"><i class="fas fa-ruler-combined"></i> Body Stats</button>
+            <button class="tab-link" data-tab="nutritionTab"><i class="fas fa-utensils"></i> Nutrition</button>
+            <!-- <button class="tab-link" data-tab="settingsTab"><i class="fas fa-cog"></i> Settings</button> -->
         </nav>
     </header>
 
     <main>
-        <!-- Tab Content: Log Workout -->
-        <div id="logWorkoutTab" class="tab-content active">
+        <!-- Tab Content: Dashboard -->
+        <div id="dashboardTab" class="tab-content active">
+            <section id="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons-grid">
+                    <button id="dash-log-workout-btn" class="dash-action-btn"><i class="fas fa-plus-circle"></i> Log Today's Workout</button>
+                    <button id="dash-start-routine-btn" class="dash-action-btn"><i class="fas fa-play-circle"></i> Start from Routine</button>
+                    <button id="dash-log-rest-day-btn" class="dash-action-btn"><i class="fas fa-bed"></i> Log Rest Day</button>
+                    <button id="dash-log-nutrition-btn" class="dash-action-btn"><i class="fas fa-apple-alt"></i> Log Nutrition</button>
+                    <button id="dash-log-measurement-btn" class="dash-action-btn"><i class="fas fa-tape"></i> Log Body Stats</button>
+                </div>
+            </section>
+            <section id="today-overview">
+                <h2>Today's Overview - <span id="dashboard-date"></span></h2>
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <h3>Workout Status</h3>
+                        <p id="dash-workout-status">Not Logged</p>
+                        <i class="fas fa-running overview-icon"></i>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Calories (Kcal)</h3>
+                        <p><span id="dash-kcal-consumed">0</span> / <span id="dash-kcal-goal">2500</span></p>
+                        <i class="fas fa-fire overview-icon"></i>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Protein (g)</h3>
+                        <p><span id="dash-protein-consumed">0</span> / <span id="dash-protein-goal">150</span></p>
+                        <i class="fas fa-drumstick-bite overview-icon"></i>
+                    </div>
+                </div>
+            </section>
+            <section id="recent-activity">
+                <h2>Recent Activity / Streaks</h2>
+                <p>Your current workout streak: <span id="dash-workout-streak">0</span> days.</p>
+                <p>Last workout: <span id="dash-last-workout-info">Never</span></p>
+                <!-- More detailed recent activity list can go here -->
+            </section>
+            <section id="motivation-tip">
+                <h2>Tip of the Day</h2>
+                <p id="dash-motivation-quote">"The only bad workout is the one that didn't happen."</p>
+            </section>
+        </div>
+
+        <!-- Tab Content: Log Workout / Session -->
+        <div id="logWorkoutTab" class="tab-content">
             <section id="workout-entry">
                 <h2>Log New Workout Exercise</h2>
+                <div class="log-session-controls">
+                    <button id="start-from-routine-actual-btn" class="secondary-action-btn"><i class="fas fa-clipboard-check"></i> Load from Routine</button>
+                </div>
                 <form id="log-exercise-form">
                     <div>
                         <label for="workout-date">Date:</label>
                         <input type="date" id="workout-date" name="workout-date" required>
                     </div>
                     <div>
+                        <label for="workout-session-name">Workout Name (Optional):</label>
+                        <input type="text" id="workout-session-name" name="workout-session-name" placeholder="e.g., Morning Push Day">
+                    </div>
+                    <div>
                         <label for="exercise-name">Exercise Name:</label>
                         <input type="text" id="exercise-name" name="exercise-name" list="common-exercises" placeholder="e.g., Barbell Bench Press or type" required>
                         <datalist id="common-exercises">
-                            <option value="Barbell Bench Press">
-                            <option value="Standing Overhead Press">
-                            <option value="Close-Grip Bench Press">
-                            <option value="Barbell Front Raise">
-                            <option value="Plate Raise">
-                            <option value="Overhead Triceps Extension (Barbell)">
-                            <option value="Overhead Triceps Extension (Plate)">
-                            <option value="Barbell Back Squat">
-                            <option value="Romanian Deadlift (RDL)">
-                            <option value="Walking Lunges">
-                            <option value="Static Lunges">
-                            <option value="Paused Squat">
-                            <option value="Calf Raises (Barbell)">
-                            <option value="Calf Raises (Plate)">
-                            <option value="Barbell Bent-Over Rows">
-                            <option value="Deadlifts">
-                            <option value="Barbell Curls">
-                            <option value="Shrugs (Barbell)">
-                            <option value="Reverse-Grip Rows">
-                            <option value="Front Squat">
-                            <option value="Incline Bench Press">
-                            <option value="Paused Flat Bench">
-                            <option value="Power Clean">
+                            <!-- Options populated by JS from Exercise Library -->
                         </datalist>
                     </div>
                     <div>
@@ -80,17 +114,65 @@
                         <label for="exercise-notes">Notes (optional):</label>
                         <textarea id="exercise-notes" name="exercise-notes" rows="3" placeholder="e.g., Felt strong, good form"></textarea>
                     </div>
-                    <button type="submit">Add Exercise to Current Workout</button>
+                    <button type="submit"><i class="fas fa-plus"></i> Add Exercise to Current Workout</button>
                 </form>
+                 <button id="log-rest-day-btn-main" class="secondary-action-btn full-width-secondary"><i class="fas fa-bed"></i> Log This Date as Rest Day</button>
             </section>
 
             <section id="current-workout-summary">
-                <h2>Today's Workout Log</h2>
+                <h2>Current Workout Session Log</h2>
                 <div id="current-workout-date-display"></div>
+                <div id="current-workout-name-display" style="font-style: italic; margin-bottom: 10px;"></div>
                 <ul id="logged-exercises-list">
-                    <!-- Logged exercises for the current session will be added here -->
+                    <!-- Logged exercises for the current session -->
                 </ul>
-                <button id="finish-workout-btn" style="display:none;">Finish & Save Workout</button>
+                <div class="session-meta-inputs">
+                    <div>
+                        <label for="workout-duration">Workout Duration (minutes, optional):</label>
+                        <input type="number" id="workout-duration" min="0" placeholder="e.g., 60">
+                    </div>
+                </div>
+                <button id="finish-workout-btn" style="display:none;"><i class="fas fa-save"></i> Finish & Save Workout</button>
+            </section>
+        </div>
+
+        <!-- Tab Content: Routines -->
+        <div id="routinesTab" class="tab-content">
+            <section id="manage-routines">
+                <h2>Manage Workout Routines</h2>
+                <button id="create-new-routine-btn" class="primary-action"><i class="fas fa-plus-circle"></i> Create New Routine</button>
+                <div id="routines-list-container">
+                    <!-- List of saved routines will be populated here -->
+                    <p>No routines created yet. Click "Create New Routine" to start.</p>
+                </div>
+            </section>
+            <section id="create-edit-routine-section" style="display:none;">
+                <h2 id="routine-form-title">Create New Routine</h2>
+                <form id="routine-form">
+                    <div>
+                        <label for="routine-name">Routine Name:</label>
+                        <input type="text" id="routine-name" required placeholder="e.g., Push Day A">
+                    </div>
+                    <div>
+                        <label for="routine-description">Description (Optional):</label>
+                        <textarea id="routine-description" rows="3"></textarea>
+                    </div>
+                    <h3>Exercises in this Routine:</h3>
+                    <div id="routine-exercises-list">
+                        <!-- Exercises will be added here -->
+                    </div>
+                    <div class="routine-exercise-adder">
+                        <select id="add-exercise-to-routine-select">
+                            <option value="">-- Select Exercise to Add --</option>
+                            <!-- Populate from Exercise Library -->
+                        </select>
+                        <input type="text" id="routine-exercise-sets" placeholder="Sets (e.g., 3)">
+                        <input type="text" id="routine-exercise-reps" placeholder="Reps (e.g., 8-12)">
+                        <button type="button" id="add-exercise-to-routine-btn"><i class="fas fa-plus"></i> Add to Routine</button>
+                    </div>
+                    <button type="submit" id="save-routine-btn"><i class="fas fa-save"></i> Save Routine</button>
+                    <button type="button" id="cancel-routine-edit-btn" class="secondary-action-btn">Cancel</button>
+                </form>
             </section>
         </div>
 
@@ -99,32 +181,154 @@
             <section>
                 <h2>Workout Calendar</h2>
                 <div id="calendar-controls">
-                    <button id="prev-month-btn">< Prev</button>
+                    <button id="prev-month-btn"><i class="fas fa-chevron-left"></i> Prev</button>
                     <h3 id="calendar-month-year">Month Year</h3>
-                    <button id="next-month-btn">Next ></button>
+                    <button id="next-month-btn">Next <i class="fas fa-chevron-right"></i></button>
                 </div>
                 <div id="calendar-grid-container">
-                    <!-- Calendar grid will be generated here by JavaScript -->
+                    <!-- Calendar grid -->
                 </div>
             </section>
 
             <section>
                 <h2>Workout Sessions</h2>
+                <!-- Add filter options here if desired -->
                 <div id="workout-history-container">
-                    <!-- Past workouts will be loaded here by JavaScript -->
-                    <p>No workouts saved yet. Complete a workout in the "Log Workout" tab and click "Finish & Save Workout".</p>
+                    <!-- Past workouts/rest days -->
                 </div>
             </section>
         </div>
 
-        <!-- Progress Tab Content REMOVED -->
+        <!-- Tab Content: Exercise Library -->
+        <div id="exercisesTab" class="tab-content">
+            <section id="exercise-library-controls">
+                <h2>Exercise Library</h2>
+                <input type="text" id="search-exercise-library" placeholder="Search exercises...">
+                <select id="filter-muscle-group">
+                    <option value="">All Muscle Groups</option>
+                    <!-- Populate with muscle groups -->
+                </select>
+                <button id="add-new-exercise-to-lib-btn" class="primary-action"><i class="fas fa-plus-circle"></i> Add New Exercise</button>
+            </section>
+            <section id="exercise-library-list">
+                <!-- Exercises displayed as cards or list -->
+                <p>Loading exercises...</p>
+            </section>
+            <!-- Modal or section for adding/editing an exercise to the library -->
+            <div id="exercise-lib-modal" class="modal" style="display:none;">
+                 <div class="modal-content">
+                    <span class="close-btn" id="close-exercise-lib-modal">×</span>
+                    <h3 id="exercise-lib-modal-title">Add New Exercise</h3>
+                    <form id="exercise-lib-form">
+                        <input type="hidden" id="exercise-lib-id">
+                        <div><label for="ex-lib-name">Name:</label><input type="text" id="ex-lib-name" required></div>
+                        <div><label for="ex-lib-muscle">Primary Muscle Group:</label><input type="text" id="ex-lib-muscle" placeholder="e.g., Chest, Quads"></div>
+                        <div><label for="ex-lib-secondary-muscle">Secondary Muscles:</label><input type="text" id="ex-lib-secondary-muscle" placeholder="e.g., Triceps, Shoulders"></div>
+                        <div><label for="ex-lib-equipment">Equipment:</label><input type="text" id="ex-lib-equipment" placeholder="e.g., Barbell, Dumbbell, Bodyweight"></div>
+                        <div><label for="ex-lib-instructions">Instructions:</label><textarea id="ex-lib-instructions" rows="4"></textarea></div>
+                        <div><label for="ex-lib-video">Video URL (Optional):</label><input type="url" id="ex-lib-video"></div>
+                        <button type="submit"><i class="fas fa-save"></i> Save Exercise</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Body Measurements -->
+        <div id="measurementsTab" class="tab-content">
+            <section id="log-measurements">
+                <h2>Log Body Measurements</h2>
+                <form id="log-measurement-form">
+                    <div><label for="measurement-date">Date:</label><input type="date" id="measurement-date" required></div>
+                    <div><label for="body-weight">Weight (<span id="user-weight-unit">kg</span>):</label><input type="number" step="0.1" id="body-weight"></div>
+                    <div><label for="body-fat">Body Fat (%):</label><input type="number" step="0.1" id="body-fat"></div>
+                    <div><label for="chest-size">Chest (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="chest-size"></div>
+                    <div><label for="waist-size">Waist (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="waist-size"></div>
+                    <div><label for="arm-size">Arm (Bicep, <span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="arm-size"></div>
+                    <div><label for="thigh-size">Thigh (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="thigh-size"></div>
+                    <div><label for="measurement-notes">Notes:</label><textarea id="measurement-notes" rows="3"></textarea></div>
+                    <button type="submit"><i class="fas fa-save"></i> Log Measurements</button>
+                </form>
+            </section>
+            <section id="measurement-history-charts">
+                <h2>Measurement Progress</h2>
+                <div id="measurement-chart-container">
+                    <p>Select a measurement type to view graph (Graphs coming soon).</p>
+                    <!-- Canvas elements for charts e.g., <canvas id="bodyWeightChart"></canvas> -->
+                </div>
+                <div id="measurement-history-list">
+                    <!-- List of past measurement entries -->
+                </div>
+            </section>
+             <section id="progress-photos-section">
+                <h2>Progress Photos</h2>
+                <input type="file" id="progress-photo-upload" accept="image/*" multiple>
+                <div id="progress-photos-gallery">
+                    <!-- Display uploaded photos with dates -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Tab Content: Nutrition -->
+        <div id="nutritionTab" class="tab-content">
+            <section id="log-nutrition-daily">
+                <h2>Log Daily Nutrition</h2>
+                <form id="nutrition-log-form">
+                    <div><label for="nutrition-date">Date:</label><input type="date" id="nutrition-date" required></div>
+                    <div><label for="kcal-goal">Kcal Goal:</label><input type="number" id="kcal-goal" value="2500"></div>
+                    <div><label for="kcal-consumed">Kcal Consumed:</label><input type="number" id="kcal-consumed" required></div>
+                    <div><label for="protein-goal">Protein Goal (g):</label><input type="number" id="protein-goal" value="150"></div>
+                    <div><label for="protein-consumed">Protein Consumed (g):</label><input type="number" id="protein-consumed" required></div>
+                    <div><label for="carbs-consumed">Carbs Consumed (g, optional):</label><input type="number" id="carbs-consumed"></div>
+                    <div><label for="fats-consumed">Fats Consumed (g, optional):</label><input type="number" id="fats-consumed"></div>
+                    <div><label for="nutrition-notes">Notes:</label><textarea id="nutrition-notes" rows="3"></textarea></div>
+                    <button type="submit"><i class="fas fa-save"></i> Log Nutrition</button>
+                </form>
+            </section>
+            <section id="nutrition-summary">
+                <h2>Nutrition Overview</h2>
+                <p>Daily/Weekly summaries and charts will go here.</p>
+                <!-- Placeholder for charts, e.g., macro breakdown pie chart -->
+            </section>
+            <!-- Future: Detailed food item logger / meal planner -->
+        </div>
+
+        <!-- Settings Tab (Placeholder Structure) -->
+        <!--
+        <div id="settingsTab" class="tab-content">
+            <section>
+                <h2>User Settings</h2>
+                <form id="user-settings-form">
+                    <div><label>Preferred Weight Unit:</label> <select id="setting-weight-unit"><option value="kg">kg</option><option value="lbs">lbs</option></select></div>
+                    <div><label>Preferred Measurement Unit:</label> <select id="setting-measure-unit"><option value="cm">cm</option><option value="in">inches</option></select></div>
+                    <div><label>Theme:</label> <select id="setting-theme"><option value="dark">Dark</option><option value="light">Light</option></select></div>
+                    <button type="submit">Save Settings</button>
+                </form>
+            </section>
+            <section>
+                <h2>Data Management</h2>
+                <button id="export-data-btn">Export My Data (JSON)</button>
+                <label for="import-data-file">Import Data (JSON):</label>
+                <input type="file" id="import-data-file" accept=".json">
+                <button id="clear-all-data-btn" style="background-color: #dc3545;">Clear All Local Data (Warning!)</button>
+            </section>
+        </div>
+        -->
 
     </main>
 
     <footer>
-        <p>© 2023 Your Name - Workout Tracker</p>
+        <p>© <span id="current-year"></span> Your Name - Ultimate Workout & Wellness Tracker</p>
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        // Simple script for dashboard date
+        const todayForDash = new Date();
+        const dashDateEl = document.getElementById('dashboard-date');
+        if (dashDateEl) {
+            dashDateEl.textContent = todayForDash.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+    </script>
 </body>
 </html>
