@@ -1,185 +1,330 @@
-/* === Add/Modify in style.css === */
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Nunito:wght@300;400;600;700&family=Pacifico&display=swap');
+
+/* --- CSS Variables for Theming --- */
+:root {
+    /* Default to Dark Theme Variables */
+    --bg-primary: #1a1d24;
+    --bg-secondary: #252a34;
+    --bg-tertiary: #2c313c;
+    --bg-quaternary: #343a45;
+    --bg-input: #1f232a;
+
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #777;
+    --text-placeholder: #6c757d;
+    --text-on-accent: #ffffff;
+
+    --border-primary: #3a3f4b;
+    --border-secondary: #4a4f5b;
+    --border-accent: #005bea;
+
+    --accent-primary: #00c6fb;
+    --accent-secondary: #007bff;
+    --accent-success: #28a745;
+    --accent-danger: #ff4d4d;
+    --accent-warning: #ffc107;
+    --accent-pink: #ff7eb9;
+    --accent-lavender: #b5a7ff;
+    --accent-mint: #a0ffe6;
+    --accent-protein: #f0ad4e;
+
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --shadow-light: rgba(0,0,0,0.1);
+    --shadow-strong: rgba(0,0,0,0.3);
+
+    --font-primary: 'Roboto', sans-serif;
+    --font-headings: 'Nunito', sans-serif;
+    --font-cute-titles: 'Pacifico', cursive;
+
+    --border-radius-sm: 6px;
+    --border-radius-md: 10px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 16px;
+    --border-radius-pill: 50px;
+}
+
+body.theme-light {
+    /* Light Theme Variable Overrides */
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #eef2f7;
+    --bg-quaternary: #f1f3f5;
+    --bg-input: #fdfdfe;
+
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-muted: #6c757d;
+    --text-placeholder: #adb5bd;
+
+    --border-primary: #ced4da;
+    --border-secondary: #dee2e6;
+    --border-accent: #007bff;
+
+    --accent-primary: #007bff;
+    --accent-secondary: #0056b3;
+    --accent-pink: #f06292;
+    --accent-lavender: #9575cd;
+    --accent-mint: #4db6ac;
+    --accent-protein: #f57c00;
+
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-light: rgba(0,0,0,0.05);
+    --shadow-strong: rgba(0,0,0,0.15);
+}
+
+
+/* --- Global Resets & Base Styles --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-primary);
+    line-height: 1.6;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex; flex-direction: column; min-height: 100vh;
+    padding-top: 125px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* --- Header --- */
+header {
+    background: linear-gradient(135deg, var(--accent-pink), var(--accent-lavender));
+    color: var(--text-on-accent);
+    padding: 15px 0 0 0; text-align: center; position: fixed;
+    top: 0; left: 0; width: 100%; z-index: 1000;
+    box-shadow: 0 3px 12px var(--shadow-color);
+}
+body.theme-light header {
+    background: linear-gradient(135deg, var(--accent-lavender), var(--accent-mint));
+}
+header h1 {
+    font-family: var(--font-cute-titles);
+    font-size: 2.2em; font-weight: normal; letter-spacing: 1px; margin-bottom: 10px;
+    color: var(--text-on-accent); text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+header h1 .fa-dumbbell { margin-right: 10px; }
+
+/* Theme Switcher */
+.theme-switcher { position: absolute; top: 20px; right: 20px; }
+#theme-toggle-btn {
+    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    color: var(--text-on-accent); font-size: 1.2em; padding: 8px 10px;
+    border-radius: 50%; cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+}
+#theme-toggle-btn:hover { background-color: rgba(255,255,255,0.3); transform: scale(1.1) rotate(15deg); }
+body.theme-light #theme-toggle-btn { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); color: var(--text-primary); }
+body.theme-light #theme-toggle-btn:hover { background-color: rgba(0,0,0,0.1); }
+
+/* --- Tab Navigation --- */
+header .tabs {
+    background-color: color-mix(in srgb, var(--bg-secondary) 85%, transparent);
+    padding: 8px 10px; display: flex; justify-content: center; flex-wrap: wrap;
+    gap: 8px;
+}
+.tab-link {
+    padding: 10px 18px; cursor: pointer; border: none; background-color: transparent;
+    color: var(--text-on-accent); opacity: 0.8; font-family: var(--font-headings);
+    font-size: 0.9em; font-weight: 600;
+    transition: color 0.3s ease, opacity 0.3s ease, background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    border-radius: var(--border-radius-pill);
+    display: inline-flex; align-items: center; gap: 8px;
+}
+.tab-link:hover { opacity: 1; background-color: color-mix(in srgb, var(--text-on-accent) 15%, transparent); transform: translateY(-2px); color: var(--text-on-accent); }
+.tab-link.active {
+    background-color: var(--bg-primary); color: var(--accent-pink);
+    opacity: 1; font-weight: 700; box-shadow: 0 3px 10px var(--shadow-light);
+    transform: translateY(-2px) scale(1.03);
+}
+body.theme-light .tab-link { color: var(--text-secondary); opacity: 0.7; }
+body.theme-light .tab-link:hover { opacity: 1; background-color: color-mix(in srgb, var(--text-primary) 10%, transparent); color: var(--text-primary); }
+body.theme-light .tab-link.active { background-color: var(--bg-secondary); color: var(--accent-pink); box-shadow: 0 3px 10px var(--shadow-light); }
+
+/* --- Main Content & Sections --- */
+main { flex-grow: 1; max-width: 1100px; width: 95%; margin: 30px auto; }
+.tab-content { display: none; background-color: var(--bg-secondary); border-radius: var(--border-radius-xl); box-shadow: 0 10px 30px var(--shadow-color); padding: 30px; transition: background-color 0.3s ease; }
+.tab-content.active { display: block; animation: fadeInTab 0.5s ease-out; }
+@keyframes fadeInTab { from { opacity: 0.5; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.tab-content section { padding: 30px; margin-bottom: 30px; background-color: var(--bg-tertiary); border-radius: var(--border-radius-lg); box-shadow: 0 5px 18px var(--shadow-light); transition: background-color 0.3s ease; }
+.tab-content section:last-child { margin-bottom: 0; }
+h2 { font-family: var(--font-headings); color: var(--accent-primary); margin-bottom: 25px; font-weight: 700; border-bottom: 2px solid var(--accent-secondary); padding-bottom: 12px; letter-spacing: 0.5px; font-size: 1.6em; }
+h2 .fas, h2 .far { margin-right: 10px; }
+h3 { font-family: var(--font-headings); color: var(--text-primary); margin-bottom: 18px; font-weight: 600; font-size: 1.3em; }
+
+/* --- Forms --- */
+form div { margin-bottom: 20px; }
+form label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary); font-size: 0.95em; }
+form input[type="text"], form input[type="number"], form input[type="date"], form input[type="email"], form input[type="password"], form input[type="url"], form select, form textarea { width: 100%; padding: 14px 18px; background-color: var(--bg-input); border: 1px solid var(--border-primary); border-radius: var(--border-radius-md); color: var(--text-primary); font-size: 1em; transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease; }
+form input::placeholder, form textarea::placeholder { color: var(--text-placeholder); }
+form input:focus, form select:focus, form textarea:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 25%, transparent); }
+.input-group-inline { display: flex; align-items: center; gap: 10px; }
+.input-group-inline input, .input-group-inline select { flex-grow: 1; }
+.input-group-inline select { width: auto; min-width: 80px; flex-shrink: 0; flex-grow: 0; }
+
+/* --- Buttons --- */
+button, .button-like { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: auto; padding: 14px 28px; background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary)); color: var(--text-on-accent); border: none; border-radius: var(--border-radius-pill); cursor: pointer; font-family: var(--font-headings); font-size: 1em; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; transition: transform 0.2s ease, box-shadow 0.2s ease, background-image 0.3s ease; box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary) 20%, transparent); text-decoration: none; }
+button:hover, .button-like:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 7px 18px color-mix(in srgb, var(--accent-primary) 30%, transparent); }
+button:active, .button-like:active { transform: translateY(-1px) scale(0.98); box-shadow: 0 2px 5px var(--shadow-color); }
+form button[type="submit"], #finish-workout-btn { width: 100%; border-radius: var(--border-radius-md); }
+#finish-workout-btn { background: linear-gradient(135deg, var(--accent-success), color-mix(in srgb, var(--accent-success) 70%, var(--accent-mint))); box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-success) 20%, transparent); margin-top: 20px; }
+#finish-workout-btn:hover { box-shadow: 0 7px 18px color-mix(in srgb, var(--accent-success) 30%, transparent); }
+.secondary-action-btn { background: var(--text-muted); box-shadow: 0 4px 10px color-mix(in srgb, var(--text-muted) 20%, transparent); color: var(--bg-secondary); border-radius: var(--border-radius-md); }
+.secondary-action-btn:hover { background: color-mix(in srgb, var(--text-muted) 80%, black); box-shadow: 0 6px 15px color-mix(in srgb, var(--text-muted) 30%, transparent); }
+body.theme-light .secondary-action-btn { background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-primary); }
+body.theme-light .secondary-action-btn:hover { background: var(--border-primary); color: var(--text-primary); }
+.full-width-secondary { width: 100%; margin-top: 15px; }
+.danger-btn { background: var(--accent-danger) !important; box-shadow: 0 4px 10px color-mix(in srgb, var(--accent-danger) 20%, transparent) !important; }
+.danger-btn:hover { background: color-mix(in srgb, var(--accent-danger) 80%, black) !important; box-shadow: 0 6px 15px color-mix(in srgb, var(--accent-danger) 30%, transparent) !important; }
+
+
+/* --- Dashboard Tab --- */
+#greeting-section h2 { font-family: var(--font-cute-titles); font-size: 2.5em; color: var(--accent-pink); border-bottom: none; text-align: center; margin-bottom: 20px; font-weight: normal; }
+#quick-start-workouts .quick-start-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; }
+.quick-start-tile { padding: 20px; border-radius: var(--border-radius-md); text-align: left; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; border: 1px solid transparent; display: flex; flex-direction: column; justify-content: space-between; min-height: 130px; color: #fff; text-transform: none; font-family: var(--font-primary); font-size: 1em; font-weight: normal; letter-spacing: normal; background-image: linear-gradient(135deg, var(--accent-pink) 0%, var(--accent-lavender) 100%); box-shadow: 0 5px 15px color-mix(in srgb, var(--accent-pink) 30%, transparent); }
+.quick-start-tile:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 8px 25px color-mix(in srgb, var(--accent-lavender) 40%, transparent); background-image: linear-gradient(135deg, var(--accent-lavender) 0%, var(--accent-pink) 100%); }
+.quick-start-tile h4 { font-family: var(--font-headings); font-size: 1.25em; margin-bottom: 8px; font-weight: 700; color: #fff; }
+.quick-start-tile p { font-size: 0.9em; color: rgba(255,255,255,0.9); flex-grow: 1; margin-bottom: 10px; }
+.quick-start-tile .fa-chevron-circle-right { align-self: flex-end; font-size: 1.6em; opacity: 0.8; color: #fff; }
+#quick-actions .action-buttons-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+.dash-action-btn { padding: 18px; font-size: 1em; text-transform: none; background: var(--bg-quaternary); color: var(--text-primary); box-shadow: 0 2px 5px var(--shadow-light); border: 1px solid var(--border-primary); border-radius: var(--border-radius-md); } /* Changed to md radius */
+.dash-action-btn:hover { background: var(--bg-tertiary); color: var(--accent-primary); box-shadow: 0 4px 8px var(--shadow-light); border-color: var(--accent-primary); transform: translateY(-2px); }
+#overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.overview-card { background-color: var(--bg-quaternary); padding: 25px; border-radius: var(--border-radius-lg); text-align: center; position: relative; border: 1px solid var(--border-primary); }
+.overview-card h3 { font-family: var(--font-headings); font-size: 1.1em; color: var(--accent-primary); margin-bottom: 10px; }
+.overview-card p { font-size: 1.5em; font-weight: bold; margin-bottom: 10px; color: var(--text-primary); }
+.overview-card .overview-icon { font-size: 3.5em; color: var(--accent-secondary); opacity: 0.07; position: absolute; right: 20px; bottom: 15px; }
+.progress-bar-container { height: 12px; background-color: var(--bg-input); border-radius: var(--border-radius-pill); margin-top: 10px; overflow: hidden; position: relative; }
+.progress-bar-fill { height: 100%; background-color: var(--accent-primary); border-radius: var(--border-radius-pill); transition: width 0.5s ease-in-out; width: 0%; }
+.progress-bar-fill.protein-fill { background-color: var(--accent-protein); }
+.shiny-progress .progress-bar-fill::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background-image: linear-gradient( -45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent ); z-index: 1; background-size: 30px 30px; animation: shiny-progress-animation 2s linear infinite; opacity: 0.6; }
+@keyframes shiny-progress-animation { 0% { background-position: 0 0; } 100% { background-position: 60px 0; } }
+#recent-activity p, #motivation-tip p, #dash-up-next-workout { font-size: 1.05em; line-height: 1.7; color: var(--text-secondary); }
+#dash-motivation-quote { font-style: italic; color: var(--accent-pink); padding: 20px; border-left: 5px solid var(--accent-pink); background-color: var(--bg-quaternary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; }
 
 /* --- Log Workout Tab --- */
-#logWorkoutTab #workout-entry {
-    /* This section already exists, we might add to it or modify its children */
-}
-
-/* Controls above the form, like "Load from My Routines" */
-.log-session-controls {
-    display: flex; /* Arrange items in this container */
-    justify-content: flex-end; /* Push button to the right, for example */
-    align-items: center;
-    margin-bottom: 25px; /* More space below these controls */
-}
-
-.log-session-controls .secondary-action-btn {
-    width: auto; /* Allow button to size to its content */
-    padding: 10px 20px; /* Adjust padding if needed */
-    font-size: 0.9em; /* Slightly smaller if it's an auxiliary button */
-}
-
-/* The main form for adding one-off exercises */
-#log-exercise-form {
-    /* background-color: var(--bg-quaternary); /* Optional: give form a slightly different bg */
-    /* padding: 20px; */
-    /* border-radius: var(--border-radius-md); */
-    /* box-shadow: 0 2px 5px var(--shadow-light); */
-    /* margin-bottom: 20px; */ /* Space before the "Log Rest Day" button if it's separate */
-}
-
-/* Ensure labels and inputs within the form have good spacing */
-#log-exercise-form div {
-    margin-bottom: 18px; /* Consistent spacing for form groups */
-}
-
-/* The "Log This Date as Rest Day" button below the form */
-#log-rest-day-btn-main.full-width-secondary {
-    margin-top: 25px; /* Ensure good space above it */
-    display: block; /* Make it take full width if not already */
-    width: 100%;
-}
-
-
-/* --- Current Workout Session Log (Interactive Area) --- */
-#current-workout-summary {
-    margin-top: 30px; /* Space above this section */
-}
-
-.active-workout-exercise {
-    background-color: var(--bg-quaternary);
-    border: 1px solid var(--border-primary);
-    padding: 20px; /* Increased padding for better spacing */
-    margin-bottom: 25px; /* Increased space between exercises */
-    border-radius: var(--border-radius-lg);
-    box-shadow: 0 4px 12px var(--shadow-light); /* Softer, more defined shadow */
-}
-
-.active-workout-exercise .exercise-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px; /* More space */
-    padding-bottom: 12px;
-    border-bottom: 1px dashed var(--border-secondary);
-}
-.active-workout-exercise .exercise-header strong {
-    font-size: 1.25em; /* Slightly larger exercise name */
-    color: var(--accent-primary);
-    font-family: var(--font-headings);
-}
-.active-workout-exercise .exercise-header span {
-    font-size: 0.9em;
-    color: var(--text-secondary);
-    background-color: var(--bg-input); /* Give target info a subtle background */
-    padding: 3px 8px;
-    border-radius: var(--border-radius-pill);
-}
-
-.sets-container .set-row {
-    display: grid; /* Use grid for better alignment of set inputs */
-    grid-template-columns: auto 1fr 1fr auto; /* Set # | Weight | Reps | Button */
-    align-items: center;
-    gap: 12px; /* Increased gap */
-    padding: 10px 0; /* Vertical padding, no horizontal as grid handles it */
-    border-bottom: 1px solid var(--border-primary);
-}
-.sets-container .set-row:last-child {
-    border-bottom: none;
-}
-.sets-container .set-row.completed {
-    background-color: color-mix(in srgb, var(--accent-success) 15%, transparent);
-}
-body.theme-light .sets-container .set-row.completed {
-    background-color: #d1e7dd; /* Adjusted for light theme */
-}
-
-.set-row .set-number {
-    font-weight: 600; /* Bolder set number */
-    color: var(--text-secondary);
-    padding-right: 5px; /* Space after set number */
-}
-.set-row input[type="number"].set-weight-input,
-.set-row input[type="text"].set-reps-input {
-    padding: 10px 12px; /* Consistent padding */
-    font-size: 0.95em;
-    border-radius: var(--border-radius-sm);
-    /* width: 100%; */ /* Let grid handle width */
-    text-align: center;
-    border: 1px solid var(--border-secondary); /* More visible border */
-}
-.set-row .log-set-btn {
-    padding: 9px 13px; /* Adjusted padding */
-    font-size: 0.85em;
-    text-transform: none;
-    background: var(--text-muted);
-    color: var(--bg-secondary);
-    min-width: 90px;
-    border-radius: var(--border-radius-pill);
-    justify-self: end; /* Align button to the right of its grid cell */
-}
-.set-row.completed .log-set-btn {
-    background: var(--accent-success);
-    color: var(--text-on-accent);
-}
+#workout-timer-section { text-align: center; margin-bottom: 20px; padding:20px; background-color: var(--bg-quaternary); border-radius: var(--border-radius-lg); }
+.timer-display { font-size: 3em; font-weight: bold; color: var(--accent-primary); margin-bottom: 15px; font-family: 'Courier New', Courier, monospace; }
+.timer-controls button { margin: 0 8px; padding: 10px 18px; font-size: 0.9em; }
+.log-session-controls { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 25px; }
+.log-session-controls .secondary-action-btn { width: auto; padding: 10px 20px; font-size: 0.9em; }
+#current-workout-summary h2 { color: var(--text-primary); border-bottom-color: var(--border-secondary); }
+#current-workout-date-display, #current-workout-name-display { font-size: 1.2em; font-weight: 600; margin-bottom: 10px; color: var(--accent-primary); padding-bottom: 5px; }
+#current-workout-date-display { border-bottom: 1px dashed var(--border-secondary); }
+#logged-exercises-list { list-style-type: none; padding: 0; }
+.active-workout-exercise { background-color: var(--bg-quaternary); border: 1px solid var(--border-primary); padding: 20px; margin-bottom: 25px; border-radius: var(--border-radius-lg); box-shadow: 0 4px 12px var(--shadow-light); }
+.active-workout-exercise .exercise-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-secondary); }
+.active-workout-exercise .exercise-header strong { font-size: 1.25em; color: var(--accent-primary); font-family: var(--font-headings); }
+.active-workout-exercise .exercise-header span { font-size: 0.9em; color: var(--text-secondary); background-color: var(--bg-input); padding: 3px 8px; border-radius: var(--border-radius-pill); }
+.sets-container .set-row { display: grid; grid-template-columns: auto 1fr 1fr auto; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-primary); }
+.sets-container .set-row:last-child { border-bottom: none; }
+.sets-container .set-row.completed { background-color: color-mix(in srgb, var(--accent-success) 20%, transparent); }
+body.theme-light .sets-container .set-row.completed { background-color: #c3e6cb; }
+.set-row .set-number { font-weight: 600; color: var(--text-secondary); padding-right: 5px; }
+.set-row input[type="number"].set-weight-input, .set-row input[type="text"].set-reps-input { padding: 10px 12px; font-size: 0.95em; border-radius: var(--border-radius-sm); text-align: center; border: 1px solid var(--border-secondary); }
+.set-row .log-set-btn { padding: 9px 13px; font-size: 0.85em; text-transform: none; background: var(--text-muted); color: var(--bg-secondary); min-width: 95px; border-radius: var(--border-radius-pill); justify-self: end; }
+.set-row.completed .log-set-btn { background: var(--accent-success); color: var(--text-on-accent); }
 .set-row .log-set-btn .fa-check-circle { color: var(--text-on-accent); }
-.set-row .log-set-btn .far.fa-circle {
-    color: var(--bg-primary);
-    body.theme-light & { color: var(--text-primary); } /* Ensure icon visible on light theme button */
-}
+.set-row .log-set-btn .far.fa-circle { color: var(--bg-primary); body.theme-light & { color: var(--text-primary); } }
+.exercise-actions-footer { margin-top: 18px; display: flex; gap: 15px; align-items: center; }
+.exercise-actions-footer textarea.exercise-session-notes { flex-grow: 1; min-height: 40px; font-size: 0.9em; padding: 8px 10px; border-radius: var(--border-radius-sm); }
+.exercise-actions-footer .remove-exercise-from-log-btn { background-color: transparent; color: var(--accent-danger); border: 1px solid var(--accent-danger); padding: 8px 10px; font-size: 0.85em; flex-shrink: 0; border-radius: var(--border-radius-pill); }
+.exercise-actions-footer .remove-exercise-from-log-btn:hover { background-color: var(--accent-danger); color: white; }
+.session-meta-inputs { margin-top: 20px; }
 
+/* --- Routines Tab --- */
+#routines-list-container .routine-card { background-color: var(--bg-quaternary); padding: 20px; border-radius: var(--border-radius-lg); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-primary); }
+#routines-list-container .routine-card h4 { margin:0; color: var(--accent-primary); font-family: var(--font-headings); }
+#routines-list-container .routine-card small { color: var(--text-secondary); font-size: 0.85em; }
+#routines-list-container .routine-actions button { font-size: 0.85em; padding: 8px 12px; margin-left: 8px; }
+#routine-exercises-list .routine-exercise-item { background-color: var(--bg-input); padding: 12px; border-radius: var(--border-radius-sm); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-primary); }
+.routine-exercise-adder { display: flex; gap: 10px; align-items: center; margin-top: 15px; }
+.routine-exercise-adder select, .routine-exercise-adder input { margin-bottom: 0; }
+.routine-exercise-adder button { padding: 12px 18px; font-size: 0.9em; }
 
-.exercise-actions-footer {
-    margin-top: 18px; /* More space */
-    display: flex;
-    gap: 15px;
-    align-items: center; /* Vertically align items */
-}
-.exercise-actions-footer textarea.exercise-session-notes {
-    flex-grow: 1;
-    min-height: 40px; /* Adjust height as needed, can be smaller */
-    font-size: 0.9em;
-    padding: 8px 10px; /* Padding for textarea */
-    border-radius: var(--border-radius-sm);
-}
-.exercise-actions-footer .remove-exercise-from-log-btn {
-    background-color: transparent;
-    color: var(--accent-danger);
-    border: 1px solid var(--accent-danger);
-    padding: 8px 10px;
-    font-size: 0.85em;
-    flex-shrink: 0;
-    border-radius: var(--border-radius-pill); /* Pill shape */
-}
-.exercise-actions-footer .remove-exercise-from-log-btn:hover {
-    background-color: var(--accent-danger);
-    color: white;
-}
+/* --- History Tab --- */
+#calendar-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px; background-color: var(--bg-quaternary); border-radius: var(--border-radius-md); }
+#calendar-controls button { background: var(--accent-secondary); color: var(--text-on-accent); border: none; padding: 8px 15px; border-radius: var(--border-radius-sm); cursor: pointer; font-size: 0.9em; }
+#calendar-controls button:hover { background: var(--accent-primary); transform: none; box-shadow: none; }
+#calendar-month-year { font-family: var(--font-headings); font-size: 1.3em; font-weight: 600; color: var(--text-primary); }
+#calendar-grid-container { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; background-color: var(--bg-tertiary); padding: 15px; border-radius: var(--border-radius-lg); }
+.calendar-day-header { font-family: var(--font-headings); font-weight: 600; text-align: center; padding: 8px 0; font-size: 0.8em; color: var(--text-secondary); text-transform: uppercase; }
+.calendar-day { min-height: 90px; background-color: var(--bg-quaternary); border: 1px solid var(--border-primary); border-radius: var(--border-radius-sm); padding: 8px; font-size: 0.9em; position: relative; transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; cursor: default; display: flex; flex-direction: column; }
+.calendar-day .day-number { font-weight: bold; color: var(--text-primary); margin-bottom: auto; }
+.calendar-day.other-month .day-number { color: var(--text-placeholder); }
+.calendar-day.today .day-number { color: var(--accent-pink); background-color: color-mix(in srgb, var(--accent-pink) 20%, transparent); border-radius: 50%; padding: 3px 5px; display: inline-block; font-weight: 700; }
+.calendar-day .workout-indicator { font-size: 1.3em; align-self: flex-end; margin-top: 5px; line-height: 1; }
+.calendar-day.rest-day { background-color: color-mix(in srgb, var(--text-muted) 30%, var(--bg-quaternary)); }
+.calendar-day.rest-day .day-number { opacity: 0.7; }
+.calendar-day[data-date]:hover { border-color: var(--accent-primary); box-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary) 30%, transparent); cursor: pointer; transform: scale(1.05); }
+.calendar-tooltip { position: absolute; background-color: var(--bg-tertiary); border: 1px solid var(--border-primary); padding: 12px; border-radius: var(--border-radius-md); box-shadow: 0 3px 12px var(--shadow-color); z-index: 3000; font-size: 0.85em; max-width: 280px; pointer-events: none; }
+.calendar-tooltip strong { color: var(--accent-primary); display: block; font-family: var(--font-headings); }
+.calendar-tooltip hr { border: 0; border-top: 1px solid var(--border-secondary); margin: 6px 0; }
+.calendar-tooltip p { margin: 4px 0; color: var(--text-secondary); }
+#workout-history-container .workout-session { background-color: var(--bg-tertiary); padding: 25px; margin-bottom: 25px; border-radius: var(--border-radius-lg); box-shadow: 0 4px 15px var(--shadow-light); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+#workout-history-container .workout-session.highlighted-session { outline: 3px solid var(--accent-primary); transform: scale(1.01); box-shadow: 0 6px 20px color-mix(in srgb, var(--accent-primary) 30%, transparent); }
+#workout-history-container .workout-session-date { font-family: var(--font-headings); font-size: 1.4em; font-weight: 600; color: var(--accent-primary); margin-bottom: 20px; border-bottom: 1px solid var(--border-secondary); padding-bottom: 12px; }
+#workout-history-container .session-title-history { font-family: var(--font-headings); font-style: normal; font-weight: 500; font-size: 1.1em; margin-top:-15px; margin-bottom:10px; color: var(--text-primary); }
+#workout-history-container .session-duration-history { font-size:0.9em; margin-top:-10px; margin-bottom:10px; color: var(--text-secondary); }
+#workout-history-container .history-exercise-list { list-style-type: none; padding-left: 0; }
+#workout-history-container .history-exercise-item { background-color: var(--bg-quaternary); padding: 15px; margin-bottom: 10px; border-radius: var(--border-radius-md); border-left: 5px solid var(--accent-secondary); }
+#workout-history-container .history-exercise-item.rest-day-entry { background-color: color-mix(in srgb, var(--text-muted) 20%, var(--bg-quaternary)); text-align: center; padding: 20px; font-style: italic; border-left-color: var(--text-muted); }
+#workout-history-container .history-exercise-item.rest-day-entry strong { color: var(--text-secondary); }
+#workout-history-container .history-exercise-item strong { color: var(--accent-primary); display: block; margin-bottom: 5px; font-size: 1.05em; }
+#workout-history-container .history-exercise-item div { font-size: 0.95em; color: var(--text-secondary); }
+#workout-history-container .history-exercise-item div small { display: block; margin-left: 15px; font-size: 0.9em; color: var(--text-muted); }
+#workout-history-container .history-exercise-item em { color: var(--text-muted); font-size: 0.9em; display: block; margin-top: 5px; font-style: italic; }
 
-/* Responsive adjustments specifically for the Log Workout form area */
-@media (max-width: 768px) {
-    .log-session-controls {
-        justify-content: center; /* Center button on smaller screens or make full width */
-    }
-    .log-session-controls .secondary-action-btn {
-        width: 100%;
-        margin-bottom: 15px; /* Add space if it becomes full width above form */
-    }
+/* --- Exercise Library Tab --- */
+#exercise-library-controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 20px; }
+#exercise-library-controls input, #exercise-library-controls select { margin-bottom: 0; flex-grow: 1; min-width: 180px; }
+#exercise-library-controls button { flex-shrink: 0; }
+#exercise-library-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;}
+#exercise-library-list .exercise-lib-card { background-color: var(--bg-quaternary); padding: 20px; border-radius: var(--border-radius-lg); border: 1px solid var(--border-primary); display: flex; flex-direction: column; }
+#exercise-library-list .exercise-lib-card .exercise-lib-image-placeholder { width: 100%; height: 150px; background-color: var(--bg-input); border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 3em; margin-bottom: 15px; object-fit: cover; }
+#exercise-library-list .exercise-lib-card img.exercise-lib-img { width: 100%; height: 150px; border-radius: var(--border-radius-md); margin-bottom: 15px; object-fit: cover; }
+#exercise-library-list .exercise-lib-card h4 { font-family: var(--font-headings); color: var(--accent-primary); margin-bottom: 8px; font-size: 1.2em;}
+#exercise-library-list .exercise-lib-card .exercise-info-icon { color: var(--accent-secondary); margin-left: 5px; cursor: help; }
+#exercise-library-list .exercise-lib-card p { font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px; }
+#exercise-library-list .exercise-lib-card .exercise-lib-actions { margin-top: auto; padding-top:15px; align-self: flex-end; }
+#exercise-library-list .exercise-lib-card button { font-size: 0.8em; padding: 7px 10px; margin-left: 8px;}
 
-    .sets-container .set-row {
-        grid-template-columns: auto 1fr 1fr; /* Set # | Weight | Reps */
-        grid-template-areas: /* Define grid areas for wrapping */
-            "number weight reps"
-            ".      button button"; /* Button spans two columns below */
-        gap: 8px;
-    }
-    .set-row .set-number { grid-area: number; }
-    .set-row input[type="number"].set-weight-input { grid-area: weight; width: 100%; }
-    .set-row input[type="text"].set-reps-input { grid-area: reps; width: 100%; }
-    .set-row .log-set-btn {
-        grid-area: button;
-        width: 100%; /* Full width button on mobile */
-        margin-top: 8px;
-        justify-self: stretch; /* Make it stretch */
-    }
-}
+/* Modal Styles */
+.modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center; padding: 20px; }
+.modal-content { background-color: var(--bg-tertiary); margin: auto; padding: 35px; border: 1px solid var(--border-secondary); width: 90%; max-width: 700px; border-radius: var(--border-radius-xl); position: relative; box-shadow: 0 10px 30px var(--shadow-color); animation: fadeInModal 0.3s ease-out; }
+@keyframes fadeInModal { from { opacity: 0; transform: translateY(-20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.close-btn { color: var(--text-muted); font-size: 32px; font-weight: bold; position: absolute; top: 15px; right: 20px; line-height: 1; }
+.close-btn:hover, .close-btn:focus { color: var(--accent-danger); text-decoration: none; cursor: pointer; }
+#exercise-lib-modal-title { margin-top: 0; font-family: var(--font-headings); }
+
+/* --- Body Measurements & Nutrition Tabs --- */
+#log-measurements form div, #log-nutrition-daily form div:not(:has(textarea)) { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; } /* Allow wrapping for labels */
+#log-measurements form label, #log-nutrition-daily form label { flex-basis: 200px; flex-shrink: 0; margin-bottom: 0; }
+#log-measurements form input, #log-nutrition-daily form input { flex-grow: 1; min-width: 120px; } /* Min width for inputs */
+#progress-photos-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px; }
+#progress-photos-gallery img { width: 100%; height: auto; border-radius: var(--border-radius-sm); box-shadow: 0 2px 5px var(--shadow-light); }
+.simple-history-list { list-style: none; padding: 0; }
+.simple-history-list li { background-color: var(--bg-quaternary); padding: 12px 18px; margin-bottom: 10px; border-radius: var(--border-radius-md); font-size: 0.9em; border-left: 4px solid var(--accent-secondary); }
+
+/* --- Settings Tab --- */
+#settingsTab form div { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; }
+#settingsTab form label { flex-basis: 220px; flex-shrink: 0; margin-bottom: 0; font-weight: 500; }
+#settingsTab form input[type="text"], #settingsTab form input[type="number"], #settingsTab form select { flex-grow: 1; min-width: 180px; }
+#settingsTab form input[type="checkbox"] { width: auto; margin-right: 8px; transform: scale(1.3); cursor: pointer;}
+#settingsTab #data-management-section button { margin-bottom: 10px; }
+.file-import-group { display: flex; align-items: center; gap: 10px; }
+.file-import-group input[type="file"] { border: 1px dashed var(--border-primary); padding: 10px; border-radius: var(--border-radius-sm); background-color: var(--bg-input); flex-grow: 1;}
+
+/* --- Footer & Scrollbar --- */
+footer { text-align: center; padding: 25px 20px; margin-top: auto; font-size: 0.9em; color: var(--text-muted); background-color: var(--bg-input); border-top: 1px solid var(--border-primary); }
+::-webkit-scrollbar { width: 12px; } ::-webkit-scrollbar-track { background: var(--bg-input); }
+::-webkit-scrollbar-thumb { background: var(--accent-secondary); border-radius: 6px; border: 3px solid var(--bg-input); }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) { header .tabs { justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; } body { padding-top: 120px; } #greeting-section h2 { font-size: 2em; } }
+@media (max-width: 768px) { body { padding-top: 140px; } header h1 { font-size: 1.8em; } .tab-link { padding: 9px 10px; font-size: 0.8em; gap: 6px;} main { width: 100%; margin: 15px 0 0 0; border-radius: 0; } .tab-content { padding: 20px; border-radius: 0; } .tab-content section { padding: 20px; } h2 { font-size: 1.4em; } #greeting-section h2 { font-size: 1.8em; } .quick-start-tile { min-height: 110px; } .quick-start-tile h4 { font-size: 1.1em; } .overview-card p { font-size: 1.3em; } .timer-display { font-size: 2.5em; } #quick-actions .action-buttons-grid, #overview-grid, .quick-start-grid { grid-template-columns: 1fr 1fr; } .sets-container .set-row { grid-template-columns: auto 1fr 1fr; grid-template-areas: "number weight reps" ". button button"; gap: 8px; } .set-row .set-number { grid-area: number; } .set-row input[type="number"].set-weight-input { grid-area: weight; width: 100%; } .set-row input[type="text"].set-reps-input { grid-area: reps; width: 100%; } .set-row .log-set-btn { grid-area: button; width: 100%; margin-top: 8px; justify-self: stretch; } #log-measurements form div, #log-nutrition-daily form div:not(:has(textarea)), #settingsTab form div { flex-direction: column; align-items: stretch; } #log-measurements form label, #log-nutrition-daily form label, #settingsTab form label { flex-basis: auto; margin-bottom: 5px; } #exercise-library-controls { flex-direction: column; align-items: stretch; } #exercise-library-controls input, #exercise-library-controls select, #exercise-library-controls button { width: 100%; } }
+@media (max-width: 480px) { body { padding-top: 150px; } header h1 { font-size: 1.6em; } .tab-link { padding: 8px 8px; font-size: 0.75em; gap: 4px; } button, .button-like { font-size: 0.9em; padding: 12px 18px; } #greeting-section h2 { font-size: 1.6em; } .quick-start-tile { min-height: 100px; } .quick-start-tile h4 { font-size: 1em; } .timer-display { font-size: 2.2em; } #quick-actions .action-buttons-grid, #overview-grid, .quick-start-grid { grid-template-columns: 1fr; } .set-row input[type="number"].set-weight-input, .set-row input[type="text"].set-reps-input { width: 100%; margin-bottom: 8px; } .modal-content { width: 95%; padding: 15px; } h2 {font-size: 1.3em;} .timer-controls button { width: calc(33% - 10px); font-size: 0.85em; padding: 8px 10px;} }
