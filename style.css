@@ -1,572 +1,228 @@
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Nunito:wght@300;400;600;700&family=Pacifico&display=swap'); /* Added Pacifico for cute titles */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 Cute Workout Tracker 🌸</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+<body class="theme-dark"> <!-- Default to dark, JS will handle switching -->
+    <header>
+        <h1><i class="fas fa-dumbbell"></i> 🌸 Workout Buddy 🌸</h1>
+        <div class="theme-switcher">
+            <button id="theme-toggle-btn" title="Toggle Theme">
+                <i class="fas fa-sun"></i> <!-- Icon changes via JS -->
+            </button>
+        </div>
+        <nav class="tabs">
+            <button class="tab-link active" data-tab="dashboardTab"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+            <button class="tab-link" data-tab="logWorkoutTab"><i class="fas fa-plus-square"></i> Log Session</button>
+            <button class="tab-link" data-tab="routinesTab"><i class="fas fa-clipboard-list"></i> My Routines</button>
+            <button class="tab-link" data-tab="historyTab"><i class="fas fa-history"></i> History</button>
+            <button class="tab-link" data-tab="exercisesTab"><i class="fas fa-book-open"></i> Exercises</button>
+            <button class="tab-link" data-tab="measurementsTab"><i class="fas fa-ruler-combined"></i> Body Stats</button>
+            <button class="tab-link" data-tab="nutritionTab"><i class="fas fa-utensils"></i> Nutrition</button>
+            <!-- <button class="tab-link" data-tab="settingsTab"><i class="fas fa-cog"></i> Settings</button> --> <!-- For future settings tab -->
+        </nav>
+    </header>
 
-/* --- CSS Variables for Theming --- */
-:root {
-    /* Default to Dark Theme Variables */
-    --bg-primary: #1a1d24;
-    --bg-secondary: #252a34;
-    --bg-tertiary: #2c313c;
-    --bg-quaternary: #343a45;
-    --bg-input: #1f232a;
+    <main>
+        <!-- Tab Content: Dashboard -->
+        <div id="dashboardTab" class="tab-content active">
+            <section id="greeting-section">
+                <h2 id="dash-greeting">Hello, Fitness Star! ☀️</h2>
+            </section>
 
-    --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0;
-    --text-muted: #777;
-    --text-placeholder: #6c757d;
-    --text-on-accent: #ffffff; /* For text on gradient buttons */
+            <section id="quick-start-workouts">
+                <h2>✨ Quick Start Workouts ✨</h2>
+                <div class="quick-start-grid">
+                    <!-- Tiles will be populated by JS -->
+                    <p>Loading quick starts...</p>
+                </div>
+            </section>
 
-    --border-primary: #3a3f4b;
-    --border-secondary: #4a4f5b;
-    --border-accent: #005bea;
+            <section id="quick-actions">
+                <h2>🚀 Quick Actions 🚀</h2>
+                <div class="action-buttons-grid">
+                    <button id="dash-log-workout-btn" class="dash-action-btn"><i class="fas fa-plus-circle"></i> Log Custom Workout</button>
+                    <button id="dash-start-routine-btn" class="dash-action-btn"><i class="fas fa-play-circle"></i> Start from My Routines</button>
+                    <button id="dash-log-rest-day-btn" class="dash-action-btn"><i class="fas fa-bed"></i> Log Rest Day 😴</button>
+                    <button id="dash-log-nutrition-btn" class="dash-action-btn"><i class="fas fa-apple-alt"></i> Log Nutrition 🍎</button>
+                    <button id="dash-log-measurement-btn" class="dash-action-btn"><i class="fas fa-tape"></i> Log Body Stats 📏</button>
+                </div>
+            </section>
 
-    --accent-primary: #00c6fb;      /* Bright Blue */
-    --accent-secondary: #007bff;    /* Standard Blue */
-    --accent-success: #28a745;      /* Green */
-    --accent-danger: #ff4d4d;       /* Red */
-    --accent-warning: #ffc107;      /* Yellow */
-    --accent-pink: #ff7eb9;         /* Cute Pink */
-    --accent-lavender: #b5a7ff;     /* Cute Lavender */
-    --accent-mint: #a0ffe6;         /* Cute Mint */
+            <section id="today-overview">
+                <h2>Today's Overview - <span id="dashboard-date"></span> 📅</h2>
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <h3>Workout Status 💪</h3>
+                        <p id="dash-workout-status">Not Logged</p>
+                        <i class="fas fa-running overview-icon"></i>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Calories (Kcal) 🔥</h3>
+                        <p><span id="dash-kcal-consumed">0</span> / <span id="dash-kcal-goal">2500</span></p>
+                        <!-- Optional: Basic progress bar -->
+                        <!-- <div class="progress-bar-container"><div id="kcal-progress-bar" class="progress-bar-fill"></div></div> -->
+                        <i class="fas fa-fire overview-icon"></i>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Protein (g) 🍗</h3>
+                        <p><span id="dash-protein-consumed">0</span> / <span id="dash-protein-goal">150</span></p>
+                        <i class="fas fa-drumstick-bite overview-icon"></i>
+                    </div>
+                </div>
+            </section>
+            <section id="recent-activity">
+                <h2>Recent Activity / Streaks 🌟</h2>
+                <p>Your current workout streak: <span id="dash-workout-streak">0</span> days.</p>
+                <p>Last workout: <span id="dash-last-workout-info">Never</span></p>
+                <p id="dash-up-next-workout">What's next on the agenda? 🤔</p>
+            </section>
+            <section id="motivation-tip">
+                <h2>💖 Tip of the Day 💖</h2>
+                <p id="dash-motivation-quote">"Believe in your #selfie!"</p>
+            </section>
+        </div>
 
-    --shadow-color: rgba(0, 0, 0, 0.2);
-    --shadow-light: rgba(0,0,0,0.1);
+        <!-- Tab Content: Log Workout / Session -->
+        <div id="logWorkoutTab" class="tab-content">
+             <section id="workout-timer-section"> <!-- Workout Timer Added Here -->
+                <h3>Workout Timer ⏱️</h3>
+                <div id="workout-timer-display" class="timer-display">00:00</div>
+                <div class="timer-controls">
+                    <button id="start-timer-btn" class="secondary-action-btn"><i class="fas fa-play"></i> Start</button>
+                    <button id="stop-timer-btn" class="secondary-action-btn" disabled><i class="fas fa-pause"></i> Pause</button>
+                    <button id="reset-timer-btn" class="secondary-action-btn"><i class="fas fa-undo"></i> Reset</button>
+                </div>
+            </section>
+             <section id="workout-entry">
+                <h2>Log New Workout Exercise 📝</h2>
+                <div class="log-session-controls">
+                    <button id="start-from-routine-actual-btn" class="secondary-action-btn"><i class="fas fa-clipboard-check"></i> Load from My Routines</button>
+                </div>
+                <form id="log-exercise-form">
+                    <div><label for="workout-date">Date:</label><input type="date" id="workout-date" name="workout-date" required></div>
+                    <div><label for="workout-session-name">Workout Name (Optional):</label><input type="text" id="workout-session-name" name="workout-session-name" placeholder="e.g., Awesome Push Day! 🎉"></div>
+                    <div><label for="exercise-name">Exercise Name (for custom add):</label><input type="text" id="exercise-name" name="exercise-name" list="common-exercises" placeholder="e.g., Barbell Bench Press or type">
+                        <datalist id="common-exercises"></datalist>
+                    </div>
+                    <div><label for="sets">Target Sets (for custom add):</label><input type="number" id="sets" name="sets" min="1" placeholder="e.g., 3"></div>
+                    <div><label for="reps">Target Reps (for custom add):</label><input type="text" id="reps" name="reps" placeholder="e.g., 8-10 or 10"></div>
+                    <!-- Weight and unit from custom add form are less relevant with per-set logging, but can be kept for quick add -->
+                    <input type="hidden" id="weight"> <!-- Hide if not used for direct set add -->
+                    <input type="hidden" id="weight-unit">
+                    <div><label for="exercise-notes">Initial Notes (for custom add):</label><textarea id="exercise-notes" name="exercise-notes" rows="2" placeholder="e.g., Focus on form"></textarea></div>
+                    <button type="submit"><i class="fas fa-plus"></i> Add Custom Exercise to Log</button>
+                </form>
+                 <button id="log-rest-day-btn-main" class="secondary-action-btn full-width-secondary"><i class="fas fa-bed"></i> Log This Date as Rest Day 😴</button>
+            </section>
+            <section id="current-workout-summary">
+                <h2>Current Workout Session Log 📋</h2>
+                <div id="current-workout-date-display"></div>
+                <div id="current-workout-name-display" style="font-style: italic; margin-bottom: 10px;"></div>
+                <ul id="logged-exercises-list">
+                    <!-- Interactive exercises from routine or custom adds will appear here -->
+                </ul>
+                <div class="session-meta-inputs"><div><label for="workout-duration">Workout Duration (minutes, optional):</label><input type="number" id="workout-duration" min="0" placeholder="e.g., 60"></div></div>
+                <button id="finish-workout-btn" style="display:none;"><i class="fas fa-save"></i> Finish & Save Workout</button>
+            </section>
+        </div>
 
-    --font-primary: 'Roboto', sans-serif;
-    --font-headings: 'Nunito', sans-serif;
-    --font-cute-titles: 'Pacifico', cursive; /* Cute handwriting font */
+        <!-- Tab Content: Routines -->
+        <div id="routinesTab" class="tab-content">
+            <section id="manage-routines">
+                <h2>My Workout Routines 💖</h2>
+                <button id="create-new-routine-btn" class="primary-action"><i class="fas fa-plus-circle"></i> Create New Routine</button>
+                <div id="routines-list-container"><p>Loading routines... ✨</p></div>
+            </section>
+            <section id="create-edit-routine-section" style="display:none;">
+                <h2 id="routine-form-title">Create New Routine</h2>
+                <form id="routine-form">
+                    <div><label for="routine-name">Routine Name:</label><input type="text" id="routine-name" required placeholder="e.g., Super Push Day 💪"></div>
+                    <div><label for="routine-description">Description (Optional):</label><textarea id="routine-description" rows="3" placeholder="What's this routine about?"></textarea></div>
+                    <h3>Exercises in this Routine:</h3><div id="routine-exercises-list"></div>
+                    <div class="routine-exercise-adder">
+                        <select id="add-exercise-to-routine-select"><option value="">-- Select Exercise to Add --</option></select>
+                        <input type="text" id="routine-exercise-sets" placeholder="Sets (e.g., 3)">
+                        <input type="text" id="routine-exercise-reps" placeholder="Reps (e.g., 8-12)">
+                        <button type="button" id="add-exercise-to-routine-btn"><i class="fas fa-plus"></i> Add to Routine</button>
+                    </div>
+                    <button type="submit" id="save-routine-btn"><i class="fas fa-save"></i> Save Routine</button>
+                    <button type="button" id="cancel-routine-edit-btn" class="secondary-action-btn">Cancel</button>
+                </form>
+            </section>
+        </div>
 
-    --border-radius-sm: 6px;
-    --border-radius-md: 10px;
-    --border-radius-lg: 12px;
-}
+        <!-- Tab Content: History -->
+        <div id="historyTab" class="tab-content">
+             <section><h2>Workout Calendar 🗓️</h2><div id="calendar-controls"><button id="prev-month-btn"><i class="fas fa-chevron-left"></i> Prev</button><h3 id="calendar-month-year">Month Year</h3><button id="next-month-btn">Next <i class="fas fa-chevron-right"></i></button></div><div id="calendar-grid-container"><!-- Calendar grid --></div></section>
+             <section><h2>Workout Sessions 📜</h2><div id="workout-history-container"><!-- History list --></div></section>
+        </div>
 
-body.theme-light {
-    /* Light Theme Variable Overrides */
-    --bg-primary: #f8f9fa;        /* Very light grey */
-    --bg-secondary: #ffffff;      /* White */
-    --bg-tertiary: #eef2f7;       /* Slightly off-white / very light blue */
-    --bg-quaternary: #f1f3f5;     /* Light grey for cards */
-    --bg-input: #fdfdfe;
+        <!-- Tab Content: Exercise Library -->
+        <div id="exercisesTab" class="tab-content">
+            <section id="exercise-library-controls"><h2>Exercise Library 📚</h2><input type="text" id="search-exercise-library" placeholder="Search exercises..."><select id="filter-muscle-group"><option value="">All Muscle Groups 🎯</option></select><button id="add-new-exercise-to-lib-btn" class="primary-action"><i class="fas fa-plus-circle"></i> Add New Exercise</button></section>
+            <section id="exercise-library-list"><p>Loading exercises... 💪</p></section>
+            <div id="exercise-lib-modal" class="modal" style="display:none;"><div class="modal-content"><span class="close-btn" id="close-exercise-lib-modal">×</span><h3 id="exercise-lib-modal-title">Add New Exercise</h3><form id="exercise-lib-form"><input type="hidden" id="exercise-lib-id"><div><label for="ex-lib-name">Name:</label><input type="text" id="ex-lib-name" required></div><div><label for="ex-lib-muscle">Primary Muscle Group:</label><input type="text" id="ex-lib-muscle" placeholder="e.g., Chest, Quads"></div><div><label for="ex-lib-secondary-muscle">Secondary Muscles:</label><input type="text" id="ex-lib-secondary-muscle" placeholder="e.g., Triceps, Shoulders"></div><div><label for="ex-lib-equipment">Equipment:</label><input type="text" id="ex-lib-equipment" placeholder="e.g., Barbell, Dumbbell, Bodyweight"></div><div><label for="ex-lib-instructions">Instructions:</label><textarea id="ex-lib-instructions" rows="4"></textarea></div><div><label for="ex-lib-video">Video URL (Optional):</label><input type="url" id="ex-lib-video" placeholder="https://youtube.com/watch?v=..."></div><button type="submit"><i class="fas fa-save"></i> Save Exercise</button></form></div></div>
+        </div>
 
-    --text-primary: #212529;      /* Dark grey for main text */
-    --text-secondary: #495057;    /* Medium grey */
-    --text-muted: #6c757d;
-    --text-placeholder: #adb5bd;
-    /* --text-on-accent: #ffffff; /* Can remain white or adjust if needed */
+        <!-- Tab Content: Body Measurements -->
+        <div id="measurementsTab" class="tab-content">
+            <section id="log-measurements"><h2>Log Body Measurements 📏</h2><form id="log-measurement-form"><div><label for="measurement-date">Date:</label><input type="date" id="measurement-date" required></div><div><label for="body-weight">Weight (<span id="user-weight-unit">kg</span>):</label><input type="number" step="0.1" id="body-weight"></div><div><label for="body-fat">Body Fat (%):</label><input type="number" step="0.1" id="body-fat"></div><div><label for="chest-size">Chest (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="chest-size"></div><div><label for="waist-size">Waist (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="waist-size"></div><div><label for="arm-size">Arm (Bicep, <span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="arm-size"></div><div><label for="thigh-size">Thigh (<span id="user-measurement-unit">cm</span>):</label><input type="number" step="0.1" id="thigh-size"></div><div><label for="measurement-notes">Notes:</label><textarea id="measurement-notes" rows="3"></textarea></div><button type="submit"><i class="fas fa-save"></i> Log Measurements</button></form></section>
+            <section id="measurement-history-charts"><h2>Measurement Progress 📈</h2><div id="measurement-chart-container"><p>Graphs for measurements are coming soon! Keep tracking! 💖</p></div><div id="measurement-history-list"><!-- History list --></div></section>
+            <section id="progress-photos-section"><h2>Progress Photos 📸</h2><p><small>Note: Photos are currently just for show and not saved long-term with this app version.</small></p><input type="file" id="progress-photo-upload" accept="image/*" multiple><div id="progress-photos-gallery"><!-- Gallery --></div></section>
+        </div>
 
-    --border-primary: #ced4da;
-    --border-secondary: #dee2e6;
-    --border-accent: #007bff;     /* Standard Blue */
+        <!-- Tab Content: Nutrition -->
+        <div id="nutritionTab" class="tab-content">
+            <section id="log-nutrition-daily"><h2>Log Daily Nutrition 🥗</h2><form id="nutrition-log-form"><div><label for="nutrition-date">Date:</label><input type="date" id="nutrition-date" required></div><div><label for="kcal-goal">Kcal Goal:</label><input type="number" id="kcal-goal" value="2500"></div><div><label for="kcal-consumed">Kcal Consumed:</label><input type="number" id="kcal-consumed" required></div><div><label for="protein-goal">Protein Goal (g):</label><input type="number" id="protein-goal" value="150"></div><div><label for="protein-consumed">Protein Consumed (g):</label><input type="number" id="protein-consumed" required></div><div><label for="carbs-consumed">Carbs Consumed (g, opt.):</label><input type="number" id="carbs-consumed"></div><div><label for="fats-consumed">Fats Consumed (g, opt.):</label><input type="number" id="fats-consumed"></div><div><label for="nutrition-notes">Notes:</label><textarea id="nutrition-notes" rows="3"></textarea></div><button type="submit"><i class="fas fa-save"></i> Log Nutrition</button></form></section>
+            <section id="nutrition-summary"><h2>Nutrition Overview 📊</h2><p>Daily/Weekly summaries and charts will go here. Keep logging for yummy data! 😋</p></section>
+        </div>
 
-    --accent-primary: #007bff;
-    --accent-secondary: #0056b3;
-    /* Keep cute accents, they might pop more on light theme or adjust saturation */
-    --accent-pink: #f06292; /* Slightly less neon pink */
-    --accent-lavender: #9575cd;
-    --accent-mint: #4db6ac;
+        <!-- Settings Tab (Conceptual - can be built out later) -->
+        <!--
+        <div id="settingsTab" class="tab-content">
+            <h2>App Settings ⚙️</h2>
+            <form id="user-settings-form">
+                 <div><label for="setting-user-name">Your Name:</label><input type="text" id="setting-user-name"></div>
+                 <div><label>Preferred Weight Unit:</label> <select id="setting-weight-unit"><option value="kg">kg</option><option value="lbs">lbs</option></select></div>
+                 <div><label>Preferred Measurement Unit:</label> <select id="setting-measure-unit"><option value="cm">cm</option><option value="in">inches</option></select></div>
+                 <div><label>Default Kcal Goal:</label><input type="number" id="setting-kcal-goal"></div>
+                 <div><label>Default Protein Goal (g):</label><input type="number" id="setting-protein-goal"></div>
+                 <div><label for="setting-smart-defaults">Enable Smart Exercise Defaults:</label><input type="checkbox" id="setting-smart-defaults"></div>
+                 <div><label for="setting-show-confetti">Show Confetti on Completion:</label><input type="checkbox" id="setting-show-confetti"></div>
+                 <button type="submit"><i class="fas fa-save"></i> Save Settings</button>
+            </form>
+             <section>
+                <h3>Data Management</h3>
+                <button id="export-data-btn" class="secondary-action-btn">Export My Data (JSON)</button>
+                <br><br>
+                <label for="import-data-file">Import Data (JSON):</label>
+                <input type="file" id="import-data-file" accept=".json">
+                <button id="import-data-btn-action" class="secondary-action-btn">Import Now</button>
+                <br><br>
+                <button id="clear-all-data-btn" class="danger-btn" style="background: var(--accent-danger);"><i class="fas fa-exclamation-triangle"></i> Clear All Local Data (Warning!)</button>
+            </section>
+        </div>
+        -->
 
+    </main>
 
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --shadow-light: rgba(0,0,0,0.05);
-}
+    <footer>
+        <p>© <span id="current-year"></span> Your Name - 🌸 Workout Buddy 🌸</p>
+    </footer>
 
-
-/* --- Global Resets & Base Styles --- */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-    font-family: var(--font-primary);
-    line-height: 1.6;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    display: flex; flex-direction: column; min-height: 100vh;
-    padding-top: 125px; /* Adjust based on final header height */
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* --- Header --- */
-header {
-    background: linear-gradient(135deg, var(--accent-pink), var(--accent-lavender)); /* Cute gradient */
-    color: var(--text-on-accent);
-    padding: 15px 0 0 0; text-align: center; position: fixed;
-    top: 0; left: 0; width: 100%; z-index: 1000;
-    box-shadow: 0 2px 10px var(--shadow-color);
-}
-body.theme-light header { /* Different gradient for light theme header for contrast */
-    background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
-}
-
-
-header h1 {
-    font-family: var(--font-cute-titles); /* Cute font for main title */
-    font-size: 2.2em; /* Larger cute title */
-    font-weight: normal; /* Pacifico is naturally bold */
-    letter-spacing: 1px; margin-bottom: 10px;
-    color: var(--text-on-accent);
-}
-header h1 .fa-dumbbell { margin-right: 10px; /* color: var(--accent-mint); */ }
-
-/* Theme Switcher */
-.theme-switcher { position: absolute; top: 20px; right: 20px; }
-#theme-toggle-btn {
-    background: rgba(255,255,255,0.2); /* Semi-transparent on gradient */
-    border: 1px solid rgba(255,255,255,0.3);
-    color: var(--text-on-accent); font-size: 1.2em; padding: 8px 10px;
-    border-radius: 50%; cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-}
-#theme-toggle-btn:hover { background-color: rgba(255,255,255,0.3); transform: scale(1.1); }
-body.theme-light #theme-toggle-btn {
-    background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1);
-    color: var(--text-primary);
-}
-body.theme-light #theme-toggle-btn:hover { background-color: rgba(0,0,0,0.1); }
-
-
-/* --- Tab Navigation --- */
-header .tabs {
-    background-color: var(--bg-secondary);
-    padding: 8px 0; display: flex; justify-content: center; flex-wrap: wrap;
-    gap: 5px; border-bottom: 2px solid var(--border-accent);
-    box-shadow: inset 0 -3px 6px var(--shadow-light); /* Softer inset shadow */
-}
-.tab-link {
-    padding: 10px 15px; cursor: pointer; border: none; background-color: transparent;
-    color: var(--text-secondary); font-family: var(--font-headings);
-    font-size: 0.9em; font-weight: 600;
-    transition: color 0.3s ease, border-bottom-color 0.3s ease, background-color 0.2s ease;
-    border-bottom: 4px solid transparent; /* Thicker indicator */
-    text-transform: uppercase; letter-spacing: 0.8px; /* More spacing */
-    border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
-    display: inline-flex; align-items: center; gap: 8px;
-}
-.tab-link:hover { color: var(--accent-primary); background-color: var(--bg-tertiary); }
-.tab-link.active {
-    color: var(--accent-primary); background-color: var(--bg-tertiary);
-    border-bottom-color: var(--accent-primary); font-weight: 700;
-}
-
-/* --- Main Content & Sections --- */
-main { flex-grow: 1; max-width: 1100px; width: 95%; margin: 30px auto; }
-.tab-content {
-    display: none; background-color: var(--bg-secondary);
-    border-radius: var(--border-radius-lg); box-shadow: 0 8px 25px var(--shadow-color);
-    padding: 30px; /* More padding */ transition: background-color 0.3s ease;
-}
-.tab-content.active { display: block; }
-.tab-content section {
-    padding: 30px; margin-bottom: 30px; background-color: var(--bg-tertiary);
-    border-radius: var(--border-radius-md); box-shadow: 0 5px 18px var(--shadow-light); /* Softer shadow */
-    transition: background-color 0.3s ease;
-}
-.tab-content section:last-child { margin-bottom: 0; }
-h2 {
-    font-family: var(--font-headings); color: var(--accent-primary);
-    margin-bottom: 25px; font-weight: 700;
-    border-bottom: 2px solid var(--accent-secondary); padding-bottom: 12px;
-    letter-spacing: 0.5px; font-size: 1.6em;
-}
-h3 {
-    font-family: var(--font-headings); color: var(--text-primary);
-    margin-bottom: 18px; font-weight: 600; font-size: 1.3em;
-}
-
-/* --- Forms --- */
-form div { margin-bottom: 20px; }
-form label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary); font-size: 0.95em; }
-form input[type="text"], form input[type="number"], form input[type="date"],
-form input[type="email"], form input[type="password"], form input[type="url"],
-form select, form textarea {
-    width: 100%; padding: 14px 18px; background-color: var(--bg-input);
-    border: 1px solid var(--border-primary); border-radius: var(--border-radius-sm);
-    color: var(--text-primary); font-size: 1em;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-}
-form input::placeholder, form textarea::placeholder { color: var(--text-placeholder); }
-form input:focus, form select:focus, form textarea:focus {
-    outline: none; border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 25%, transparent);
-}
-.input-group-inline { display: flex; align-items: center; gap: 10px; }
-.input-group-inline input, .input-group-inline select { flex-grow: 1; }
-.input-group-inline select { width: auto; min-width: 80px; flex-shrink: 0; flex-grow: 0; }
-
-/* --- Buttons --- */
-button, .button-like {
-    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-    width: auto; padding: 14px 28px;
-    background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary)); /* Main action gradient */
-    color: var(--text-on-accent); border: none; border-radius: var(--border-radius-md); /* More rounded */
-    cursor: pointer; font-family: var(--font-headings); font-size: 1em;
-    font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-image 0.3s ease;
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary) 20%, transparent);
-    text-decoration: none;
-}
-button:hover, .button-like:hover {
-    transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 7px 18px color-mix(in srgb, var(--accent-primary) 30%, transparent);
-}
-button:active, .button-like:active { transform: translateY(-1px) scale(0.98); box-shadow: 0 2px 5px var(--shadow-color); }
-
-form button[type="submit"], #finish-workout-btn { width: 100%; }
-#finish-workout-btn {
-    background: linear-gradient(135deg, var(--accent-success), color-mix(in srgb, var(--accent-success) 70%, var(--accent-mint)));
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-success) 20%, transparent); margin-top: 20px;
-}
-#finish-workout-btn:hover { box-shadow: 0 7px 18px color-mix(in srgb, var(--accent-success) 30%, transparent); }
-.secondary-action-btn {
-    background: var(--text-muted);
-    box-shadow: 0 4px 10px color-mix(in srgb, var(--text-muted) 20%, transparent);
-    color: var(--bg-secondary);
-}
-.secondary-action-btn:hover {
-    background: color-mix(in srgb, var(--text-muted) 80%, black);
-    box-shadow: 0 6px 15px color-mix(in srgb, var(--text-muted) 30%, transparent);
-}
-body.theme-light .secondary-action-btn { /* Secondary button on light theme */
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-primary);
-}
-body.theme-light .secondary-action-btn:hover {
-    background: var(--border-primary);
-    color: var(--text-primary);
-}
-.full-width-secondary { width: 100%; margin-top: 15px; }
-
-
-/* --- Dashboard Tab --- */
-#quick-start-workouts .quick-start-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px;
-}
-.quick-start-tile {
-    padding: 20px; border-radius: var(--border-radius-md); text-align: left; cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid transparent; /* Remove default border */
-    display: flex; flex-direction: column; justify-content: space-between;
-    min-height: 130px; color: #fff; text-transform: none;
-    font-family: var(--font-primary); font-size: 1em; font-weight: normal; letter-spacing: normal;
-    background-image: linear-gradient(135deg, var(--accent-pink) 0%, var(--accent-lavender) 100%);
-    box-shadow: 0 5px 15px color-mix(in srgb, var(--accent-pink) 30%, transparent);
-}
-.quick-start-tile:hover {
-    transform: translateY(-5px) scale(1.03);
-    box-shadow: 0 8px 25px color-mix(in srgb, var(--accent-lavender) 40%, transparent);
-    background-image: linear-gradient(135deg, var(--accent-lavender) 0%, var(--accent-pink) 100%);
-}
-.quick-start-tile h4 { font-family: var(--font-headings); font-size: 1.3em; margin-bottom: 8px; font-weight: 700; color: #fff; }
-.quick-start-tile p { font-size: 0.9em; color: rgba(255,255,255,0.9); flex-grow: 1; margin-bottom: 10px; }
-.quick-start-tile .fa-chevron-circle-right { align-self: flex-end; font-size: 1.6em; opacity: 0.8; color: #fff; }
-
-#quick-actions .action-buttons-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-.dash-action-btn {
-    padding: 18px; font-size: 1em; text-transform: none;
-    background: var(--bg-quaternary); color: var(--text-primary);
-    box-shadow: 0 2px 5px var(--shadow-light); border: 1px solid var(--border-primary);
-    border-radius: var(--border-radius-sm);
-}
-.dash-action-btn:hover {
-    background: var(--bg-tertiary); color: var(--accent-primary);
-    box-shadow: 0 4px 8px var(--shadow-light); border-color: var(--accent-primary);
-    transform: translateY(-2px);
-}
-#overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-.overview-card {
-    background-color: var(--bg-quaternary); padding: 25px; border-radius: var(--border-radius-md);
-    text-align: center; position: relative; border: 1px solid var(--border-primary);
-}
-.overview-card h3 { font-family: var(--font-headings); font-size: 1.1em; color: var(--accent-primary); margin-bottom: 10px; }
-.overview-card p { font-size: 1.4em; font-weight: bold; margin-bottom: 10px; color: var(--text-primary); }
-.overview-card .overview-icon { font-size: 3em; color: var(--accent-secondary); opacity: 0.08; position: absolute; right: 20px; bottom: 15px; }
-#recent-activity p, #motivation-tip p, #dash-up-next-workout { font-size: 1.05em; line-height: 1.7; color: var(--text-secondary); }
-#dash-motivation-quote {
-    font-style: italic; color: var(--accent-pink); padding: 20px;
-    border-left: 5px solid var(--accent-pink); background-color: var(--bg-quaternary);
-    border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
-}
-
-/* --- Log Workout Tab --- */
-#workout-timer-section { text-align: center; margin-bottom: 20px; padding:15px; background-color: var(--bg-quaternary); border-radius: var(--border-radius-md); }
-.timer-display {
-    font-size: 2.8em; font-weight: bold; color: var(--accent-primary);
-    margin-bottom: 15px; font-family: 'Courier New', Courier, monospace;
-}
-.timer-controls button { margin: 0 5px; padding: 10px 18px; font-size: 0.9em; }
-
-.log-session-controls { margin-bottom: 20px; }
-#current-workout-summary h2 { color: var(--text-primary); border-bottom-color: var(--border-secondary); }
-#current-workout-date-display, #current-workout-name-display {
-    font-size: 1.2em; font-weight: 600; margin-bottom: 10px;
-    color: var(--accent-primary); padding-bottom: 5px;
-}
-#current-workout-date-display { border-bottom: 1px dashed var(--border-secondary); }
-#logged-exercises-list { list-style-type: none; padding: 0; }
-/* Active Workout Exercise Item in Log Tab */
-.active-workout-exercise {
-    background-color: var(--bg-quaternary); border: 1px solid var(--border-primary);
-    padding: 20px; margin-bottom: 20px; border-radius: var(--border-radius-md);
-    box-shadow: 0 3px 10px var(--shadow-light);
-}
-.active-workout-exercise .exercise-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed var(--border-secondary);
-}
-.active-workout-exercise .exercise-header strong { font-size: 1.2em; color: var(--accent-primary); font-family: var(--font-headings); }
-.active-workout-exercise .exercise-header span { font-size: 0.9em; color: var(--text-secondary); }
-.sets-container .set-row {
-    display: flex; align-items: center; gap: 10px; padding: 10px 5px;
-    border-bottom: 1px solid var(--border-primary); transition: background-color 0.3s ease;
-}
-.sets-container .set-row:last-child { border-bottom: none; }
-.sets-container .set-row.completed { background-color: color-mix(in srgb, var(--accent-success) 15%, transparent); }
-body.theme-light .sets-container .set-row.completed { background-color: #d1e7dd; /* Softer green for light theme */ }
-.set-row .set-number { min-width: 60px; font-weight: 500; color: var(--text-secondary); }
-.set-row input[type="number"].set-weight-input,
-.set-row input[type="text"].set-reps-input {
-    padding: 10px 12px; font-size: 0.95em; border-radius: var(--border-radius-sm);
-    width: 110px; text-align: center;
-}
-.set-row .log-set-btn {
-    padding: 10px 14px; font-size: 0.85em; text-transform: none;
-    background: var(--text-muted); color: var(--bg-secondary); min-width: 95px;
-}
-.set-row.completed .log-set-btn { background: var(--accent-success); color: var(--text-on-accent); }
-.set-row .log-set-btn .fa-check-circle { color: var(--text-on-accent); }
-.set-row .log-set-btn .far.fa-circle { color: var(--bg-primary); } /* Needs adjustment based on button bg */
-body.theme-light .set-row .log-set-btn .far.fa-circle { color: var(--text-primary); }
-
-
-.exercise-actions-footer { margin-top: 15px; display: flex; gap: 15px; align-items: flex-start; }
-.exercise-actions-footer textarea.exercise-session-notes { flex-grow: 1; min-height: 60px; font-size: 0.9em; }
-.exercise-actions-footer .remove-exercise-from-log-btn {
-    background-color: transparent; color: var(--accent-danger); border: 1px solid var(--accent-danger);
-    padding: 8px 10px; font-size: 0.85em; flex-shrink: 0; border-radius: var(--border-radius-sm);
-}
-.exercise-actions-footer .remove-exercise-from-log-btn:hover { background-color: var(--accent-danger); color: white; }
-.session-meta-inputs { margin-top: 20px; }
-
-/* --- Routines Tab --- */
-#routines-list-container .routine-card {
-    background-color: var(--bg-quaternary); padding: 20px; border-radius: var(--border-radius-md); margin-bottom: 15px;
-    display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-primary);
-}
-#routines-list-container .routine-card h4 { margin:0; color: var(--accent-primary); font-family: var(--font-headings); }
-#routines-list-container .routine-card small { color: var(--text-secondary); font-size: 0.85em; }
-#routines-list-container .routine-actions button { font-size: 0.85em; padding: 8px 12px; margin-left: 8px; }
-#routine-exercises-list .routine-exercise-item {
-    background-color: var(--bg-input); padding: 12px; border-radius: var(--border-radius-sm); margin-bottom: 8px;
-    display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-primary);
-}
-.routine-exercise-adder { display: flex; gap: 10px; align-items: center; margin-top: 15px; }
-.routine-exercise-adder select, .routine-exercise-adder input { margin-bottom: 0; }
-.routine-exercise-adder button { padding: 12px 18px; font-size: 0.9em; }
-
-/* --- History Tab (Calendar & Sessions) --- */
-#calendar-controls {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; padding: 10px; background-color: var(--bg-quaternary); border-radius: var(--border-radius-sm);
-}
-#calendar-controls button {
-    background: var(--accent-secondary); color: var(--text-on-accent); border: none; padding: 8px 15px;
-    border-radius: var(--border-radius-sm); cursor: pointer; font-size: 0.9em;
-}
-#calendar-controls button:hover { background: var(--accent-primary); transform: none; box-shadow: none; }
-#calendar-month-year { font-family: var(--font-headings); font-size: 1.3em; font-weight: 600; color: var(--text-primary); }
-#calendar-grid-container {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
-    background-color: var(--bg-tertiary); padding: 15px; border-radius: var(--border-radius-md);
-}
-.calendar-day-header {
-    font-family: var(--font-headings); font-weight: 600; text-align: center; padding: 8px 0;
-    font-size: 0.8em; color: var(--text-secondary); text-transform: uppercase;
-}
-.calendar-day {
-    min-height: 90px; background-color: var(--bg-quaternary); border: 1px solid var(--border-primary);
-    border-radius: var(--border-radius-sm); padding: 8px; font-size: 0.9em; position: relative;
-    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    cursor: default; display: flex; flex-direction: column;
-}
-.calendar-day .day-number { font-weight: bold; color: var(--text-primary); margin-bottom: auto; }
-.calendar-day.other-month .day-number { color: var(--text-placeholder); }
-.calendar-day.today .day-number {
-    color: var(--accent-pink); background-color: color-mix(in srgb, var(--accent-pink) 15%, transparent);
-    border-radius: 50%; padding: 3px 5px; display: inline-block; font-weight: 700;
-}
-.calendar-day .workout-indicator {
-    font-size: 1.3em; /* For emoji indicators */
-    align-self: flex-end; margin-top: 5px;
-    line-height: 1; /* Ensure emoji aligns well */
-}
-.calendar-day.rest-day { background-color: color-mix(in srgb, var(--text-muted) 30%, var(--bg-quaternary)); }
-.calendar-day.rest-day .day-number { opacity: 0.7; }
-.calendar-day[data-date]:hover {
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 10px color-mix(in srgb, var(--accent-primary) 30%, transparent);
-    cursor: pointer; transform: scale(1.05);
-}
-.calendar-tooltip { /* Tooltip for calendar hover */
-    position: absolute; background-color: var(--bg-tertiary); border: 1px solid var(--border-primary);
-    padding: 12px; border-radius: var(--border-radius-sm);
-    box-shadow: 0 3px 12px var(--shadow-color); z-index: 3000;
-    font-size: 0.85em; max-width: 280px; pointer-events: none; /* Allow clicks through */
-}
-.calendar-tooltip strong { color: var(--accent-primary); display: block; font-family: var(--font-headings); }
-.calendar-tooltip hr { border: 0; border-top: 1px solid var(--border-secondary); margin: 6px 0; }
-.calendar-tooltip p { margin: 4px 0; color: var(--text-secondary); }
-
-#workout-history-container .workout-session {
-    background-color: var(--bg-tertiary); padding: 25px; margin-bottom: 25px;
-    border-radius: var(--border-radius-md); box-shadow: 0 4px 15px var(--shadow-light);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-#workout-history-container .workout-session.highlighted-session {
-    outline: 3px solid var(--accent-primary); transform: scale(1.01);
-    box-shadow: 0 6px 20px color-mix(in srgb, var(--accent-primary) 30%, transparent);
-}
-#workout-history-container .workout-session-date {
-    font-family: var(--font-headings); font-size: 1.4em; font-weight: 600; color: var(--accent-primary); margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-secondary); padding-bottom: 12px;
-}
-#workout-history-container .session-title-history { font-family: var(--font-headings); font-style: normal; font-weight: 500; font-size: 1.1em; margin-top:-15px; margin-bottom:10px; color: var(--text-primary); }
-#workout-history-container .session-duration-history { font-size:0.9em; margin-top:-10px; margin-bottom:10px; color: var(--text-secondary); }
-
-#workout-history-container .history-exercise-list { list-style-type: none; padding-left: 0; }
-#workout-history-container .history-exercise-item {
-    background-color: var(--bg-quaternary); padding: 15px; margin-bottom: 10px;
-    border-radius: var(--border-radius-sm); border-left: 5px solid var(--accent-secondary);
-}
-#workout-history-container .history-exercise-item.rest-day-entry {
-    background-color: color-mix(in srgb, var(--text-muted) 20%, var(--bg-quaternary));
-    text-align: center; padding: 20px; font-style: italic; border-left-color: var(--text-muted);
-}
-#workout-history-container .history-exercise-item.rest-day-entry strong { color: var(--text-secondary); }
-#workout-history-container .history-exercise-item strong { color: var(--accent-primary); display: block; margin-bottom: 5px; font-size: 1.05em; }
-#workout-history-container .history-exercise-item div { font-size: 0.95em; color: var(--text-secondary); }
-#workout-history-container .history-exercise-item div small { display: block; margin-left: 15px; font-size: 0.9em; color: var(--text-muted); } /* For set details */
-#workout-history-container .history-exercise-item em { color: var(--text-muted); font-size: 0.9em; display: block; margin-top: 5px; font-style: italic; }
-
-
-/* --- Exercise Library Tab --- */
-#exercise-library-controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 20px; }
-#exercise-library-controls input, #exercise-library-controls select { margin-bottom: 0; flex-grow: 1; min-width: 180px; /* Wider inputs */ }
-#exercise-library-controls button { flex-shrink: 0; }
-#exercise-library-list .exercise-lib-card {
-    background-color: var(--bg-quaternary); padding: 20px; border-radius: var(--border-radius-md); margin-bottom: 15px;
-    border: 1px solid var(--border-primary); display: flex; flex-direction: column;
-}
-#exercise-library-list .exercise-lib-card h4 { font-family: var(--font-headings); color: var(--accent-primary); margin-bottom: 8px; }
-#exercise-library-list .exercise-lib-card p { font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px; }
-#exercise-library-list .exercise-lib-card .exercise-lib-actions { margin-top: auto; padding-top:10px; align-self: flex-end; } /* Push buttons to bottom right */
-#exercise-library-list .exercise-lib-card button { font-size: 0.85em; padding: 8px 12px; margin-left: 8px;}
-
-
-/* Modal Styles */
-.modal {
-    display: none; position: fixed; z-index: 2000; left: 0; top: 0;
-    width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7);
-    align-items: center; justify-content: center; padding: 20px;
-}
-.modal-content {
-    background-color: var(--bg-tertiary); margin: auto; padding: 35px; /* More padding */
-    border: 1px solid var(--border-secondary); width: 90%; max-width: 700px; /* Wider modal */
-    border-radius: var(--border-radius-lg); position: relative; box-shadow: 0 10px 30px var(--shadow-color);
-    animation: fadeInModal 0.3s ease-out;
-}
-@keyframes fadeInModal { from { opacity: 0; transform: translateY(-20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.close-btn {
-    color: var(--text-muted); font-size: 32px; font-weight: bold;
-    position: absolute; top: 15px; right: 20px; line-height: 1;
-}
-.close-btn:hover, .close-btn:focus { color: var(--accent-danger); text-decoration: none; cursor: pointer; }
-#exercise-lib-modal-title { margin-top: 0; font-family: var(--font-headings); }
-
-/* --- Body Measurements Tab --- */
-#log-measurements form div { display: flex; align-items: center; gap: 10px; }
-#log-measurements form label { flex-basis: 180px; flex-shrink: 0; margin-bottom: 0; }
-#log-measurements form input { flex-grow: 1; }
-#progress-photos-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px; }
-#progress-photos-gallery img { width: 100%; height: auto; border-radius: var(--border-radius-sm); box-shadow: 0 2px 5px var(--shadow-light); }
-.measurement-history-item, .simple-history-list li { /* General list item style */
-    background-color: var(--bg-quaternary); padding: 12px 18px; margin-bottom: 10px;
-    border-radius: var(--border-radius-sm); font-size: 0.9em; border-left: 4px solid var(--accent-secondary);
-}
-.simple-history-list { list-style: none; padding: 0; }
-
-
-/* --- Nutrition Tab --- */
-#log-nutrition-daily form div:not(:has(textarea)) { display: flex; align-items: center; gap: 10px; }
-#log-nutrition-daily form label { flex-basis: 200px; flex-shrink: 0; margin-bottom: 0; }
-#log-nutrition-daily form input { flex-grow: 1; }
-
-/* --- Footer --- */
-footer {
-    text-align: center; padding: 25px 20px; margin-top: auto;
-    font-size: 0.9em; color: var(--text-muted); background-color: var(--bg-input);
-    border-top: 1px solid var(--border-primary);
-}
-
-/* --- Scrollbar --- */
-::-webkit-scrollbar { width: 12px; }
-::-webkit-scrollbar-track { background: var(--bg-input); }
-::-webkit-scrollbar-thumb {
-    background: var(--accent-secondary); border-radius: 6px;
-    border: 3px solid var(--bg-input);
-}
-::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
-
-/* --- Responsive Adjustments --- */
-@media (max-width: 992px) { /* Tablet and wider mobile */
-    header .tabs { justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    body { padding-top: 120px; }
-    /* Further adjustments if needed */
-}
-
-@media (max-width: 768px) { /* Mobile */
-    body { padding-top: 140px; }
-    header h1 { font-size: 1.8em; } /* Cute title can be a bit bigger on mobile too */
-    .tab-link { padding: 9px 10px; font-size: 0.8em; gap: 5px;}
-    main { width: 100%; margin: 15px 0 0 0; border-radius: 0; }
-    .tab-content { padding: 20px; border-radius: 0; }
-    .tab-content section { padding: 20px; }
-    h2 { font-size: 1.4em; }
-    h3 { font-size: 1.15em; }
-    .input-group-inline { flex-direction: column; align-items: stretch; }
-    .input-group-inline input, .input-group-inline select { width: 100%; }
-    .active-workout-exercise .set-row { flex-wrap: wrap; } /* Allow set inputs to wrap */
-    .set-row input[type="number"].set-weight-input,
-    .set-row input[type="text"].set-reps-input { width: calc(50% - 25px); } /* Adjust width for wrapping */
-    .set-row .log-set-btn { width: 100%; margin-top: 8px; }
-
-
-    .calendar-day { min-height: 70px; padding: 6px; font-size: 0.8em; }
-    #calendar-month-year { font-size: 1.2em; }
-    #calendar-controls button { padding: 7px 12px; font-size: 0.85em; }
-    #quick-actions .action-buttons-grid, #overview-grid, .quick-start-grid { grid-template-columns: 1fr 1fr; }
-    #log-measurements form div, #log-nutrition-daily form div:not(:has(textarea)) { flex-direction: column; align-items: stretch; }
-    #log-measurements form label, #log-nutrition-daily form label { flex-basis: auto; margin-bottom: 5px; }
-    #exercise-library-controls { flex-direction: column; align-items: stretch; }
-    #exercise-library-controls input, #exercise-library-controls select, #exercise-library-controls button { width: 100%; }
-}
-
-@media (max-width: 480px) { /* Small Mobile */
-    body { padding-top: 150px; }
-    header h1 { font-size: 1.6em; } /* Slightly smaller cute title */
-    .tab-link { padding: 8px 8px; font-size: 0.75em; gap: 4px; }
-    button, .button-like { font-size: 0.9em; padding: 12px 18px; }
-    .active-workout-exercise .exercise-header { flex-direction: column; align-items: flex-start; gap: 5px; }
-    .set-row input[type="number"].set-weight-input,
-    .set-row input[type="text"].set-reps-input { width: 100%; margin-bottom: 8px; } /* Stack set inputs */
-
-
-    .calendar-day { min-height: 60px; }
-    .calendar-day .day-number { font-size: 0.9em; }
-    #calendar-controls { flex-direction: column; gap: 10px; }
-    .modal-content { width: 95%; padding: 15px; }
-    #quick-actions .action-buttons-grid, #overview-grid, .quick-start-grid { grid-template-columns: 1fr; }
-    h2 {font-size: 1.3em;}
-    .timer-display { font-size: 2.2em; }
-    .timer-controls button { width: calc(33% - 10px); font-size: 0.85em; padding: 8px 10px;}
-}
+    <script src="script.js"></script>
+    <script>
+        // Simple inline script for dynamic elements that don't need full app logic
+        // Current year in footer
+        const currentYearEl = document.getElementById('current-year');
+        if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
