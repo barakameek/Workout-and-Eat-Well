@@ -340,3 +340,33 @@ footer {
         font-size: 1em;
     }
 }
+.input-group-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between the input and the select */
+}
+
+/* Adjustments for elements within this specific group */
+.input-group-inline input[type="number"]#weight {
+    flex-grow: 1; /* Allows the weight input to take available space */
+    /* width is implicitly handled by flex-grow, no need to set it to 100% here */
+}
+
+.input-group-inline select#weight-unit {
+    width: auto; /* Let the select box size itself */
+    min-width: 70px; /* Or your preferred minimum width */
+    flex-shrink: 0; /* Prevent it from shrinking too much */
+}
+
+/* Responsive adjustment for this specific group if needed */
+@media (max-width: 768px) {
+    .input-group-inline {
+        flex-direction: column; /* Stack them vertically on smaller screens */
+        align-items: stretch; /* Make them full width in the column */
+    }
+    .input-group-inline input[type="number"]#weight,
+    .input-group-inline select#weight-unit {
+        width: 100%; /* Ensure they take full width when stacked */
+    }
+}
+
